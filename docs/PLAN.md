@@ -196,7 +196,7 @@ and editing a cabinet to be separate buttons (2026-11-27).
 
 | Button | Icon | What it opens |
 |---|---|---|
-| **Job** ▾ | a grey cabinet and a blue settings dial | Job setup, Boards, Show the Cabinets panel, Rebuild all; and, until SolidCraft lets panel-only entries leave the ribbon (tangency-labs/solidcraft#22300), Refresh and Select a cabinet in the view |
+| **Job** ▾ | a grey cabinet and a blue settings dial | Job setup, Boards, Cabinets panel, Rebuild all; and, until SolidCraft lets panel-only entries leave the ribbon (tangency-labs/solidcraft#22300), Select cabinet (the panel's row click). The panel's Refresh runs Cabinets panel, so it needs no entry of its own |
 | **Add** | a blue cabinet and a plus | Add cabinet: at the end of the run, or beside the picked one (PLUG-1); with boxes picked, cabinets in them (PLUG-5) |
 | **Edit** | a grey cabinet and a blue pencil | Edit cabinet: changes the picked cabinet |
 | **Bench top** | a grey cabinet under a blue top | One dialog, its first field a picture choice of piece: benchtop, end panel, filler, splashback |
@@ -204,7 +204,8 @@ and editing a cabinet to be separate buttons (2026-11-27).
 
 SolidCraft 0.50's ribbon rules, found with the owner's screenshots (2026-11-27):
 
-- A button's label is its ribbon slot's `name`. Every entry gets a button unless it is in a
+- A button's label is its ribbon slot's `name`. An entry's title in menus and its dialog is its
+  `menu` slot's `name` (as Woodwork does); without one it is the bare entry name ("setup"). Every entry gets a button unless it is in a
   `ribbon_groups` drop-down.
 - **Drop-downs come first**, before every single button, whatever the manifest's order. So the only
   drop-down is Job, which belongs first anyway.

@@ -25,11 +25,6 @@ impl exports::craft::plugin::entry::Guest for Plugin {
                 ui::show_panel("cabinets", true)?;
                 Ok(json!({"cabinets": cabs.len()}).to_string())
             }
-            "refresh" => {
-                let cabs = stored()?;
-                show(&cabs)?;
-                Ok(json!({"cabinets": cabs.len()}).to_string())
-            }
             "select" => select(&params),
             "export" => match params["make"].as_str().unwrap_or("csv") {
                 "csv" => export(),
@@ -228,7 +223,7 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
         };
         let nodes = vec![
             Node { widget: Widget::Group(vec![1, 2]) },
-            Node { widget: Widget::Toolbar(vec![button("Refresh", "refresh"), button("Export cut list", "export")]) },
+            Node { widget: Widget::Toolbar(vec![button("Refresh", "show"), button("Export cut list", "export")]) },
             Node { widget: Widget::Table(table) },
         ];
         let panel = PanelSpec {

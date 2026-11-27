@@ -1,7 +1,7 @@
 {
   "id": "cabinet-studio",
   "name": "Cabinet Studio",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "PLUG-0 spike: cabinets from Cabinet Studio's core, built in SolidCraft.",
   "capabilities": [
     "commands@0.2",
@@ -48,7 +48,13 @@
           "x-solidcraft-icon": "icons/job.svg",
           "x-solidcraft-field-order": "declared",
           "properties": {}
-        }
+        },
+        "slots": [
+          {
+            "kind": "menu",
+            "name": "Job setup"
+          }
+        ]
       },
       {
         "name": "boards",
@@ -59,7 +65,13 @@
           "x-solidcraft-icon": "icons/job.svg",
           "x-solidcraft-field-order": "declared",
           "properties": {}
-        }
+        },
+        "slots": [
+          {
+            "kind": "menu",
+            "name": "Boards"
+          }
+        ]
       },
       {
         "name": "show",
@@ -70,7 +82,13 @@
           "x-solidcraft-icon": "icons/panel.svg",
           "x-solidcraft-field-order": "declared",
           "properties": {}
-        }
+        },
+        "slots": [
+          {
+            "kind": "menu",
+            "name": "Cabinets panel"
+          }
+        ]
       },
       {
         "name": "rebuild",
@@ -81,18 +99,13 @@
           "x-solidcraft-icon": "icons/panel.svg",
           "x-solidcraft-field-order": "declared",
           "properties": {}
-        }
-      },
-      {
-        "name": "refresh",
-        "effect": "read",
-        "input_schema": {
-          "type": "object",
-          "title": "Refresh the Cabinets panel",
-          "x-solidcraft-icon": "icons/panel.svg",
-          "x-solidcraft-field-order": "declared",
-          "properties": {}
-        }
+        },
+        "slots": [
+          {
+            "kind": "menu",
+            "name": "Rebuild all"
+          }
+        ]
       },
       {
         "name": "select",
@@ -109,12 +122,22 @@
               "default": ""
             }
           }
-        }
+        },
+        "slots": [
+          {
+            "kind": "menu",
+            "name": "Select cabinet"
+          }
+        ]
       },
       {
         "name": "add",
         "effect": "edit",
         "slots": [
+          {
+            "kind": "menu",
+            "name": "Add cabinet"
+          },
           {
             "kind": "ribbon",
             "name": "Add"
@@ -184,6 +207,10 @@
         "effect": "edit",
         "dialog_hook": true,
         "slots": [
+          {
+            "kind": "menu",
+            "name": "Edit cabinet"
+          },
           {
             "kind": "ribbon",
             "name": "Edit"
@@ -299,6 +326,10 @@
         },
         "slots": [
           {
+            "kind": "menu",
+            "name": "Bench top and panels"
+          },
+          {
             "kind": "ribbon",
             "name": "Bench top"
           }
@@ -335,6 +366,10 @@
           }
         },
         "slots": [
+          {
+            "kind": "menu",
+            "name": "Cut list"
+          },
           {
             "kind": "ribbon",
             "name": "Cut List"
@@ -377,7 +412,7 @@
                     {
                       "label": "Refresh",
                       "icon": null,
-                      "entry": "refresh"
+                      "entry": "show"
                     },
                     {
                       "label": "Export cut list",
@@ -435,7 +470,6 @@
           "boards",
           "show",
           "rebuild",
-          "refresh",
           "select"
         ]
       }
