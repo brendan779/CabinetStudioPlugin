@@ -290,7 +290,7 @@ Update keeps the granted exports folder. Installing through the control port's `
 (no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
 offered Update to 0.0.9 after a restart.
 
-## PLUG-1: job and cabinets (2026-11-27, 0.1.0)
+## PLUG-1: job and cabinets (2026-11-27, 0.1.0; 0.1.1 checked by the owner in SolidCraft)
 
 - **Job setup** (Job ▾): the five sections of the plan, the choices generated from the core's
   option groups (`examples/catalog.rs`), shown only where the core's `applies` says they apply.
