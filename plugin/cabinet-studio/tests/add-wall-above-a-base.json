@@ -1,0 +1,25 @@
+{
+ "design": "two-bases.sc",
+ "entry": "add",
+ "params": {
+  "kind": "wall",
+  "width": 450,
+  "beside": [
+   {
+    "type": "body",
+    "name": "C02.LeftSide"
+   }
+  ]
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 4,
+    "rebuilt": [
+     "G01",
+     "C03"
+    ]
+   }
+  }
+ }
+}

@@ -353,7 +353,32 @@ fn add(p: &Value) -> Result<String, PluginError> {
     }
     let (job, mut cabs) = load()?;
     let id = next_id(&cabs);
-    let at = picked(&p["beside"], &cabs).map_or(cabs.len(), |i| i + 1);
+    let beside = picked(&p["beside"], &cabs);
+    let upper = |k: Option<&str>| matches!(k, Some("wall" | "corner_wall" | "rangehood"));
+    // A wall cabinet picked beside a base one goes above it: wall cabinets have a line of their
+    // own, so a gap in it brings the new one to the base's left edge.
+    if let Some(i) = beside.filter(|i| upper(p["kind"].as_str()) && !upper(cabs[*i]["kind"].as_str())) {
+        let built = lists(&Job::from_stored(&job), &cabs)?;
+        // A run's toe kick is listed with one cabinet and spans the run: the left side is the edge.
+        let left = |id: &str| {
+            let l = built.iter().find(|l| l.cabinet == id)?;
+            l.parts.iter().find(|q| q.name.ends_with(".LeftSide")).map(|q| q.bounds.min.x)
+                .or_else(|| l.parts.iter().map(|q| q.bounds.min.x).reduce(f64::min))
+        };
+        let right = |id: &str| built.iter().find(|l| l.cabinet == id).and_then(|l| l.parts.iter().map(|q| q.bounds.max().x).reduce(f64::max));
+        let target = left(cabs[i]["id"].as_str().unwrap_or_default()).unwrap_or(0.0);
+        let wall_end = cabs
+            .iter()
+            .filter(|c| upper(c["kind"].as_str()) || (spec::item_kind(c) == "gap" && c["line"] != "floor"))
+            .filter_map(|c| right(c["id"].as_str()?))
+            .fold(Job::from_stored(&job).origin.x, f64::max);
+        if target - wall_end > 0.5 {
+            cabs.push(json!({"item": "gap", "id": next_with("G", &cabs), "width": target - wall_end, "line": "upper"}));
+        }
+        cabs.push(spec_from(p, &id));
+        return sync(&job, cabs, false);
+    }
+    let at = beside.map_or(cabs.len(), |i| i + 1);
     cabs.insert(at, spec_from(p, &id));
     sync(&job, cabs, false)
 }

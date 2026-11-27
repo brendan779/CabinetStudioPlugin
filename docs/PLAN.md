@@ -341,8 +341,13 @@ went in and the Cabinets panel lists them. The owner's own check is to come.
     scribe. Picking the panel itself with Remove takes it out.
   - **Remove it** takes the benchtop out.
 - Kick and plinth come with each run from Job setup, as before.
-- Not yet: L-shaped runs and returns, stone slabs and joins, waterfalls, wall cabinets above a base
-  run; handles and legs are placeholders (PLUG-1).
+- 0.7.2: **Add** with a wall-type cabinet (wall, wall corner, rangehood) picked beside a base
+  cabinet puts it above that base: wall cabinets have their own line in the core's run, so a gap
+  in it brings the new one to the base's left side (the run's toe kick spans the run, so the edge
+  is the base's left side panel, not its parts' least X). Checked headless: both left sides at
+  the same X.
+- Not yet: L-shaped runs and returns, stone slabs and joins, waterfalls; handles and legs are
+  placeholders (PLUG-1).
 
 ## Boards as a dialog (2026-11-28, 0.4.0; 0.4.2 checked by the owner in SolidCraft)
 

@@ -251,7 +251,9 @@ pub fn item(spec: &Value, job: &Job, benchtop_board: &str) -> Option<cabinet_cor
             "id": id, "scribe": num("scribe", 0.0), "to_floor": spec["to_floor"].as_bool().unwrap_or(true),
         })).ok()?),
         "core" => return core_item(&spec["core"], job),
-        "gap" => RunItem::Gap(serde_json::from_value(json!({"id": id, "width": num("width", 0.0)})).ok()?),
+        "gap" => RunItem::Gap(serde_json::from_value(json!({
+            "id": id, "width": num("width", 0.0), "line": spec["line"].as_str().unwrap_or("upper"),
+        })).ok()?),
         "filler" => RunItem::Filler(serde_json::from_value(json!({
             "id": id, "width": num("width", 50.0), "scribe": num("scribe", 0.0),
         })).ok()?),

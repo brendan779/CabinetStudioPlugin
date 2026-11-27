@@ -247,7 +247,7 @@ def main():
     pick = {'type': 'array', 'title': 'Cabinet', 'description': 'Any part of the cabinet to change', 'minItems': 1,
             'x-solidcraft-selection': {'version': 1, 'accept': ['body']}}
     beside = {'type': 'array', 'title': 'Beside', 'maxItems': 1,
-              'description': 'A cabinet to put the new one beside, on its right; none: at the end of the run',
+              'description': 'A cabinet to put the new one beside, on its right (a wall cabinet picked beside a base one goes above it); none: at the end of the run',
               'x-solidcraft-selection': {'version': 1, 'accept': ['body']}}
     edit_props = {'pick': pick, **cabinet_props,
                   'remove': {'type': 'boolean', 'title': 'Remove this cabinet', 'default': False,
