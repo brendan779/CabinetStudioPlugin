@@ -48,6 +48,7 @@ fn main() {
         presets.push(json!({"id": id, "label": label, "view": front_view(&build_cabinet(&cab).expect("built"))}));
     }
     let groups = serde_json::to_value(cabinet_core::options::option_groups()).unwrap();
+    let measurements = serde_json::to_value(cabinet_core::options::measurements()).unwrap();
     let defaults = serde_json::to_value(cabinet_core::ConstructionStandard::default()).unwrap();
     let sizes: Value = ["base", "wall", "tall"]
         .iter()
@@ -59,7 +60,7 @@ fn main() {
         "{}",
         serde_json::to_string_pretty(&json!({
             "kinds": kinds, "presets": presets, "opens": spec::OPENS.iter().map(|(i, l)| json!({"id": i, "label": l})).collect::<Vec<_>>(),
-            "groups": groups, "defaults": defaults, "sizes": sizes,
+            "groups": groups, "measurements": measurements, "defaults": defaults, "sizes": sizes,
         }))
         .unwrap()
     );

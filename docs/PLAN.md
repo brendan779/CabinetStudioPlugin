@@ -290,6 +290,16 @@ Update keeps the granted exports folder. Installing through the control port's `
 (no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
 offered Update to 0.0.9 after a restart.
 
+## Job setup's sizes (2026-11-27, 0.2.1)
+
+The owner missed the sharknose finger gap and the drawer rail sizes: Job setup had only Cabinet
+Studio's pickers, not the size rows under them. The rows are the core's now
+(`options::measurements`, shown where `options::applies` says), so Job setup has all of them
+(finger gaps, rails, door gaps, shaker frame, plinth, finger pull notch, edge pull clearance,
+wardrobe drops), each right after its picker, its usual values in its description. A field shows
+once, so the rails behind a sharknose stack are under Drawer frame, and the sharknose finger gap
+says so. Cabinet Studio can take its chips from the same list.
+
 ## PLUG-2: boards (2026-11-27, 0.2.0)
 
 - The board catalogue is built into the program: `cabinet-catalog`'s `embedded` feature (all of

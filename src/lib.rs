@@ -225,15 +225,22 @@ const STANDARD_FIELDS: &[&str] = &[
     "door_style", "overlay", "handle_finish", "sharknose_angle", "sharknose_door_edge", "front_grain",
     "drawer_system", "drawer_sides", "drawer_frame", "hinge_boss", "top_joint", "bottom_joint", "back",
     "fixings", "biscuit", "dowel", "dowel_spacing", "domino", "fixing_density", "carcass_thickness",
-    "toe_kick", "toe_kick_height", "leg_fixing", "wall_hanging",
+    "toe_kick", "leg_fixing", "wall_hanging",
 ];
+
+/// The setup's fields of the standard: its pickers, and the core's size rows under them.
+fn standard_fields() -> Vec<String> {
+    let mut f: Vec<String> = STANDARD_FIELDS.iter().map(|s| s.to_string()).collect();
+    f.extend(cabinet_core::options::measurements().into_iter().map(|m| m.field));
+    f
+}
 
 /// The stored job from the Job setup dialog's values.
 fn job_from(p: &Value) -> Value {
     let mut standard = json!({});
-    for f in STANDARD_FIELDS {
-        if !p[*f].is_null() {
-            standard[*f] = p[*f].clone();
+    for f in standard_fields() {
+        if !p[&f].is_null() {
+            standard[&f] = p[&f].clone();
         }
     }
     if let Some(size) = p["handle_size"].as_str() {
@@ -501,9 +508,9 @@ fn setup_fields(values: &Value) -> Result<Value, PluginError> {
     let job = Job::from_stored(&stored);
     let standard = serde_json::to_value(&job.standard).unwrap_or(Value::Null);
     let mut patch = json!({});
-    for f in STANDARD_FIELDS {
-        if !standard[*f].is_null() {
-            patch[*f] = json!({"value": standard[*f]});
+    for f in standard_fields() {
+        if !standard[&f].is_null() {
+            patch[&f] = json!({"value": standard[&f]});
         }
     }
     patch["opens"] = json!({"value": spec::opens_of(&standard)});
@@ -521,17 +528,19 @@ fn setup_fields(values: &Value) -> Result<Value, PluginError> {
     patch["detail"] = json!({"value": job.detail});
     // What applies follows the dialog's current values, through the core's own rules.
     let mut now = standard.clone();
-    for f in STANDARD_FIELDS {
-        if !values[*f].is_null() {
-            now[*f] = values[*f].clone();
+    for f in standard_fields() {
+        if !values[&f].is_null() {
+            now[&f] = values[&f].clone();
         }
     }
     let opens = values["opens"].as_str().unwrap_or("handle");
     spec::set_opens(&mut now, opens, values["handle_position"].as_str());
     if let Ok(s) = serde_json::from_value::<cabinet_core::ConstructionStandard>(now) {
-        for f in STANDARD_FIELDS {
-            if cabinet_core::options::option_groups().iter().any(|g| g.field == *f) {
-                patch[*f]["visible"] = json!(cabinet_core::options::applies(f, &s));
+        let groups = cabinet_core::options::option_groups();
+        for f in standard_fields() {
+            let sized = cabinet_core::options::measurements().iter().any(|m| m.field == f);
+            if sized || groups.iter().any(|g| g.field == f) {
+                patch[&f]["visible"] = json!(cabinet_core::options::applies(&f, &s));
             }
         }
     }

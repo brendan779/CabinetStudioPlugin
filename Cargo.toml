@@ -13,10 +13,10 @@ serde_json = "1"
 wit-bindgen = "0.63"
 # The cabinet rules live in Cabinet Studio's repo and are never copied here: a fix lands there
 # once, and this pin moves to take it (docs/PLAN.md).
-cabinet-core = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "5874727560a4372071638c2287356dd6470fe7eb" }
-solidcraft-bridge = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "5874727560a4372071638c2287356dd6470fe7eb" }
+cabinet-core = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "4d1b579ac2a55ae3b0ea5788306ec91a38fab367" }
+solidcraft-bridge = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "4d1b579ac2a55ae3b0ea5788306ec91a38fab367" }
 # The board catalogue, built in: the plugin has no catalogue folder (PLUG-2).
-cabinet-catalog = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "5874727560a4372071638c2287356dd6470fe7eb", default-features = false, features = ["embedded"] }
+cabinet-catalog = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "4d1b579ac2a55ae3b0ea5788306ec91a38fab367", default-features = false, features = ["embedded"] }
 
 [lib]
 crate-type = ["cdylib"]

@@ -24,7 +24,7 @@ SETUP = [
     ('Drawers and hinges', ['drawer_system', 'drawer_sides', 'drawer_frame', 'hinge_boss']),
     ('Carcass', ['top_joint', 'bottom_joint', 'back', 'fixings', 'biscuit', 'dowel', 'dowel_spacing',
                  'domino', 'fixing_density', 'carcass_thickness']),
-    ('Base and wall', ['toe_kick', 'toe_kick_height', 'leg_fixing', 'wall_hanging']),
+    ('Base and wall', ['toe_kick', 'leg_fixing', 'wall_hanging']),
     ('Sizes', ['base_height', 'base_depth', 'wall_height', 'wall_depth', 'tall_height', 'tall_depth', 'detail']),
     ('Shop standard', ['save_shop']),
 ]
@@ -118,7 +118,6 @@ def main():
         'handle_position': {'type': 'string', 'title': 'Handle position', 'default': 'corner',
                             'oneOf': [choice('corner', 'By the corner'), choice('centre', 'Centred')]},
         'carcass_thickness': number('Carcass board', defaults['carcass_thickness'], 12, 32),
-        'toe_kick_height': number('Kick height', defaults['toe_kick_height'], 50, 250),
         'detail': {'type': 'string', 'title': 'Build in SolidCraft', 'default': 'design',
                    'oneOf': [choice('design', 'Design: panels and hardware'),
                              choice('manufacturing', 'Manufacturing: every hole and slot (slower)')]},
@@ -129,8 +128,24 @@ def main():
         h, d = sizes[cls]
         setup_fields[f'{cls}_height'] = number(f'{cls.title()} height', h, 200, 2700)
         setup_fields[f'{cls}_depth'] = number(f'{cls.title()} depth', d, 100, 900)
+    # Each size row of the core's (Cabinet Studio's chips) right after the picker it belongs under:
+    # "How fronts open" stands for handle place, and the wardrobe's go with the sizes.
+    under = {'handle_place': 'opens', 'sharknose_angle': 'sharknose_door_edge', 'wardrobe': 'tall_depth'}
+    for meas in cat['measurements']:
+        presets = ', '.join(f"{p:g}" for p in meas['presets'])
+        setup_fields[meas['field']] = dict(number(meas['title'], defaults[meas['field']], 0, 1000),
+                                           description=f'Usual: {presets} mm')
+    # A field shows once: the rails a sharknose stack sits on are under Drawer frame.
+    setup_fields['sharknose_gap']['description'] += '. The rails behind the fronts: under Drawers and hinges'
+    order = [(s, list(f)) for s, f in SETUP]
+    for meas in reversed(cat['measurements']):
+        anchor = under.get(meas['after'], meas['after'])
+        for _, fields in order:
+            if anchor in fields:
+                fields.insert(fields.index(anchor) + 1, meas['field'])
+                break
     setup_props = {}
-    for section, fields in SETUP:
+    for section, fields in order:
         for i, f in enumerate(fields):
             prop = dict(setup_fields.get(f) or group_field(f))
             if i == 0:
