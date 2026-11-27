@@ -420,8 +420,8 @@ fn select(p: &Value) -> Result<String, PluginError> {
     Ok(json!({"selected": row, "bodies": items.len()}).to_string())
 }
 
-/// The panel's Edit button, or a row's double-click: a cabinet in Edit, a piece in Bench top, filled
-/// in with it (0.51 opens a form a panel's action asks for).
+/// A row's double-click: a cabinet in Edit, a piece in Bench top, filled in with it (0.51 opens a
+/// form a panel's action asks for). 0.51.1 doesn't deliver the double-click (solidcraft-asks 21).
 fn open_row(p: &Value) -> Result<String, PluginError> {
     use craft::plugin::forms;
     let row = p["row"].as_str().unwrap_or_default().to_string();
@@ -595,10 +595,8 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
             title: "Cabinets".into(),
             zones: vec![DockZone::Right, DockZone::Bottom],
             layout: Layout { root: 0, nodes: vec![
-                // The cabinets last: in 0.51 every table sets the panel's selection, which a button's
-                // event carries, and the last one drawn wins; Edit needs the cabinets' row.
-                Node { widget: Widget::Group(vec![1, 3, 4, 5, 6, 7, 2]) },
-                Node { widget: Widget::Toolbar(vec![button("Refresh", "show"), button("Edit", "open"), button("Rebuild all", "rebuild")]) },
+                Node { widget: Widget::Group(vec![1, 2, 3, 4, 5, 6]) },
+                Node { widget: Widget::Toolbar(vec![button("Refresh", "show"), button("Rebuild all", "rebuild")]) },
                 Node { widget: Widget::Table(table) },
                 Node { widget: Widget::Text("Boards".into()) },
                 Node { widget: Widget::Table(TableSpec {
@@ -620,7 +618,6 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
                     on_select: None,
                     on_edit: None,
                 }) },
-                Node { widget: Widget::Text("Cabinets".into()) },
             ] },
         };
         Declarations { ui_version: 1, panels: vec![cabinets], workspaces: vec![] }

@@ -30,12 +30,13 @@ in [PLAN.md](PLAN.md).
   as `row`, and `UiEvent::validate` refuses an empty row (`panel_runtime/plugin.rs`, ItemList).
 - **Ask:** keep `None` for no selection. The plugin uses a table instead (0.8.2).
 
-### 20. Every table overwrites the panel's selection
+### 20. A button's event never carries the table's selection (0.51.1)
 
-- **Seen:** each `table` writes its own selection to the panel's one selection slot, so with more
-  than one table a button's `row` is the last-drawn table's (usually none), not the row picked.
-- **Ask:** a button's event carrying the selection of the table the user last picked in, or the
-  button naming its table. The plugin draws its cabinets table last (0.8.3).
+- **Seen:** Cabinet Studio 0.8.3 had an Edit button beside a single-select table: with a row
+  highlighted, pressing Edit ran the entry with no `row`, whether the table was drawn first or last
+  in the panel. The docs say a button carries the panel's active selection.
+- **Ask:** a button's event carrying the selected row. Until then, a panel can't act on a picked
+  row at all (with 21 and 22).
 
 ### 21. A table row's double-click doesn't reach the plugin (0.51.1)
 
