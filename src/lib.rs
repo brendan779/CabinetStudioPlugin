@@ -34,20 +34,12 @@ impl exports::craft::plugin::entry::Guest for Plugin {
                 Ok(json!({"cabinets": cabs.len()}).to_string())
             }
             "select" => select(&params),
-            "export" => match params["make"].as_str().unwrap_or("csv") {
-                "csv" => export(),
-                _ => later("PLUG-4"),
-            },
+            "export" => export(params["make"].as_str().unwrap_or("csv")),
             "boards" => board_choose(&params),
             "benchtop" => pieces(&params),
             _ => Err(invalid("entry", format!("no entry `{entry}`"))),
         }
     }
-}
-
-/// The ribbon is laid out ahead of what it opens: these say when they come.
-fn later(milestone: &str) -> Result<String, PluginError> {
-    Err(PluginError::Unsupported(format!("not built yet: it comes in {milestone} (docs/PLAN.md)")))
 }
 
 fn run(command: &str, args: &Value) -> Result<Value, PluginError> {
@@ -377,13 +369,57 @@ fn collect_bodies(v: &Value, row: &str, out: &mut Vec<Value>) {
     }
 }
 
-/// The cut list as CSV, into the folder granted as `exports`.
-fn export() -> Result<String, PluginError> {
-    let (job, cabs) = load()?;
-    let built = lists(&Job::from_stored(&job), &cabs)?;
-    let csv = cabinet_core::cutlist::to_csv(&cabinet_core::cutlist::cut_list(&built, "", 1.0));
-    files::write_file("exports", "cut-list.csv", csv.as_bytes())?;
-    Ok(json!({"bytes": csv.len(), "rows": csv.lines().count().saturating_sub(1)}).to_string())
+/// A sheet size for boards with no catalogue sheet (a generic board): the usual 2400 × 1200.
+const GENERIC_SHEET: (f64, f64) = (2400.0, 1200.0);
+
+/// The job's outputs, written into the folder granted as `exports` (PLUG-4).
+fn export(make: &str) -> Result<String, PluginError> {
+    use cabinet_core::{bom, cutlist, nesting};
+    let (job_value, cabs) = load()?;
+    let built = lists(&Job::from_stored(&job_value), &cabs)?;
+    let job = "Cabinet Studio job";
+    let board_name = |p: &cabinet_core::Part| boards::find(&p.board).map_or_else(|| "Generic board".into(), |b| boards::name(&b));
+    let all = make == "all";
+    let mut written: Vec<String> = Vec::new();
+    let mut write = |path: &str, data: &[u8]| -> Result<(), PluginError> {
+        files::write_file("exports", path, data)?;
+        written.push(path.to_string());
+        Ok(())
+    };
+    let cut = cutlist::cut_list(&built, "", 1.0);
+    if all || make == "csv" {
+        write("cut-list.csv", cutlist::to_csv(&cut).as_bytes())?;
+    }
+    if all || make == "sheets" {
+        write("cut-sheets.pdf", &cabinet_sheets::pdf::job_pdf(&built, board_name, job))?;
+    }
+    if all || make == "layouts" {
+        let settings = nesting::Settings::default();
+        let stock = |board: &str, _thickness: f64| {
+            let (length, width) = boards::find(board).and_then(|b| boards::sheet_size(&b)).unwrap_or(GENERIC_SHEET);
+            vec![nesting::Stock { length, width, grained: false }]
+        };
+        let nested = nesting::nest(&cut.rows, stock, &settings);
+        write("cutting-layouts.pdf", &cabinet_sheets::nesting::nesting_pdf(&nested, job, &settings))?;
+    }
+    if all || make == "labels" {
+        write("labels.pdf", &cabinet_sheets::labels::labels_pdf(&built, board_name, job))?;
+    }
+    if all || make == "dxf" {
+        for f in cabinet_sheets::dxf::job_dxfs(&built) {
+            write(&format!("dxf/{}", f.name), f.contents.as_bytes())?;
+        }
+    }
+    if all || make == "hardware" {
+        let csv = bom::bom_csv(&bom::hardware_bom(&built), |id| {
+            cabinet_core::hardware::item(id).ok().map(|h| (h.brand.clone(), h.article.clone()))
+        });
+        write("hardware.csv", csv.as_bytes())?;
+    }
+    if written.is_empty() {
+        return Err(invalid("make", format!("nothing called `{make}` to make")));
+    }
+    Ok(json!({"written": written}).to_string())
 }
 
 // ---- Boards (PLUG-2) ----

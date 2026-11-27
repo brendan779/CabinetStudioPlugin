@@ -1,10 +1,12 @@
 {
+ "design": "one-base.sc",
  "entry": "export",
  "params": {
   "make": "sheets"
  },
  "expect": {
-  "error": "unsupported",
-  "message": "PLUG-4"
+  "files": [
+   "exports/cut-sheets.pdf"
+  ]
  }
 }

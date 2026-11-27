@@ -293,8 +293,11 @@ def main():
                               **{'x-solidcraft-visible-when': {'all': [{'field': 'piece', 'eq': 'benchtop'}, {'field': 'cooktop', 'eq': 'cutout'}]}}),
         'remove': {'type': 'boolean', 'title': 'Remove it', 'default': False, 'x-solidcraft-section': ''},
     }
-    make = {'type': 'string', 'title': 'Make', 'default': 'csv', 'oneOf': [
-        choice('csv', 'Cut list (CSV)'), choice('sheets', 'Cut sheets'), choice('labels', 'Part labels')]}
+    make = {'type': 'string', 'title': 'Make', 'default': 'all', 'oneOf': [
+        choice('all', 'Everything below'), choice('csv', 'Cut list (CSV)'), choice('sheets', 'Cut sheets (PDF, a page a part)'),
+        choice('layouts', 'Cutting layouts (PDF, parts on each sheet)'), choice('labels', 'Part labels (PDF)'),
+        choice('dxf', 'DXF a part, for a CNC'), choice('hardware', 'Hardware list (CSV)')],
+        'description': 'Written into the exports folder you chose when installing'}
     entries = [
         entry('setup', 'Job setup', 'job', setup_props, dialog_hook=True, job=True),
         entry('show', 'Cabinets panel', 'panel'),
@@ -304,7 +307,7 @@ def main():
         edit,
         entry('boards', 'Boards', 'boards', board_props, ribbon='Boards', dialog_hook=True, job=True),
         entry('benchtop', 'Bench top and panels', 'benchtop', bench_props, ribbon='Bench top', dialog_hook=True, job=True),
-        entry('export', 'Cut list', 'cutlist', {'make': make}, ribbon='Cut List'),
+        entry('export', 'Cut list', 'cutlist', {'make': make}, ribbon='Cut List', job=True),
     ]
     old = json.loads(VERSION_FILE.read_text())
     commands = sorted(set(old['runtime']['commands']) | {'select.set', 'component.list'})

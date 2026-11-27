@@ -292,6 +292,16 @@ Update keeps the granted exports folder. Installing through the control port's `
 (no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
 offered Update to 0.0.9 after a restart.
 
+## PLUG-4: outputs (2026-11-28, 0.5.1)
+
+**Cut List** opens a dialog of what to make, written into the exports folder granted at install:
+everything at once, the cut list (CSV), cut sheets (a PDF page a part), cutting layouts (the parts
+nested on each board's largest sheet, our panel-saw settings: 4.4 mm kerf, 10 mm trim; a board
+with no catalogue sheet nests on 2400 × 1200), part labels (PDF), a DXF a part for a CNC (in
+`dxf/`), and the hardware list (CSV, brand and article). All from Cabinet Studio's `cabinet-sheets`
+and core, pinned like the rest. The panel's Cut list and Hardware tabs of the plan are left out:
+the outputs are files, and panels proved fragile (see Boards).
+
 ## PLUG-3: the run's pieces (2026-11-28, 0.5.0)
 
 Checked in SolidCraft's window by Claude (owner asleep, with leave to drive the app): updated

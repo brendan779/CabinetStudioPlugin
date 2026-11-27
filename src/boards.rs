@@ -16,8 +16,7 @@ pub struct Board<'a> {
     pub decor: &'a str,
     pub finish: &'a str,
     pub thickness: f64,
-    /// The largest sheet ("3600 × 1800"), for the cut list's stock (PLUG-4).
-    #[allow(dead_code)]
+    /// The largest sheet ("3600 × 1800"): the cutting layouts' stock.
     pub sheet: &'a str,
     pub colour: &'a str,
     /// "sheet", "top" (laminate tops and stone) or "lining".
@@ -154,4 +153,15 @@ pub fn narrow(brand: &str, role: &str, range: &str, find: &str, decor: &str, fin
     thicknesses.sort_by(f64::total_cmp);
     thicknesses.dedup();
     Narrowed { ranges, range, decors, decor, finishes, finish, thicknesses, matched }
+}
+
+/// The board with `id`, from the whole index.
+pub fn find(id: &str) -> Option<Board<'static>> {
+    all().find(|b| b.id == id)
+}
+
+/// A board's largest sheet as length and width.
+pub fn sheet_size(b: &Board) -> Option<(f64, f64)> {
+    let (l, w) = b.sheet.split_once(" × ")?;
+    Some((l.trim().parse().ok()?, w.trim().parse().ok()?))
 }

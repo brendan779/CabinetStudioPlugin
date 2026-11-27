@@ -1,0 +1,16 @@
+{
+ "design": "one-base.sc",
+ "entry": "export",
+ "params": {
+  "make": "all"
+ },
+ "expect": {
+  "files": [
+   "exports/cut-list.csv",
+   "exports/cut-sheets.pdf",
+   "exports/cutting-layouts.pdf",
+   "exports/labels.pdf",
+   "exports/hardware.csv"
+  ]
+ }
+}

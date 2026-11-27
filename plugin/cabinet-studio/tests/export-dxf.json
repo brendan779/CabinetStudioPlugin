@@ -1,0 +1,12 @@
+{
+ "design": "one-base.sc",
+ "entry": "export",
+ "params": {
+  "make": "dxf"
+ },
+ "expect": {
+  "reply": {
+   "result": {}
+  }
+ }
+}

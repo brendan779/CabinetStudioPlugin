@@ -1,0 +1,12 @@
+{
+ "design": "one-base.sc",
+ "entry": "export",
+ "params": {
+  "make": "hardware"
+ },
+ "expect": {
+  "files": [
+   "exports/hardware.csv"
+  ]
+ }
+}
