@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Cut list</title>
+  <path d="M5.00 12.00L59.00 12.00L59.00 52.00L5.00 52.00Z" fill="#e2e8ef"/>
+  <path d="M9.00 16.00L33.00 16.00L33.00 48.00L9.00 48.00Z" fill="#328bd3"/>
+  <path d="M37.00 16.00L55.00 16.00L55.00 30.00L37.00 30.00Z" fill="#b9ddf8"/>
+  <path d="M37.00 34.00L55.00 34.00L55.00 48.00L37.00 48.00Z" fill="#b9ddf8"/>
+  <path d="M5.00 12.00L59.00 12.00L59.00 52.00L5.00 52.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M9.00 16.00L33.00 16.00L33.00 48.00L9.00 48.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M37.00 16.00L55.00 16.00L55.00 30.00L37.00 30.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M37.00 34.00L55.00 34.00L55.00 48.00L37.00 48.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

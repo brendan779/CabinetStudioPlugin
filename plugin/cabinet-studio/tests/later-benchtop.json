@@ -1,0 +1,7 @@
+{
+ "entry": "benchtop",
+ "expect": {
+  "error": "unsupported",
+  "message": "PLUG-3"
+ }
+}

@@ -1,0 +1,7 @@
+{
+ "entry": "rebuild",
+ "expect": {
+  "error": "unsupported",
+  "message": "PLUG-1"
+ }
+}

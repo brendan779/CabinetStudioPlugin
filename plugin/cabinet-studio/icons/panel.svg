@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Cabinets</title>
+  <path d="M6.00 10.00L58.00 10.00L58.00 22.00L6.00 22.00Z" fill="#b9ddf8"/>
+  <path d="M10.00 13.00L16.00 13.00L16.00 19.00L10.00 19.00Z" fill="#328bd3"/>
+  <path d="M6.00 10.00L58.00 10.00L58.00 22.00L6.00 22.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M22.00 16.00L50.00 16.00" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M6.00 26.00L58.00 26.00L58.00 38.00L6.00 38.00Z" fill="#e2e8ef"/>
+  <path d="M10.00 29.00L16.00 29.00L16.00 35.00L10.00 35.00Z" fill="#8e9faf"/>
+  <path d="M6.00 26.00L58.00 26.00L58.00 38.00L6.00 38.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M22.00 32.00L50.00 32.00" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M6.00 42.00L58.00 42.00L58.00 54.00L6.00 54.00Z" fill="#e2e8ef"/>
+  <path d="M10.00 45.00L16.00 45.00L16.00 51.00L10.00 51.00Z" fill="#8e9faf"/>
+  <path d="M6.00 42.00L58.00 42.00L58.00 54.00L6.00 54.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M22.00 48.00L50.00 48.00" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

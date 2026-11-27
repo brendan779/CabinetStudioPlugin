@@ -1,1 +1,23 @@
-{"entry": "cabinet", "design": "one-base.sc", "params": {"id": "C01", "kind": "drawer_bank", "width": 450, "detail": "design"}, "expect": {"reply": {"result": {"id": "C01"}}}}
+{
+ "entry": "cabinet",
+ "design": "one-base.sc",
+ "params": {
+  "kind": "drawer_bank",
+  "width": 450,
+  "detail": "design",
+  "mode": "edit",
+  "pick": [
+   {
+    "type": "body",
+    "name": "C01.LeftSide"
+   }
+  ]
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "id": "C01"
+   }
+  }
+ }
+}

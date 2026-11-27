@@ -189,18 +189,29 @@ of ours updates it when it runs, and Refresh covers edits made with SolidCraft's
 
 ### The ribbon
 
-One group in the Model tab, in workflow order:
+Five buttons in workflow order, each with an icon drawn in SolidCraft's own style (isometric, grey
+for what is there, blue for what the button makes; `scripts/make_icons.py`). The owner asked for
+4–5 buttons covering the main functions, each with an icon that says what it does (2026-11-27).
 
-| Button | Entries |
-|---|---|
-| **Job setup** | `setup` |
-| **Cabinet** | `cabinet` |
-| **From boxes** | `from_boxes` |
-| **Run ▾** | `benchtop`, `panel`, `splashback` |
-| **Cabinets panel** | `panel_show`: opens the panel |
-| **Rebuild** | `rebuild` (a long job) |
+| Button | Icon | What it holds |
+|---|---|---|
+| **Job** ▾ | a grey cabinet and a blue settings dial | Job setup, Boards, Shop standard |
+| **Cabinet** | a blue cabinet | Add or change a cabinet. With a cabinet picked, the dialog fills in with it; with boxes picked, it turns them into cabinets (PLUG-5) |
+| **Benchtop & panels** ▾ | a grey cabinet under a blue top | Benchtop, End panel or filler, Splashback |
+| **Cabinets** ▾ | a list | Show the Cabinets panel, Refresh, Select in the view, Rebuild all |
+| **Cut list** ▾ | a sheet with blue parts | Cut list, Cut sheets, Labels |
 
-Exports are in the panel's Cut list tab, where the user checks what they're exporting.
+A button with ▾ is a `ribbon_groups` drop-down; every entry must sit in a group or have its own
+button, so the panel's helpers (Refresh, Select in the view) sit under **Cabinets**.
+
+### Editing a cabinet
+
+SolidCraft 0.50 opens a filled-in form only after a run started from a dialog, never from a panel
+event (`forms.open`; PLUG-0 found this). So a cabinet is changed the way SolidCraft's own tools
+work: **pick it, then press Cabinet.** The dialog's first field takes the viewport's pick, and its
+hook reads the picked body's cabinet (`C03.Door1` is C03) from the design's storage and fills in
+the dialog: "Changing C03", its type, size and fronts. Clicking a row in the panel selects that
+cabinet in the view, ready for the button.
 
 ## Data
 
@@ -267,9 +278,9 @@ In the app (the owner installed 0.0.1 on SolidCraft 0.50.0, 2026-11-27):
 |---|---|
 | Picture dropdown | Works: a large picture of the highlighted option above a grid of tiles |
 | Panel updates after a dialog run | Works: the row appeared without Refresh |
-| Double-clicking a row to edit | Didn't open the form: `on_edit` is for editing a cell. 0.0.2 opens the dialog on a row click (`on_select`); to check |
+| Double-clicking a row to edit | Didn't open the form: `on_edit` is for editing a cell, and a row click (`on_select`, 0.0.2) didn't either: a panel event can't open a form in 0.50. 0.0.3 edits through the Cabinet dialog's hook instead (Editing a cabinet, above); to check |
 | Supplier mesh | Went in, at the origin (expected in the spike) |
-| Ribbon labels | Wrong: a button's label is its ribbon slot's `name` ("Model"), and every entry gets a button. 0.0.2 names each slot ("Cabinet") and puts the panel's helper entries behind one "Cabinets panel" drop-down (`ribbon_groups`); to check |
+| Ribbon labels | Wrong: a button's label is its ribbon slot's `name` ("Model"), and every entry gets a button. 0.0.2 fixed the labels, but the owner wants 4–5 buttons with icons for the main functions; 0.0.3 has them (The ribbon, above); to check |
 
 Other things seen: the dialog's header is the entry's name in lower case ("cabinet"), and the
 install screen lists every grant and the panel. Entry names should read as titles.

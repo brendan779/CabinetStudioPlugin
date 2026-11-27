@@ -1,0 +1,11 @@
+{
+ "entry": "show",
+ "design": "one-base.sc",
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 1
+   }
+  }
+ }
+}

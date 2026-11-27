@@ -1,0 +1,7 @@
+{
+ "entry": "splashback",
+ "expect": {
+  "error": "unsupported",
+  "message": "PLUG-3"
+ }
+}

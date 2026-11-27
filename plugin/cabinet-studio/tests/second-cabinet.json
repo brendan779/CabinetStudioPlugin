@@ -1,1 +1,17 @@
-{"entry": "cabinet", "design": "one-base.sc", "params": {"kind": "sink", "width": 900, "detail": "design"}, "expect": {"reply": {"result": {"id": "C02"}}}}
+{
+ "entry": "cabinet",
+ "design": "one-base.sc",
+ "params": {
+  "kind": "sink",
+  "width": 900,
+  "detail": "design",
+  "mode": "new"
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "id": "C02"
+   }
+  }
+ }
+}

@@ -1,13 +1,13 @@
 //! PLUG-0: the spike. Cabinet Studio's core inside a SolidCraft plugin, with one of each piece the
-//! plan relies on (docs/PLUGIN_PLAN.md): a dialog with picture choices, a docked panel fed from the
-//! design's storage, re-editing through `forms.open` and a file export. Each entry
-//! reports what it measured, so the plan's open questions are answered by runs.
-wit_bindgen::generate!({ path: "wit", world: "panel-plugin" });
+//! plan relies on (docs/PLAN.md): the ribbon, a dialog with picture choices that fills itself in
+//! from the picked cabinet (a dialog hook), a docked panel fed from the design's storage, and a file
+//! export. Entries not built yet answer which milestone brings them.
+wit_bindgen::generate!({ path: "wit", world: "panel-dialog-plugin" });
 
 use cabinet_core::run::{Run, RunItem, build_run};
-use cabinet_core::{Cabinet, CabinetKind, geom::Vec3};
+use cabinet_core::{Cabinet, CabinetKind, PartList, geom::Vec3};
 use craft::plugin::types::{Datum, FieldFailure, PluginError, Value as Cell};
-use craft::plugin::{commands, files, forms, ui};
+use craft::plugin::{commands, files, ui};
 use serde_json::{Value, json};
 use solidcraft_bridge::emit::{Detail, emit_cabinet};
 
@@ -18,16 +18,30 @@ impl exports::craft::plugin::entry::Guest for Plugin {
         let params: Value = serde_json::from_str(&params).map_err(|e| invalid("params", e))?;
         match entry.as_str() {
             "cabinet" => cabinet(&params),
+            "show" => {
+                let cabs = stored()?;
+                show(&cabs)?;
+                ui::show_panel("cabinets", true)?;
+                Ok(json!({"cabinets": cabs.len()}).to_string())
+            }
             "refresh" => {
                 let cabs = stored()?;
                 show(&cabs)?;
                 Ok(json!({"cabinets": cabs.len()}).to_string())
             }
-            "edit" => edit(&params),
+            "select" => select(&params),
             "export" => export(),
+            "setup" | "boards" | "rebuild" => later("PLUG-1"),
+            "benchtop" | "end-panel" | "splashback" => later("PLUG-3"),
+            "sheets" => later("PLUG-4"),
             _ => Err(invalid("entry", format!("no entry `{entry}`"))),
         }
     }
+}
+
+/// The ribbon is laid out ahead of what it opens: these say when they come.
+fn later(milestone: &str) -> Result<String, PluginError> {
+    Err(PluginError::Unsupported(format!("not built yet: it comes in {milestone} (docs/PLAN.md)")))
 }
 
 /// The calls a run made, counted as they go: the host allows 256 to an ordinary run.
@@ -57,32 +71,15 @@ fn kind(name: &str) -> Result<CabinetKind, PluginError> {
     serde_json::from_value(json!(name)).map_err(|e| invalid("kind", e))
 }
 
-/// Adds a cabinet at the end of the run, or rebuilds the one named `id`.
-fn cabinet(p: &Value) -> Result<String, PluginError> {
-    // `plugin.preview` (telling a preview from a run) is newer than SolidCraft 0.50.
-    let preview = false;
-    let detail = match p["detail"].as_str() {
-        Some("manufacturing") => Detail::Manufacturing,
-        _ => Detail::Design,
-    };
-    let mut cabs = stored()?;
-    let editing = p["id"].as_str().filter(|id| !id.is_empty());
-    let id = match editing {
-        Some(id) => id.to_string(),
-        None => format!("C{:02}", cabs.len() + 1),
-    };
-    let mut cab = Cabinet::new(&id, kind(p["kind"].as_str().unwrap_or("base"))?);
-    cab.width = p["width"].as_f64().unwrap_or(600.0);
-    let spec = json!({"id": id, "kind": p["kind"], "width": cab.width});
-    match cabs.iter().position(|c| c["id"] == id) {
-        Some(i) => {
-            cabs[i] = spec.clone();
-            // An edit replaces the cabinet's component.
-            run("component.delete", &json!({"component": id}))?;
-        }
-        None => cabs.push(spec.clone()),
-    }
-    // The run places each cabinet beside the one before.
+/// The cabinet a picked body belongs to: bodies are named `<cabinet>.<part>`.
+fn picked(params: &Value, cabs: &[Value]) -> Option<String> {
+    params["pick"].as_array()?.iter().find_map(|p| {
+        let id = p["name"].as_str()?.split('.').next()?;
+        cabs.iter().any(|c| c["id"] == id).then(|| id.to_string())
+    })
+}
+
+fn lists(cabs: &[Value]) -> Result<Vec<PartList>, PluginError> {
     let items = cabs
         .iter()
         .map(|c| {
@@ -91,9 +88,34 @@ fn cabinet(p: &Value) -> Result<String, PluginError> {
             Ok(RunItem::Cabinet(Box::new(k)))
         })
         .collect::<Result<Vec<_>, PluginError>>()?;
-    let lists = build_run(&Run { origin: Vec3::default(), items })
-        .map_err(|e| invalid("cabinet", e))?;
-    let list = lists
+    build_run(&Run { origin: Vec3::default(), items }).map_err(|e| invalid("cabinet", e))
+}
+
+/// Adds a cabinet at the end of the run, or changes the picked one.
+fn cabinet(p: &Value) -> Result<String, PluginError> {
+    let detail = match p["detail"].as_str() {
+        Some("manufacturing") => Detail::Manufacturing,
+        _ => Detail::Design,
+    };
+    let mut cabs = stored()?;
+    let id = match p["mode"].as_str() {
+        Some("edit") => picked(p, &cabs).ok_or_else(|| invalid("pick", "pick a cabinet to change"))?,
+        _ => {
+            // The next free number: ids stay stable when a cabinet is taken out.
+            let n = (1..).find(|n| !cabs.iter().any(|c| c["id"] == format!("C{n:02}"))).unwrap_or(1);
+            format!("C{n:02}")
+        }
+    };
+    let spec = json!({"id": id, "kind": p["kind"].as_str().unwrap_or("base"), "width": p["width"].as_f64().unwrap_or(600.0)});
+    match cabs.iter().position(|c| c["id"] == id) {
+        Some(i) => {
+            cabs[i] = spec.clone();
+            run("component.delete", &json!({"component": id}))?;
+        }
+        None => cabs.push(spec.clone()),
+    }
+    let built = lists(&cabs)?;
+    let list = built
         .iter()
         .find(|l| l.cabinet == id)
         .ok_or_else(|| invalid("cabinet", "not built"))?;
@@ -104,43 +126,44 @@ fn cabinet(p: &Value) -> Result<String, PluginError> {
     }
     let building = calls() - before;
     run("storage.set", &json!({"document": {"cabinets": cabs}}))?;
-    // Does a dialog-run entry reach the open panel?
     let shown = show(&cabs).is_ok() && ui::show_panel("cabinets", true).is_ok();
     run("view.fit", &json!({}))?;
-    Ok(json!({
-        "id": id, "preview": preview, "commands": cmds.len(), "building_calls": building,
-        "calls": calls(), "panel_updated": shown, "parts": list.parts.len(),
-    })
-    .to_string())
+    Ok(json!({"id": id, "commands": cmds.len(), "building_calls": building, "calls": calls(), "panel_updated": shown}).to_string())
 }
 
-/// The panel's row action: the Cabinet dialog, filled in with that cabinet.
-fn edit(p: &Value) -> Result<String, PluginError> {
-    let row = p["row"].as_str().unwrap_or_default();
-    let cabs = stored()?;
-    let c = cabs
-        .iter()
-        .find(|c| c["id"] == row)
-        .ok_or_else(|| invalid("row", format!("no cabinet {row}")))?;
-    forms::open("cabinet", &json!({"id": c["id"], "kind": c["kind"], "width": c["width"]}).to_string())?;
-    Ok(json!({"opened": row}).to_string())
+/// A row click in the panel: that cabinet's bodies selected in the view, ready for the Cabinet button.
+fn select(p: &Value) -> Result<String, PluginError> {
+    let row = p["row"].as_str().unwrap_or_default().to_string();
+    let reply = run("component.list", &json!({"compact": true, "bodies": true}))?;
+    let mut items = Vec::new();
+    collect_bodies(&reply, &row, &mut items);
+    if items.is_empty() {
+        return Err(invalid("row", format!("no bodies for {row}")));
+    }
+    run("select.set", &json!({"items": items}))?;
+    Ok(json!({"selected": row, "bodies": items.len()}).to_string())
+}
+
+/// Bodies named `<row>.…` anywhere in `component.list`'s reply.
+fn collect_bodies(v: &Value, row: &str, out: &mut Vec<Value>) {
+    match v {
+        Value::String(s) if s.split('.').next() == Some(row) && s.contains('.') => {
+            if !out.iter().any(|i| i["name"] == *s) {
+                out.push(json!({"type": "body", "name": s}));
+            }
+        }
+        Value::Array(a) => a.iter().for_each(|x| collect_bodies(x, row, out)),
+        Value::Object(o) => o.values().for_each(|x| collect_bodies(x, row, out)),
+        _ => {}
+    }
 }
 
 /// The cut list as CSV, into the folder granted as `exports`.
 fn export() -> Result<String, PluginError> {
-    let cabs = stored()?;
-    let items = cabs
-        .iter()
-        .map(|c| {
-            let mut k = Cabinet::new(c["id"].as_str().unwrap_or("C"), kind(c["kind"].as_str().unwrap_or("base"))?);
-            k.width = c["width"].as_f64().unwrap_or(600.0);
-            Ok(RunItem::Cabinet(Box::new(k)))
-        })
-        .collect::<Result<Vec<_>, PluginError>>()?;
-    let lists = build_run(&Run { origin: Vec3::default(), items }).map_err(|e| invalid("export", e))?;
-    let csv = cabinet_core::cutlist::to_csv(&cabinet_core::cutlist::cut_list(&lists, "", 1.0));
+    let built = lists(&stored()?)?;
+    let csv = cabinet_core::cutlist::to_csv(&cabinet_core::cutlist::cut_list(&built, "", 1.0));
     files::write_file("exports", "cut-list.csv", csv.as_bytes())?;
-    Ok(json!({"bytes": csv.len(), "rows": csv.lines().count() - 1}).to_string())
+    Ok(json!({"bytes": csv.len(), "rows": csv.lines().count().saturating_sub(1)}).to_string())
 }
 
 /// The panel's rows: one cell per path, `/cabinets/<row>/<column>`.
@@ -156,6 +179,29 @@ fn show(cabs: &[Value]) -> Result<(), PluginError> {
     ui::set_data("cabinets", &cells)
 }
 
+impl exports::craft::plugin::dialog_provider::Guest for Plugin {
+    /// The Cabinet dialog fills itself in from what is picked: a cabinet of ours is edited.
+    fn update_fields(entry: String, values: String) -> Result<String, PluginError> {
+        if entry != "cabinet" {
+            return Ok("{}".into());
+        }
+        let values: Value = serde_json::from_str(&values).map_err(|e| invalid("values", e))?;
+        let cabs = stored()?;
+        let patch = match picked(&values, &cabs).and_then(|id| cabs.iter().find(|c| c["id"] == id.as_str()).cloned()) {
+            Some(c) => json!({
+                "mode": {"value": "edit", "hint": format!("Changing {}", c["id"].as_str().unwrap_or_default())},
+                "kind": {"value": c["kind"]},
+                "width": {"value": c["width"]},
+            }),
+            None if values["pick"].as_array().is_some_and(|a| !a.is_empty()) => json!({
+                "mode": {"value": "new", "hint": "That isn't one of the cabinets: a new one goes at the end of the run"},
+            }),
+            None => json!({"mode": {"value": "new"}}),
+        };
+        Ok(patch.to_string())
+    }
+}
+
 impl exports::craft::plugin::ui_provider::Guest for Plugin {
     /// The same panel as `runtime.ui` in plugin.json.
     fn describe() -> ui::Declarations {
@@ -167,8 +213,8 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
             row_id: "id".into(),
             columns: vec![column("id", "Cabinet", None), column("kind", "Type", None), column("width", "Width", Some("length"))],
             select: SelectionMode::Single,
-            on_select: Some("edit".into()),
-            on_edit: Some("edit".into()),
+            on_select: Some("select".into()),
+            on_edit: None,
         };
         let nodes = vec![
             Node { widget: Widget::Group(vec![1, 2]) },

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Cabinet</title>
+  <path d="M12.00 41.00L35.38 54.50L35.38 27.50L12.00 14.00Z" fill="#328bd3"/>
+  <path d="M35.38 54.50L52.92 44.38L52.92 17.38L35.38 27.50Z" fill="#236ead"/>
+  <path d="M12.00 14.00L35.38 27.50L52.92 17.38L29.54 3.88Z" fill="#b9ddf8"/>
+  <path d="M12.00 41.00L35.38 54.50L52.92 44.38L52.92 17.38L29.54 3.88L12.00 14.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M12.00 14.00L35.38 27.50L52.92 17.38" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M35.38 54.50L35.38 27.50" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M23.69 46.67L23.69 21.83" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M21.82 29.93L21.82 23.99" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M25.56 32.09L25.56 26.15" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

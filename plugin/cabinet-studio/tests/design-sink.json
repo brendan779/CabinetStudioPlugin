@@ -1,1 +1,16 @@
-{"entry": "cabinet", "params": {"kind": "sink", "width": 600, "detail": "design"}, "expect": {"reply": {"result": {"id": "C01"}}}}
+{
+ "entry": "cabinet",
+ "params": {
+  "kind": "sink",
+  "width": 600,
+  "detail": "design",
+  "mode": "new"
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "id": "C01"
+   }
+  }
+ }
+}

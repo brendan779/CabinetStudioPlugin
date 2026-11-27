@@ -1,0 +1,14 @@
+{
+ "entry": "select",
+ "design": "one-base.sc",
+ "params": {
+  "row": "C01"
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "selected": "C01"
+   }
+  }
+ }
+}

@@ -1,0 +1,7 @@
+{
+ "entry": "sheets",
+ "expect": {
+  "error": "unsupported",
+  "message": "PLUG-4"
+ }
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Benchtop and panels</title>
+  <path d="M11.00 47.00L30.92 58.50L30.92 35.50L11.00 24.00Z" fill="#b8c3cf"/>
+  <path d="M30.92 58.50L45.86 49.88L45.86 26.88L30.92 35.50Z" fill="#8e9faf"/>
+  <path d="M11.00 24.00L30.92 35.50L45.86 26.88L25.94 15.38Z" fill="#e2e8ef"/>
+  <path d="M11.00 47.00L30.92 58.50L45.86 49.88L45.86 26.88L25.94 15.38L11.00 24.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M11.00 24.00L30.92 35.50L45.86 26.88" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M30.92 58.50L30.92 35.50" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M20.96 51.83L20.96 30.67" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M19.37 37.57L19.37 32.51" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M22.55 39.41L22.55 34.35" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M7.02 24.00L30.92 37.80L30.92 31.36L7.02 17.56Z" fill="#328bd3"/>
+  <path d="M30.92 37.80L49.84 26.88L49.84 20.43L30.92 31.36Z" fill="#236ead"/>
+  <path d="M7.02 17.56L30.92 31.36L49.84 20.43L25.94 6.64Z" fill="#b9ddf8"/>
+  <path d="M7.02 24.00L30.92 37.80L49.84 26.88L49.84 20.43L25.94 6.64L7.02 17.56Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M7.02 17.56L30.92 31.36L49.84 20.43" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M30.92 37.80L30.92 31.36" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>
