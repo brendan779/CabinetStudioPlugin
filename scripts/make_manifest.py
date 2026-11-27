@@ -35,7 +35,8 @@ SETUP = [
 PANEL = {'ui_version': 1, 'workspaces': [], 'panels': [{
     'id': 'cabinets', 'title': 'Cabinets', 'zones': ['right', 'bottom'],
     'layout': {'root': 0, 'nodes': [
-        {'widget': {'group': [1, 2, 3, 4]}},
+        {'widget': {'tabs': [{'label': 'Cabinets', 'child': 1}, {'label': 'Boards', 'child': 6}]}},
+        {'widget': {'group': [2, 3, 4, 5]}},
         {'widget': {'toolbar': [{'label': 'Refresh', 'icon': None, 'entry': 'show'},
                                 {'label': 'Rebuild all', 'icon': None, 'entry': 'rebuild'}]}},
         {'widget': {'table': {'bind': '/cabinets', 'row_id': 'id', 'columns': [
@@ -45,6 +46,19 @@ PANEL = {'ui_version': 1, 'workspaces': [], 'panels': [{
             'select': 'single', 'on_select': 'select', 'on_edit': None}}},
         {'widget': {'text': 'Warnings'}},
         {'widget': {'item-list': {'bind': '/warnings', 'on_select': None}}},
+        {'widget': {'group': [7, 8, 9]}},
+        {'widget': {'table': {'bind': '/job_boards', 'row_id': 'role', 'columns': [
+            {'key': 'role', 'label': 'Role', 'unit': None}, {'key': 'board', 'label': 'Board', 'unit': None}],
+            'select': 'none', 'on_select': None, 'on_edit': None}}},
+        {'widget': {'form': {'bind': '/filter', 'fields': [
+            {'key': 'role', 'label': 'Use for', 'kind': 'choice', 'choices': ['Carcass', 'Fronts', 'Backs', 'Benchtop'],
+             'on_change': 'board-filter'},
+            {'key': 'search', 'label': 'Search', 'kind': 'text', 'choices': [], 'on_change': 'board-filter'}]}}},
+        {'widget': {'table': {'bind': '/boards', 'row_id': 'id', 'columns': [
+            {'key': 'brand', 'label': 'Brand', 'unit': None}, {'key': 'range', 'label': 'Range', 'unit': None},
+            {'key': 'decor', 'label': 'Decor', 'unit': None}, {'key': 'finish', 'label': 'Finish', 'unit': None},
+            {'key': 'thickness', 'label': 'Thick', 'unit': 'length'}, {'key': 'sheet', 'label': 'Sheet', 'unit': None}],
+            'select': 'single', 'on_select': 'board-pick', 'on_edit': None}}},
     ]}}]}
 
 
@@ -182,10 +196,11 @@ def main():
         choice('csv', 'Cut list (CSV)'), choice('sheets', 'Cut sheets'), choice('labels', 'Part labels')]}
     entries = [
         entry('setup', 'Job setup', 'job', setup_props, dialog_hook=True, job=True),
-        entry('boards', 'Boards', 'job'),
         entry('show', 'Cabinets panel', 'panel'),
         entry('rebuild', 'Rebuild all', 'panel', job=True),
         entry('select', 'Select cabinet', 'panel', {'row': {'type': 'string', 'title': 'Cabinet', 'default': ''}}),
+        entry('board-filter', 'Filter boards', 'panel', {'path': {'type': 'string', 'title': 'Field', 'default': ''}}),
+        entry('board-pick', 'Choose board', 'panel', {'row': {'type': 'string', 'title': 'Board', 'default': ''}}, job=True),
         entry('add', 'Add cabinet', 'add', add_props, ribbon='Add', dialog_hook=True, job=True),
         edit,
         entry('benchtop', 'Bench top and panels', 'benchtop', {'piece': piece}, ribbon='Bench top'),
@@ -199,7 +214,7 @@ def main():
         'capabilities': ['commands@0.2', 'ui@0.1', 'storage@0.1', 'dialog@0.1', 'user-storage@0.1'],
         'runtime': {
             'module': 'cabinet-studio.wasm', 'data_format': 1, 'commands': commands, 'entries': entries,
-            'ribbon_groups': [{'label': 'Job', 'icon': 'icons/job.svg', 'entries': ['setup', 'boards', 'show', 'rebuild', 'select']}],
+            'ribbon_groups': [{'label': 'Job', 'icon': 'icons/job.svg', 'entries': ['setup', 'show', 'rebuild', 'select', 'board-filter', 'board-pick']}],
             'permissions': {'files': [{'name': 'exports', 'write': True}]},
             'ui': PANEL,
             'limits': old['runtime']['limits'],

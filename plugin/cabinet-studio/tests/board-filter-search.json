@@ -1,0 +1,19 @@
+{
+ "design": "one-base.sc",
+ "entry": "board-filter",
+ "params": {
+  "panel": "cabinets",
+  "event": "change",
+  "path": "/filter/search",
+  "value": {
+   "text": "delana"
+  }
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "search": "delana"
+   }
+  }
+ }
+}

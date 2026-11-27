@@ -290,6 +290,23 @@ Update keeps the granted exports folder. Installing through the control port's `
 (no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
 offered Update to 0.0.9 after a restart.
 
+## PLUG-2: boards (2026-11-27, 0.2.0)
+
+- The board catalogue is built into the program: `cabinet-catalog`'s `embedded` feature (all of
+  `catalog/boards` and `catalog/edge-tape`, kept equal to the folder by its tests).
+- The Cabinets panel has two tabs. **Boards** shows the job's board for each role (carcass, fronts,
+  backs, benchtop), a **Use for** choice and a **Search** field, and the matching boards: brand,
+  range, decor, finish, thickness and largest sheet, at most 200 rows (a panel holds 1 MiB) with a
+  last row saying how many more matched. Benchtop lists laminate tops and sintered stone; the other
+  roles list sheet boards, linings left out.
+- **Clicking a board gives the chosen role that board**: the core's board and its thickness, then
+  the cabinets it changes are rebuilt, coloured by the boards' preview colours (`board_colours`).
+  The benchtop's board waits for PLUG-3. Ctrl+Z undoes it.
+- Job setup shows the job's boards in a hint under Door style.
+- "Use for" and the search are kept on the Mac (`user-storage`), so the tab opens as it was left.
+- Two more panel helpers sit in the Job menu, Filter boards and Choose board, until SolidCraft lets
+  panel-only entries leave the ribbon (tangency-labs/solidcraft#22300).
+
 ## PLUG-1: job and cabinets (2026-11-27, 0.1.0; 0.1.1 checked by the owner in SolidCraft)
 
 - **Job setup** (Job ▾): the five sections of the plan, the choices generated from the core's

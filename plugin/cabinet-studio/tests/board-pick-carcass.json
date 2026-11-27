@@ -1,0 +1,16 @@
+{
+ "design": "one-base.sc",
+ "entry": "board-pick",
+ "params": {
+  "row": "laminex.decorated-mdf.delana-oak-natural.18.mdf-mr-e0"
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "rebuilt": [
+     "C01"
+    ]
+   }
+  }
+ }
+}

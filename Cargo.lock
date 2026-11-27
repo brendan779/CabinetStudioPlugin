@@ -17,7 +17,7 @@ checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
 [[package]]
 name = "cabinet-catalog"
 version = "0.14.0"
-source = "git+https://github.com/brendan779/CabinetForSolidcraft?rev=9968a4980cd5830d21d9aca095fb16e815f864fe#9968a4980cd5830d21d9aca095fb16e815f864fe"
+source = "git+https://github.com/brendan779/CabinetForSolidcraft?rev=5874727560a4372071638c2287356dd6470fe7eb#5874727560a4372071638c2287356dd6470fe7eb"
 dependencies = [
  "serde",
  "serde_json",
@@ -27,7 +27,7 @@ dependencies = [
 [[package]]
 name = "cabinet-core"
 version = "0.14.0"
-source = "git+https://github.com/brendan779/CabinetForSolidcraft?rev=9968a4980cd5830d21d9aca095fb16e815f864fe#9968a4980cd5830d21d9aca095fb16e815f864fe"
+source = "git+https://github.com/brendan779/CabinetForSolidcraft?rev=5874727560a4372071638c2287356dd6470fe7eb#5874727560a4372071638c2287356dd6470fe7eb"
 dependencies = [
  "cabinet-catalog",
  "serde",
@@ -39,6 +39,7 @@ dependencies = [
 name = "cabinet-plugin"
 version = "0.0.1"
 dependencies = [
+ "cabinet-catalog",
  "cabinet-core",
  "serde_json",
  "solidcraft-bridge",
@@ -205,7 +206,7 @@ dependencies = [
 [[package]]
 name = "solidcraft-bridge"
 version = "0.14.0"
-source = "git+https://github.com/brendan779/CabinetForSolidcraft?rev=9968a4980cd5830d21d9aca095fb16e815f864fe#9968a4980cd5830d21d9aca095fb16e815f864fe"
+source = "git+https://github.com/brendan779/CabinetForSolidcraft?rev=5874727560a4372071638c2287356dd6470fe7eb#5874727560a4372071638c2287356dd6470fe7eb"
 dependencies = [
  "cabinet-core",
  "serde",

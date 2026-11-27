@@ -1,0 +1,19 @@
+{
+ "design": "one-base.sc",
+ "entry": "board-filter",
+ "params": {
+  "panel": "cabinets",
+  "event": "change",
+  "path": "/filter/role",
+  "value": {
+   "text": "Fronts"
+  }
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "role": "fronts"
+   }
+  }
+ }
+}

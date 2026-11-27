@@ -1,0 +1,14 @@
+{
+ "design": "one-base.sc",
+ "entry": "board-pick",
+ "params": {
+  "row": "more"
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "picked": null
+   }
+  }
+ }
+}
