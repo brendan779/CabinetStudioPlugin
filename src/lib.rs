@@ -583,7 +583,7 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
             columns: vec![column("id", "Cabinet"), column("kind", "Type"), column("size", "W × H × D"),
                           column("fronts", "Fronts"), column("warnings", "Warnings")],
             select: SelectionMode::Single,
-            on_select: Some("select".into()),
+            on_select: None,
             on_edit: Some("open".into()),
         };
         let cabinets = PanelSpec {

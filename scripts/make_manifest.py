@@ -42,7 +42,7 @@ def panels():
                                 {'label': 'Rebuild all', 'icon': None, 'entry': 'rebuild'}]}},
         {'widget': {'table': {'bind': '/cabinets', 'row_id': 'id', 'columns': [
             col('id', 'Cabinet'), col('kind', 'Type'), col('size', 'W × H × D'), col('fronts', 'Fronts'), col('warnings', 'Warnings')],
-            'select': 'single', 'on_select': 'select', 'on_edit': 'open'}}},
+            'select': 'single', 'on_select': None, 'on_edit': 'open'}}},
         {'widget': {'text': 'Boards'}},
         {'widget': {'table': {'bind': '/job_boards', 'row_id': 'role', 'columns': [col('role', 'Role'), col('board', 'Board')],
                               'select': 'none', 'on_select': None, 'on_edit': None}}},
