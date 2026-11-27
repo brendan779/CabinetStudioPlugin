@@ -5,7 +5,36 @@ kitchen or wardrobe, build it in SolidCraft, and get its cut list and sheets. Th
 hardware data and board catalogue come from
 [Cabinet Studio](https://github.com/brendan779/CabinetForSolidcraft), the macOS app this grew from.
 
-**Status: early.** PLUG-0, the spike, is done; the plan is [docs/PLAN.md](docs/PLAN.md).
+**Status: early test builds.** The plan and what's done: [docs/PLAN.md](docs/PLAN.md).
+
+## Using it
+
+The ribbon's Plugins group, left to right, is the way through a job:
+
+1. **Job ▾ › Job setup.** How this job is built: door style and mounting, how fronts open
+   (handles, knobs, edge or finger pulls, sharknose, TIP-ON, SERVO-DRIVE) with their sizes, drawers
+   and hinges, carcass joints and fixings, the base and wall hanging, and the standard heights and
+   depths. Only what applies is shown. Tick **Also save as my shop standard** and new jobs start
+   from it.
+2. **Add.** A cabinet: its type (11, as pictures), width, height and depth (the job's sizes for its
+   type until changed), fronts (as pictures), and what it does differently from the job. Pick a
+   cabinet in **Beside** to put the new one on its right. **Or from boxes:** draw boxes in
+   SolidCraft for the layout, pick them, and each becomes a cabinet of its size.
+3. **Edit.** Pick any part of a cabinet (or click its row in the Cabinets panel), then Edit: the
+   dialog fills in with it. Change anything, or remove the cabinet.
+4. **Boards.** Choose what to use a board for (carcass, fronts, backs, benchtop), its brand, range,
+   decor (type part of a name in Find decor), finish and thickness. Cabinets rebuild in it; one of
+   the same thickness only repaints.
+5. **Bench top.** The benchtop over the run (thickness, overhangs, edge, splashback, a sink over a
+   picked cabinet, a cooktop cut-out), or an end panel or filler beside a picked cabinet.
+6. **Cut List.** The cut list, cut sheets, cutting layouts, part labels, a DXF a part and the
+   hardware list, into the folder you chose when installing.
+
+The **Cabinets** panel lists the run, the job's boards and any warnings. **Rebuild all** builds
+every cabinet again. Each change rebuilds only the cabinets it changes.
+
+Hardware (hinges, runners, legs, handles) is drawn as simple shapes at each part's catalogue size,
+on its exact drilling.
 
 ## Build
 
