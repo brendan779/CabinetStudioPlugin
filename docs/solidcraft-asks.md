@@ -117,7 +117,13 @@ in [PLAN.md](PLAN.md).
   manifest listing it.
 - **Ask:** ship it (it lets a preview build less).
 
-### 14. The docs disagree on the manifest's limit
+### 14. A hook's hints don't show
+
+- A `dialog@0.1` reply's `hint` on a field (Boards' "Carcass now: …", Decor's "133 decors") showed
+  nowhere in the 0.50.0 dialog that took the same reply's choices and values.
+- **Ask:** show a field's hint under it, or say in docs/plugins.md where it goes.
+
+### 15. The docs disagree on the manifest's limit
 
 - plugins.md says 64 KiB; plugin-runtime.md says 16 KiB, and the writing guide's Limits table says
   16 KiB. 0.50.0 accepted 47 KB.

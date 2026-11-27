@@ -25,6 +25,7 @@ wasm-tools component new target/wasm32-unknown-unknown/release/cabinet_plugin.wa
 for arg in "$@"; do
   case $arg in
     --test)
+      cargo run -q --example check_boards --target "$host"
       # A hook reply SolidCraft throws away is only echoed in a test's log: it fails the gate here.
       logs="$root/target/test-logs"
       rm -rf "${logs:?}"

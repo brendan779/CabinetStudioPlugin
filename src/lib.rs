@@ -504,57 +504,30 @@ fn setup_fields(values: &Value) -> Result<Value, PluginError> {
 /// The Boards dialog: each list narrowed by the choices above it, sorted as the manifest lists
 /// them (SolidCraft takes only an ordered subset, of at most 256).
 fn board_fields(values: &Value) -> Result<Value, PluginError> {
-    const MOST: usize = 256;
     let v = |k: &str| values[k].as_str().unwrap_or_default().to_string();
     let role = boards::role_of(&v("role"));
-    let (brand, range, decor, finish) = (v("brand"), v("range"), v("decor"), v("finish"));
-    let find = v("find").to_lowercase();
-    let rows: Vec<boards::Board> = boards::of_brand(&brand).into_iter().filter(|b| boards::suits(b, role)).collect();
-    let mut ranges: Vec<&str> = rows.iter().map(|b| b.range).collect();
-    ranges.sort();
-    ranges.dedup();
-    let range = if ranges.contains(&range.as_str()) { range } else { ranges.first().map_or(String::new(), |r| r.to_string()) };
-    let in_range: Vec<&boards::Board> = rows.iter().filter(|b| b.range == range).collect();
-    let mut decors: Vec<&str> = in_range
-        .iter()
-        .map(|b| b.decor)
-        .filter(|d| find.is_empty() || d.to_lowercase().contains(&find))
-        .collect();
-    decors.sort();
-    decors.dedup();
-    let more = decors.len() > MOST;
-    decors.truncate(MOST);
-    let decor = if decors.contains(&decor.as_str()) { decor } else { decors.first().map_or(String::new(), |d| d.to_string()) };
-    let of_decor: Vec<&&boards::Board> = in_range.iter().filter(|b| b.decor == decor).collect();
-    let mut finishes: Vec<&str> = of_decor.iter().map(|b| b.finish).collect();
-    finishes.sort();
-    finishes.dedup();
-    let finish = if finishes.contains(&finish.as_str()) { finish } else { finishes.first().map_or(String::new(), |f| f.to_string()) };
-    let mut thicknesses: Vec<f64> = of_decor.iter().filter(|b| b.finish == finish).map(|b| b.thickness).collect();
-    thicknesses.sort_by(f64::total_cmp);
-    thicknesses.dedup();
-    let mut patch = json!({});
+    let n = boards::narrow(&v("brand"), role, &v("range"), &v("find"), &v("decor"), &v("finish"));
     let (stored, _) = load()?;
     let now = stored["boards"][role]["name"].as_str().unwrap_or("none chosen yet");
-    patch["role"] = json!({"hint": format!("{} now: {now}", boards::label_of(role))});
-    if !ranges.is_empty() {
-        patch["range"] = json!({"choices": ranges, "default": ranges[0]});
+    let mut patch = json!({"role": {"hint": format!("{} now: {now}", boards::label_of(role))}});
+    if !n.ranges.is_empty() {
+        patch["range"] = json!({"choices": n.ranges, "value": n.range, "default": n.range});
     }
-    let found = if find.is_empty() { String::new() } else { format!(" with \"{find}\"") };
-    if decors.is_empty() {
-        patch["decor"] = json!({"hint": format!("No decor in this range{found}")});
+    // Nothing found: the lists grey out rather than fall back to the whole catalogue's names.
+    let on = n.matched && !n.decors.is_empty();
+    patch["decor"] = if on { json!({"choices": n.decors, "value": n.decor, "default": n.decor, "enabled": true}) } else { json!({"enabled": false}) };
+    patch["finish"] = if on && !n.finishes.is_empty() {
+        json!({"choices": n.finishes, "value": n.finish, "default": n.finish, "enabled": true})
     } else {
-        let hint = if more { format!("The first {MOST}{found}: type in Find decor to narrow them") } else { format!("{} decors{found}", decors.len()) };
-        patch["decor"] = json!({"choices": decors, "default": decors[0], "hint": hint});
-    }
-    if !finishes.is_empty() {
-        patch["finish"] = json!({"choices": finishes, "default": finishes[0]});
-    }
-    if !thicknesses.is_empty() {
-        // As the manifest writes them: "18", "4.75".
-        let shown: Vec<String> = thicknesses.iter().map(|t| format!("{t}")).collect();
-        patch["thickness"] = json!({"choices": shown, "default": shown[0]});
-    }
+        json!({"enabled": false})
+    };
+    let shown: Vec<String> = n.thicknesses.iter().map(|t| format!("{t}")).collect();
+    let keep = shown.iter().find(|t| **t == v("thickness")).or(shown.first()).cloned().unwrap_or_default();
+    patch["thickness"] = if on && !shown.is_empty() {
+        json!({"choices": shown, "value": keep, "default": keep, "enabled": true})
+    } else {
+        json!({"enabled": false})
+    };
     Ok(patch)
 }
 

@@ -103,3 +103,55 @@ pub fn name(b: &Board) -> String {
     let finish = if b.finish.is_empty() { String::new() } else { format!(" {}", b.finish) };
     format!("{} {}{finish}, {} mm", b.brand, b.decor, b.thickness)
 }
+
+/// What the Boards dialog offers for its choices so far: each list in the manifest's order (sorted),
+/// the choice kept where it still fits, or the first that does.
+#[derive(Debug, Default)]
+pub struct Narrowed {
+    pub ranges: Vec<String>,
+    pub range: String,
+    pub decors: Vec<String>,
+    pub decor: String,
+    pub finishes: Vec<String>,
+    pub finish: String,
+    pub thicknesses: Vec<f64>,
+    /// False when nothing in the brand matches `find`.
+    pub matched: bool,
+}
+
+/// Narrows the Boards dialog's lists. "Find decor" looks through every range of the brand, so
+/// Range offers only ranges that have a match, and a range without one gives way to the one with
+/// the most (0.4.1 looked in the current range alone, and found nothing: owner, 2026-11-28).
+pub fn narrow(brand: &str, role: &str, range: &str, find: &str, decor: &str, finish: &str) -> Narrowed {
+    let find = find.trim().to_lowercase();
+    let rows: Vec<Board> = of_brand(brand).into_iter().filter(|b| suits(b, role)).collect();
+    let hits: Vec<&Board> = rows.iter().filter(|b| find.is_empty() || b.decor.to_lowercase().contains(&find)).collect();
+    let matched = !hits.is_empty();
+    let pool: Vec<&Board> = if matched { hits } else { rows.iter().collect() };
+    let sorted = |mut v: Vec<&str>| {
+        v.sort();
+        v.dedup();
+        v.into_iter().map(String::from).collect::<Vec<String>>()
+    };
+    let ranges = sorted(pool.iter().map(|b| b.range).collect());
+    let range = if ranges.iter().any(|r| r == range) {
+        range.to_string()
+    } else {
+        // The range with the most boards: Laminex opens on Decorated MDF, not Compact Laminate.
+        ranges
+            .iter()
+            .max_by_key(|r| (pool.iter().filter(|b| &b.range == *r).count(), std::cmp::Reverse((*r).clone())))
+            .cloned()
+            .unwrap_or_default()
+    };
+    let in_range: Vec<&&Board> = pool.iter().filter(|b| b.range == range).collect();
+    let decors = sorted(in_range.iter().map(|b| b.decor).collect());
+    let decor = if decors.iter().any(|d| d == decor) { decor.to_string() } else { decors.first().cloned().unwrap_or_default() };
+    let of_decor: Vec<&&&Board> = in_range.iter().filter(|b| b.decor == decor).collect();
+    let finishes = sorted(of_decor.iter().map(|b| b.finish).collect());
+    let finish = if finishes.iter().any(|f| f == finish) { finish.to_string() } else { finishes.first().cloned().unwrap_or_default() };
+    let mut thicknesses: Vec<f64> = of_decor.iter().filter(|b| b.finish == finish).map(|b| b.thickness).collect();
+    thicknesses.sort_by(f64::total_cmp);
+    thicknesses.dedup();
+    Narrowed { ranges, range, decors, decor, finishes, finish, thicknesses, matched }
+}

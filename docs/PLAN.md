@@ -313,6 +313,13 @@ So the **Boards** button opens a dialog, as SolidCraft's own tools do:
   dialog draws a dropdown only of text, and Thickness was a dropdown of numbers. It is text now
   ("18", shown "18 mm"), and `make_manifest.py` checks every field against what the dialog draws
   (`check_drawable`, after `form` in SolidCraft's plugin_menu.rs), as headless tests never draw one.
+- 0.4.2: in 0.4.1 Find decor searched the current range only, and the dialog opens on the
+  brand's first range by name (Laminex: Compact Laminate), so "delana" found nothing and Decor fell
+  back to the whole catalogue's names (seen in the owner's window). Find now searches the whole
+  brand, Range offers only ranges with a match and opens on the brand's biggest, and with no match
+  the lists grey out. The narrowing is plain code (`boards::narrow`), checked on the real index by
+  `examples/check_boards.rs` in `build.sh --test`. A hook's `hint` showed nowhere in the dialog, so
+  nothing relies on one.
 
 ## Boards reworked (2026-11-27, 0.3.0)
 
