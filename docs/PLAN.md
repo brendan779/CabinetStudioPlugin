@@ -34,7 +34,7 @@ The plugin is a thin shell around the crates we already have. `cabinet-core`, `c
 
 | Piece | What it can do | What it can't |
 |---|---|---|
-| Ribbon | One group in the Model tab, with buttons in our order. `ribbon_groups` puts several entries behind one drop-down button | Our own ribbon tab, or a workspace |
+| Ribbon | Buttons in the Plugins group, labelled with each slot's `name`, in our order. `ribbon_groups` puts several entries behind one drop-down button. Every entry gets a button | Our own ribbon tab, or a workspace, or entries with no button |
 | Dialogs (an entry's form) | Sections that fold, declared field order, fields shown or enabled by other fields, choices narrowed by other fields, pictures on choices (`x-solidcraft-image`, PNG up to 512 px), swatch grids with search, viewport pick fields, live preview on a scratch copy, a hook that computes defaults and hints from the design | Choices that aren't written in the manifest (a hook can only narrow them), pictures outside a dropdown, more than 64 KiB of manifest |
 | Re-editing | `forms.open` reopens an entry's form filled with stored values: Edit is the same dialog as Add | — |
 | Docked panel | Up to 8 panels, right or bottom, with tabs, splits, forms, toolbars, buttons, lists and tables up to 100,000 rows. Buttons and row clicks run our entries | Images, trees, charts (phase 3), refreshing itself when the design changes: it needs a Refresh button or one of our entries to run |
@@ -163,9 +163,14 @@ All simplified for the plugin's first version, as agreed:
 - **Panel:** pick a cabinet's side. End panel ▣, filler ▣ or seen end ▣, its width and board role.
 - **Splashback:** pick the benchtop. Height and thickness, board role. Parametric only.
 - **Kick and plinth:** automatic for each run, from Job setup.
-- **Handles and legs:** supplier meshes if `file.insert_mesh` works within the plugin's grants
-  (PLUG-0 checks), otherwise simple shapes at the right size and drilling: a bar on two posts, a
-  knob, a cylinder leg. The drilling and the hardware list are right either way.
+- **Hardware: everything is in the plugin (owner 2026-11-27).** No supplier CAD folder: hinges,
+  runners, legs, handles, lift and push-to-open hardware are placeholders built from SolidCraft
+  commands at their catalog sizes and positions, and every hole they need is drilled exactly from
+  the catalog data. The core already draws placeholders for hinges and plates, runners, legs,
+  TIP-ON, SERVO-DRIVE, tracks and cams; a handle placeholder (a bar on two posts, or a knob, at the
+  handle's real centres and projection) is added to the core in PLUG-1. Embedded STEP models were
+  considered, but a plugin can only insert a STEP from a folder the user grants, so placeholders
+  from commands need no grant and cost a few engine calls each.
 
 ### The panel: "Cabinets", docked right
 
@@ -251,15 +256,20 @@ The spike is the code in this repo at its first commit: `cabinet`, `refresh`, `e
 | Editing a cabinet | Works: deleting its component and building it again from the stored spec, one undo step |
 | A cabinet added after the others | Works: the core's run places it beside the last one |
 | `forms.open` | Refused headless as it should be (`interactive_required`). In the app, see below |
-| Supplier meshes | `file.insert_mesh` works from a folder granted read-only (`grant:vendor/abi/ABI-TEZRA-220.stl`), with the `file` command group. Real handles and legs are possible: the user grants the vendor folder at install |
+| Supplier meshes | `file.insert_mesh` works from a folder granted read-only, with the `file` command group, and lands at the origin. Not used: the owner wants nothing outside the plugin (see Hardware above), so the entry was removed in 0.0.2 |
 | Exports | `files.write_file` into a granted folder works (the cut list CSV) |
 | Panel data from a dialog run | `ui.set-data` and `show-panel` succeed in a run started from the dialog. Whether the open panel shows it: see below |
 | Manifest size | 3.7 KB for the spike. `plugin-runtime.md` says 16 KiB, `plugins.md` says 64 KiB. Keep the real plugin's manifest under 16 KiB: pictures and long choice lists are the risk, so shared `$defs` and few, short descriptions |
 
-Still to see in the app, once the owner installs the spike (`scripts/build.sh --zip`, then
-Preferences › Plugins › Install plugin…, granting an exports folder and the vendor-cad folder):
+In the app (the owner installed 0.0.1 on SolidCraft 0.50.0, 2026-11-27):
 
-1. The Cabinet dialog's Type dropdown shows the four pictures.
-2. After Run, the Cabinets panel shows the new row without pressing Refresh.
-3. Double-clicking a row opens the Cabinet dialog filled in with that cabinet.
-4. Plugins › Cabinet Studio › handle puts the ABI Tezra handle in the design.
+| Check | Result |
+|---|---|
+| Picture dropdown | Works: a large picture of the highlighted option above a grid of tiles |
+| Panel updates after a dialog run | Works: the row appeared without Refresh |
+| Double-clicking a row to edit | Didn't open the form: `on_edit` is for editing a cell. 0.0.2 opens the dialog on a row click (`on_select`); to check |
+| Supplier mesh | Went in, at the origin (expected in the spike) |
+| Ribbon labels | Wrong: a button's label is its ribbon slot's `name` ("Model"), and every entry gets a button. 0.0.2 names each slot ("Cabinet") and puts the panel's helper entries behind one "Cabinets panel" drop-down (`ribbon_groups`); to check |
+
+Other things seen: the dialog's header is the entry's name in lower case ("cabinet"), and the
+install screen lists every grant and the panel. Entry names should read as titles.

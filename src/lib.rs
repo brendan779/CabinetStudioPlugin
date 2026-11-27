@@ -1,6 +1,6 @@
 //! PLUG-0: the spike. Cabinet Studio's core inside a SolidCraft plugin, with one of each piece the
 //! plan relies on (docs/PLUGIN_PLAN.md): a dialog with picture choices, a docked panel fed from the
-//! design's storage, re-editing through `forms.open`, a file export and a supplier mesh. Each entry
+//! design's storage, re-editing through `forms.open` and a file export. Each entry
 //! reports what it measured, so the plan's open questions are answered by runs.
 wit_bindgen::generate!({ path: "wit", world: "panel-plugin" });
 
@@ -25,7 +25,6 @@ impl exports::craft::plugin::entry::Guest for Plugin {
             }
             "edit" => edit(&params),
             "export" => export(),
-            "handle" => handle(&params),
             _ => Err(invalid("entry", format!("no entry `{entry}`"))),
         }
     }
@@ -144,13 +143,6 @@ fn export() -> Result<String, PluginError> {
     Ok(json!({"bytes": csv.len(), "rows": csv.lines().count() - 1}).to_string())
 }
 
-/// A supplier mesh from the folder granted as `vendor`.
-fn handle(p: &Value) -> Result<String, PluginError> {
-    let file = p["file"].as_str().unwrap_or("abi/ABI-TEZRA-220.stl");
-    let reply = run("file.insert_mesh", &json!({"path": format!("grant:vendor/{file}")}))?;
-    Ok(json!({"inserted": reply}).to_string())
-}
-
 /// The panel's rows: one cell per path, `/cabinets/<row>/<column>`.
 fn show(cabs: &[Value]) -> Result<(), PluginError> {
     let mut cells = Vec::new();
@@ -175,7 +167,7 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
             row_id: "id".into(),
             columns: vec![column("id", "Cabinet", None), column("kind", "Type", None), column("width", "Width", Some("length"))],
             select: SelectionMode::Single,
-            on_select: None,
+            on_select: Some("edit".into()),
             on_edit: Some("edit".into()),
         };
         let nodes = vec![
