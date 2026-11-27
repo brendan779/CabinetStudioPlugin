@@ -7,7 +7,7 @@
   "decor": "Delana Oak",
   "finish": "Natural",
   "role": "carcass",
-  "thickness": 3
+  "thickness": "3"
  },
  "expect": {
   "error": "invalid_input"

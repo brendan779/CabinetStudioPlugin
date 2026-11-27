@@ -318,7 +318,8 @@ fn export() -> Result<String, PluginError> {
 /// The Boards dialog's choices: the board with that brand, range, decor, finish and thickness.
 fn board_choose(p: &Value) -> Result<String, PluginError> {
     let text = |k: &str| p[k].as_str().unwrap_or_default().to_string();
-    let thickness = p["thickness"].as_f64().unwrap_or_default();
+    // The dialog sends it as text ("18"); a script may send a number.
+    let thickness = p["thickness"].as_f64().or_else(|| p["thickness"].as_str().and_then(|t| t.parse().ok())).unwrap_or_default();
     let board = boards::all()
         .find(|b| {
             b.brand == text("brand") && b.range == text("range") && b.decor == text("decor") && b.finish == text("finish")
@@ -550,7 +551,9 @@ fn board_fields(values: &Value) -> Result<Value, PluginError> {
         patch["finish"] = json!({"choices": finishes, "default": finishes[0]});
     }
     if !thicknesses.is_empty() {
-        patch["thickness"] = json!({"choices": thicknesses, "default": thicknesses[0]});
+        // As the manifest writes them: "18", "4.75".
+        let shown: Vec<String> = thicknesses.iter().map(|t| format!("{t}")).collect();
+        patch["thickness"] = json!({"choices": shown, "default": shown[0]});
     }
     Ok(patch)
 }

@@ -7,7 +7,7 @@
   "range": "Commercial",
   "decor": "Angora Oak",
   "finish": "Woodmatt",
-  "thickness": 18.0
+  "thickness": "18"
  },
  "expect": {
   "reply": {

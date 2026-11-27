@@ -91,6 +91,31 @@ def choice(const, title, **extra):
     return dict({'const': const, 'title': title}, **extra)
 
 
+# What SolidCraft 0.50's dialog draws (crates/ui-egui/src/plugin_menu.rs, `form`): any other
+# field turns the whole dialog off with "This entry needs to be run from the agent or CLI", which
+# headless tests never see (0.4.0's Thickness, a dropdown of numbers, owner 2026-11-28).
+DRAWN = {
+    ('number', False): {'minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf'},
+    ('integer', False): {'minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum'},
+    ('boolean', False): set(),
+    ('string', True): {'enum', 'oneOf', 'minLength', 'maxLength', 'format'},
+    ('string', False): {'minLength', 'maxLength', 'format'},
+}
+NOTES = {'type', 'title', 'description', 'default', 'unit', 'x-unit', 'units', 'examples', '$comment', 'deprecated',
+         'x-solidcraft-visible-when', 'x-solidcraft-enabled-when', 'x-solidcraft-defaults', 'x-solidcraft-grant',
+         'x-solidcraft-section', 'x-solidcraft-unit-from', 'x-solidcraft-help'}
+
+
+def check_drawable(entry, schema):
+    for key, p in schema['properties'].items():
+        if p.get('type') == 'array':
+            continue
+        allowed = DRAWN.get((p.get('type'), 'enum' in p or 'oneOf' in p))
+        extra = set(p) - NOTES - (allowed or set())
+        if allowed is None or extra:
+            raise SystemExit(f"{entry}.{key}: SolidCraft's dialog can't draw it ({p.get('type')}, {sorted(extra)})")
+
+
 def main():
     cat = json.loads((ROOT / 'target' / 'catalog.json').read_text())
     pics = PKG / 'pictures'
@@ -205,8 +230,11 @@ def main():
         'range': {'type': 'string', 'title': 'Range', 'default': ranges[0], 'oneOf': opts(ranges)},
         'find': {'type': 'string', 'title': 'Find decor', 'default': '', 'description': 'Part of a decor name, to narrow the list'},
         'decor': {'type': 'string', 'title': 'Decor', 'default': decors[0], 'oneOf': opts(decors)},
-        'finish': {'type': 'string', 'title': 'Finish', 'default': finishes[0], 'oneOf': opts([''] + finishes)},
-        'thickness': {'type': 'number', 'title': 'Thickness', 'default': 18.0, 'oneOf': opts(thicknesses), 'unit': 'mm'},
+        'finish': {'type': 'string', 'title': 'Finish', 'default': finishes[0],
+                   'oneOf': [choice('', 'None')] + opts(finishes)},
+        # Text, as SolidCraft's dialog draws a dropdown only of text ("18", shown "18 mm").
+        'thickness': {'type': 'string', 'title': 'Thickness', 'default': '18',
+                      'oneOf': [choice(f'{x:g}', f'{x:g} mm') for x in thicknesses]},
     }
     pick = {'type': 'array', 'title': 'Cabinet', 'description': 'Any part of the cabinet to change', 'minItems': 1,
             'x-solidcraft-selection': {'version': 1, 'accept': ['body']}}
@@ -249,6 +277,8 @@ def main():
             'limits': old['runtime']['limits'],
         },
     }
+    for e in entries:
+        check_drawable(e['name'], e['input_schema'])
     text = json.dumps(manifest, separators=(',', ':'), ensure_ascii=False) + '\n'
     VERSION_FILE.write_text(text)
     print(f'plugin.json: {len(text.encode())} bytes, {len(list(pics.glob("*.png")))} pictures')

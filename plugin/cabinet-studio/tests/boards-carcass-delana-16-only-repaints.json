@@ -7,7 +7,7 @@
   "decor": "Delana Oak",
   "finish": "Natural",
   "role": "carcass",
-  "thickness": 16
+  "thickness": "16"
  },
  "expect": {
   "reply": {
