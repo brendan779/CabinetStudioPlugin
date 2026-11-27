@@ -294,6 +294,10 @@ offered Update to 0.0.9 after a restart.
 
 ## PLUG-3: the run's pieces (2026-11-28, 0.5.0)
 
+Checked in SolidCraft's window by Claude (owner asleep, with leave to drive the app): updated
+through Preferences › Plugins, the Bench top dialog draws every field, a benchtop and an end panel
+went in and the Cabinets panel lists them. The owner's own check is to come.
+
 - The stored run holds cabinets and pieces (`item`: cabinet, benchtop, end_panel, filler); each
   becomes the core's run item (`spec::item`), and the build treats them alike: fingerprints,
   rebuild only what changed.
