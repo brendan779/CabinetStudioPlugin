@@ -17,7 +17,11 @@ scripts/build.sh --test    # build, check and run the test cases
 scripts/build.sh --zip     # then pack target/cabinet-studio-<version>.zip
 ```
 
-Install the zip in SolidCraft from **Preferences › Plugins › Install plugin…**.
+Install the zip in SolidCraft from **Preferences › Plugins › Install plugin…**, or the latest
+release's `cabinet-studio-<version>.zip`. After that, SolidCraft offers each new release on the
+plugin's card in Preferences › Plugins (it checks at start and once a day).
+
+`scripts/release.sh "notes"` publishes the version in `plugin.json` as a release.
 
 ## Licence
 

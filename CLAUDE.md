@@ -9,6 +9,10 @@ Cabinet Studio as a SolidCraft plugin. Plan of record: [docs/PLAN.md](docs/PLAN.
   path dependencies in `.cargo/config.toml` (not committed).
 - `scripts/build.sh --test` is the gate: build, `plugin check`, `plugin test --require-cases`.
   Every entry gets cases in `plugin/cabinet-studio/tests`.
+- Releases are how the owner gets builds: SolidCraft offers a newer GitHub release on the plugin's
+  card (Preferences › Plugins › Update) at its next start. Bump `version` in plugin.json, commit,
+  then `scripts/release.sh "notes"`. Installing through the control port's `plugin.install` hung on
+  SolidCraft 0.50 (2026-11-27); don't use it on the owner's running app.
 - The interface follows docs/PLAN.md: change the plan first, then the manifest.
 - `wit/plugin.wit` is copied from SolidCraft's `crates/craft-plugin/wit/plugin.wit` at the tag the
   plugin targets (v0.50.0 now).
