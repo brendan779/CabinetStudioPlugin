@@ -84,6 +84,8 @@ pub struct Job {
     /// `{"base": [height, depth], "wall": …, "tall": …}`.
     pub sizes: Map<String, Value>,
     pub detail: String,
+    /// The benchtop's board, chosen with the Boards button.
+    pub benchtop_board: String,
 }
 
 impl Job {
@@ -106,6 +108,7 @@ impl Job {
             standard: serde_json::from_value(standard).unwrap_or_default(),
             sizes,
             detail: v["detail"].as_str().unwrap_or("design").into(),
+            benchtop_board: v["boards"]["benchtop"]["id"].as_str().unwrap_or_default().into(),
         }
     }
 
@@ -219,4 +222,72 @@ pub fn cabinet(spec: &Value, job: &Job) -> Option<Cabinet> {
 pub fn fronts_label(spec: &Value, kind: CabinetKind) -> String {
     let preset = spec["fronts"].as_str().filter(|p| presets_for(kind).contains(p)).unwrap_or(presets_for(kind)[0]);
     PRESETS.iter().find(|(id, _)| *id == preset).map_or(String::new(), |(_, l)| (*l).to_string())
+}
+
+/// What a stored run item is: a cabinet (the default, as 0.1–0.4 stored only cabinets), or one of
+/// the run's pieces (PLUG-3).
+pub fn item_kind(spec: &Value) -> &str {
+    spec["item"].as_str().unwrap_or("cabinet")
+}
+
+/// The edges a benchtop's dialog offers (the core's profiles; a mitred apron is a stone top's,
+/// left for later).
+#[allow(dead_code)]
+pub const EDGES: &[(&str, &str)] = &[("square", "Square"), ("pencil_round", "Pencil round"), ("bullnose", "Bullnose"), ("bevel", "Bevel")];
+
+/// A stored run item as the core's: a cabinet over the job's setup, or a piece.
+pub fn item(spec: &Value, job: &Job, benchtop_board: &str) -> Option<cabinet_core::run::RunItem> {
+    use cabinet_core::run::RunItem;
+    let id = spec["id"].as_str()?;
+    let num = |k: &str, d: f64| spec[k].as_f64().unwrap_or(d);
+    Some(match item_kind(spec) {
+        "end_panel" => RunItem::EndPanel(serde_json::from_value(json!({
+            "id": id, "scribe": num("scribe", 0.0), "to_floor": spec["to_floor"].as_bool().unwrap_or(true),
+        })).ok()?),
+        "filler" => RunItem::Filler(serde_json::from_value(json!({
+            "id": id, "width": num("width", 50.0), "scribe": num("scribe", 0.0),
+        })).ok()?),
+        "benchtop" => {
+            let mut top = json!({
+                "id": id,
+                "board": benchtop_board,
+                "front_overhang": num("front_overhang", 20.0),
+                "side_overhang": num("side_overhang", 0.0),
+                "edge": {"type": spec["edge"].as_str().unwrap_or("square")},
+                "splashback": num("splashback", 0.0),
+                "cutouts": [],
+            });
+            if let Some(t) = spec["thickness"].as_f64().filter(|t| *t > 0.0) {
+                top["thickness"] = json!(t);
+            }
+            if let Some(t) = spec["splashback_thickness"].as_f64().filter(|t| *t > 0.0) {
+                top["splashback_thickness"] = json!(t);
+            }
+            if let Some(over) = spec["sink_over"].as_str().filter(|s| !s.is_empty()) {
+                let sink = spec["sink"].as_str().unwrap_or("custom");
+                let mut c = json!({"over": over, "kind": "sink", "width": num("sink_width", 760.0), "depth": num("sink_depth", 450.0)});
+                if sink != "custom" {
+                    c["product"] = json!(sink);
+                }
+                top["cutouts"].as_array_mut()?.push(c);
+            }
+            if let Some(over) = spec["cooktop_over"].as_str().filter(|s| !s.is_empty()) {
+                top["cutouts"].as_array_mut()?.push(json!({
+                    "over": over, "kind": "cooktop", "width": num("cooktop_width", 560.0), "depth": num("cooktop_depth", 490.0),
+                }));
+            }
+            RunItem::Benchtop(serde_json::from_value(top).ok()?)
+        }
+        _ => RunItem::Cabinet(Box::new(cabinet(spec, job)?)),
+    })
+}
+
+/// What the Cabinets panel calls an item.
+pub fn item_label(spec: &Value) -> String {
+    match item_kind(spec) {
+        "end_panel" => "End panel".into(),
+        "filler" => "Filler".into(),
+        "benchtop" => "Benchtop".into(),
+        _ => KINDS.iter().find(|(k, _)| Some(*k) == spec["kind"].as_str()).map_or(String::new(), |(_, l)| (*l).to_string()),
+    }
 }

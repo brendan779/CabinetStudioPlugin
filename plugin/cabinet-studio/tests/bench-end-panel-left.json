@@ -1,0 +1,21 @@
+{
+ "design": "one-base.sc",
+ "entry": "benchtop",
+ "params": {
+  "piece": "end-panel",
+  "beside": [
+   {
+    "type": "body",
+    "name": "C01.LeftSide"
+   }
+  ],
+  "side": "left"
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 2
+   }
+  }
+ }
+}

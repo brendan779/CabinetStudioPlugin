@@ -1,0 +1,19 @@
+{
+ "design": "one-base.sc",
+ "entry": "benchtop",
+ "params": {
+  "piece": "benchtop",
+  "front_overhang": 20,
+  "edge": "pencil_round",
+  "splashback": 0
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "rebuilt": [
+     "BT1"
+    ]
+   }
+  }
+ }
+}

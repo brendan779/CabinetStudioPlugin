@@ -1,0 +1,22 @@
+{
+ "design": "one-base.sc",
+ "entry": "benchtop",
+ "params": {
+  "piece": "filler",
+  "beside": [
+   {
+    "type": "body",
+    "name": "C01.LeftSide"
+   }
+  ],
+  "side": "right",
+  "width": 75
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 2
+   }
+  }
+ }
+}

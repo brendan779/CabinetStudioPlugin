@@ -1,0 +1,12 @@
+{
+ "design": "one-base.sc",
+ "entry": "benchtop",
+ "params": {
+  "piece": "end-panel",
+  "side": "left"
+ },
+ "expect": {
+  "error": "invalid_input",
+  "message": "goes beside"
+ }
+}

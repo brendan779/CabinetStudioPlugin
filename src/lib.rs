@@ -39,7 +39,7 @@ impl exports::craft::plugin::entry::Guest for Plugin {
                 _ => later("PLUG-4"),
             },
             "boards" => board_choose(&params),
-            "benchtop" => later("PLUG-3"),
+            "benchtop" => pieces(&params),
             _ => Err(invalid("entry", format!("no entry `{entry}`"))),
         }
     }
@@ -89,12 +89,8 @@ fn save(job: &Value, cabs: &[Value]) -> Result<(), PluginError> {
 fn lists(job: &Job, cabs: &[Value]) -> Result<Vec<PartList>, PluginError> {
     let items = cabs
         .iter()
-        .map(|c| {
-            spec::cabinet(c, job)
-                .map(|k| RunItem::Cabinet(Box::new(k)))
-                .ok_or_else(|| invalid("cabinet", format!("can't read {c}")))
-        })
-        .collect::<Result<Vec<_>, _>>()?;
+        .map(|c| spec::item(c, job, &job.benchtop_board).ok_or_else(|| invalid("cabinet", format!("can't read {c}"))))
+        .collect::<Result<Vec<RunItem>, _>>()?;
     build_run(&Run { origin: Vec3::default(), items }).map_err(|e| invalid("cabinet", e))
 }
 
@@ -199,15 +195,92 @@ fn spec_from(p: &Value, id: &str) -> Value {
 
 /// The cabinet a picked body belongs to: bodies are named `<cabinet>.<part>`.
 fn picked(pick: &Value, cabs: &[Value]) -> Option<usize> {
+    picked_item(pick, cabs).filter(|i| spec::item_kind(&cabs[*i]) == "cabinet")
+}
+
+/// The run item, cabinet or piece, a picked body belongs to.
+fn picked_item(pick: &Value, cabs: &[Value]) -> Option<usize> {
     pick.as_array()?.iter().find_map(|p| {
         let id = p["name"].as_str()?.split('.').next()?;
         cabs.iter().position(|c| c["id"] == id)
     })
 }
 
+/// The next free id with `prefix`: C01, E01, F01.
+fn next_with(prefix: &str, cabs: &[Value]) -> String {
+    let n = (1..).find(|n| !cabs.iter().any(|c| c["id"] == format!("{prefix}{n:02}"))).unwrap_or(1);
+    format!("{prefix}{n:02}")
+}
+
 fn next_id(cabs: &[Value]) -> String {
-    let n = (1..).find(|n| !cabs.iter().any(|c| c["id"] == format!("C{n:02}"))).unwrap_or(1);
-    format!("C{n:02}")
+    next_with("C", cabs)
+}
+
+/// The Bench top dialog: the benchtop, an end panel or a filler, added, changed or removed.
+fn pieces(p: &Value) -> Result<String, PluginError> {
+    let (job, mut cabs) = load()?;
+    let num = |k: &str| p[k].as_f64();
+    match p["piece"].as_str().unwrap_or("benchtop") {
+        "benchtop" => {
+            let at = cabs.iter().position(|c| spec::item_kind(c) == "benchtop");
+            if p["remove"].as_bool() == Some(true) {
+                if let Some(i) = at {
+                    cabs.remove(i);
+                }
+                return sync(&job, cabs, false);
+            }
+            let old = at.map(|i| cabs[i].clone()).unwrap_or(json!({}));
+            let mut top = json!({"item": "benchtop", "id": "BT1"});
+            for k in ["thickness", "front_overhang", "side_overhang", "splashback", "splashback_thickness",
+                      "sink_width", "sink_depth", "cooktop_width", "cooktop_depth"] {
+                if let Some(x) = num(k) {
+                    top[k] = json!(x);
+                }
+            }
+            top["edge"] = p["edge"].clone();
+            // The cabinet each cut-out goes over: picked now, or as it was.
+            let over = |pick: &str, was: &str| -> Option<String> {
+                picked(&p[pick], &cabs).map(|i| cabs[i]["id"].as_str().unwrap_or_default().to_string())
+                    .or_else(|| old[was].as_str().map(String::from))
+            };
+            let sink = p["sink"].as_str().unwrap_or("none");
+            if sink != "none" {
+                top["sink"] = json!(sink);
+                top["sink_over"] = json!(over("sink_over", "sink_over")
+                    .ok_or_else(|| invalid("sink_over", "pick the cabinet the sink goes over"))?);
+            }
+            if p["cooktop"].as_str().unwrap_or("none") != "none" {
+                top["cooktop"] = p["cooktop"].clone();
+                top["cooktop_over"] = json!(over("cooktop_over", "cooktop_over")
+                    .ok_or_else(|| invalid("cooktop_over", "pick the cabinet the cooktop goes over"))?);
+            }
+            top["built"] = old["built"].clone();
+            top["painted"] = old["painted"].clone();
+            match at {
+                Some(i) => cabs[i] = top,
+                None => cabs.push(top),
+            }
+        }
+        kind @ ("end-panel" | "filler") => {
+            if p["remove"].as_bool() == Some(true) {
+                let i = picked_item(&p["beside"], &cabs)
+                    .filter(|i| spec::item_kind(&cabs[*i]) == kind.replace('-', "_"))
+                    .ok_or_else(|| invalid("beside", format!("pick the {} to remove", kind.replace('-', " "))))?;
+                cabs.remove(i);
+                return sync(&job, cabs, false);
+            }
+            let i = picked(&p["beside"], &cabs).ok_or_else(|| invalid("beside", "pick the cabinet it goes beside"))?;
+            let at = if p["side"].as_str() == Some("left") { i } else { i + 1 };
+            let (prefix, item) = if kind == "filler" { ("F", "filler") } else { ("E", "end_panel") };
+            let mut piece = json!({"item": item, "id": next_with(prefix, &cabs), "scribe": num("scribe").unwrap_or(0.0)});
+            if kind == "filler" {
+                piece["width"] = json!(num("width").unwrap_or(50.0));
+            }
+            cabs.insert(at, piece);
+        }
+        other => return Err(invalid("piece", format!("no piece `{other}`"))),
+    }
+    sync(&job, cabs, false)
 }
 
 fn add(p: &Value) -> Result<String, PluginError> {
@@ -342,13 +415,18 @@ fn show(job_value: &Value, cabs: &[Value]) -> Result<(), PluginError> {
         let cell = |key: &str, value: Cell| Datum { path: format!("/cabinets/{row}/{key}"), value };
         let id = c["id"].as_str().unwrap_or_default();
         let kind = spec::kind(c["kind"].as_str().unwrap_or("base"));
-        let label = spec::KINDS.iter().find(|(k, _)| Some(*k) == c["kind"].as_str()).map_or("", |(_, l)| *l);
-        let size = spec::cabinet(c, &job).map_or(String::new(), |k| format!("{:.0} × {:.0} × {:.0}", k.width, k.height, k.depth));
+        let label = spec::item_label(c);
+        let size = match spec::item_kind(c) {
+            "cabinet" => spec::cabinet(c, &job).map_or(String::new(), |k| format!("{:.0} × {:.0} × {:.0}", k.width, k.height, k.depth)),
+            "filler" => format!("{:.0} wide", c["width"].as_f64().unwrap_or(50.0)),
+            _ => String::new(),
+        };
         let warnings = built.iter().find(|l| l.cabinet == id).map_or(0, |l| l.warnings.len());
         cells.push(cell("id", Cell::Text(id.into())));
-        cells.push(cell("kind", Cell::Text(label.into())));
+        cells.push(cell("kind", Cell::Text(label)));
         cells.push(cell("size", Cell::Text(size)));
-        cells.push(cell("fronts", Cell::Text(kind.map_or(String::new(), |k| spec::fronts_label(c, k)))));
+        let fronts = if spec::item_kind(c) == "cabinet" { kind.map_or(String::new(), |k| spec::fronts_label(c, k)) } else { String::new() };
+        cells.push(cell("fronts", Cell::Text(fronts)));
         cells.push(cell("warnings", Cell::Text(if warnings == 0 { String::new() } else { warnings.to_string() })));
     }
     let mut n = 0;
@@ -428,6 +506,7 @@ impl exports::craft::plugin::dialog_provider::Guest for Plugin {
         let patch = match entry.as_str() {
             "setup" => setup_fields(&values)?,
             "boards" => board_fields(&values)?,
+            "benchtop" => bench_fields(&values)?,
             "add" => cabinet_fields(&values, None)?,
             "edit" => {
                 let (_, cabs) = load()?;
@@ -543,6 +622,24 @@ fn board_fields(values: &Value) -> Result<Value, PluginError> {
     } else {
         json!({"enabled": false})
     };
+    Ok(patch)
+}
+
+/// Bench top: the benchtop's settings as stored, when there is one.
+fn bench_fields(values: &Value) -> Result<Value, PluginError> {
+    let (_, cabs) = load()?;
+    let mut patch = json!({});
+    if values["piece"].as_str().unwrap_or("benchtop") != "benchtop" {
+        return Ok(patch);
+    }
+    if let Some(top) = cabs.iter().find(|c| spec::item_kind(c) == "benchtop") {
+        for k in ["thickness", "front_overhang", "side_overhang", "edge", "splashback", "splashback_thickness",
+                  "sink", "sink_width", "sink_depth", "cooktop", "cooktop_width", "cooktop_depth"] {
+            if !top[k].is_null() {
+                patch[k] = json!({"value": top[k]});
+            }
+        }
+    }
     Ok(patch)
 }
 

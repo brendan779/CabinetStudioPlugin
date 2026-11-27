@@ -104,6 +104,8 @@ DRAWN = {
     ('string', True): {'enum', 'oneOf', 'minLength', 'maxLength', 'format'},
     ('string', False): {'minLength', 'maxLength', 'format'},
 }
+PICK = {'type', 'title', 'description', 'minItems', 'maxItems', 'items', '$comment', 'deprecated', 'x-solidcraft-selection',
+        'x-solidcraft-visible-when', 'x-solidcraft-enabled-when', 'x-solidcraft-section', 'x-solidcraft-help'}
 NOTES = {'type', 'title', 'description', 'default', 'unit', 'x-unit', 'units', 'examples', '$comment', 'deprecated',
          'x-solidcraft-visible-when', 'x-solidcraft-enabled-when', 'x-solidcraft-defaults', 'x-solidcraft-grant',
          'x-solidcraft-section', 'x-solidcraft-unit-from', 'x-solidcraft-help'}
@@ -112,6 +114,9 @@ NOTES = {'type', 'title', 'description', 'default', 'unit', 'x-unit', 'units', '
 def check_drawable(entry, schema):
     for key, p in schema['properties'].items():
         if p.get('type') == 'array':
+            extra = set(p) - PICK
+            if extra:
+                raise SystemExit(f"{entry}.{key}: SolidCraft's dialog can't draw this pick field ({sorted(extra)})")
             continue
         allowed = DRAWN.get((p.get('type'), 'enum' in p or 'oneOf' in p))
         extra = set(p) - NOTES - (allowed or set())
@@ -250,9 +255,44 @@ def main():
     add_props = {'beside': beside, **cabinet_props}
     edit = entry('edit', 'Edit cabinet', 'edit', edit_props, ribbon='Edit', dialog_hook=True, job=True)
     edit['input_schema']['required'] = ['pick']
-    piece = {'type': 'string', 'title': 'Piece', 'default': 'benchtop', 'oneOf': [
-        choice('benchtop', 'Benchtop'), choice('end-panel', 'End panel'), choice('filler', 'Filler'),
-        choice('splashback', 'Splashback')]}
+    # Bench top: the run's pieces (PLUG-3). Each field shows for its piece.
+    when = lambda *ps: {'x-solidcraft-visible-when': {'field': 'piece', 'in': list(ps)}}
+    top = lambda **kw: dict(kw, **when('benchtop'))
+    pick_field = lambda title, desc: {'type': 'array', 'title': title, 'description': desc, 'maxItems': 1,
+                                      'x-solidcraft-selection': {'version': 1, 'accept': ['body']}}
+    bench_props = {
+        'piece': {'type': 'string', 'title': 'Piece', 'default': 'benchtop', 'oneOf': [
+            choice('benchtop', 'Benchtop, splashback and cut-outs'), choice('end-panel', 'End panel'), choice('filler', 'Filler')]},
+        'beside': dict(pick_field('Beside', 'The cabinet it goes beside; to remove one, pick the panel itself'),
+                       **when('end-panel', 'filler')),
+        'side': {'type': 'string', 'title': 'On its', 'default': 'right', 'oneOf': [choice('left', 'Left'), choice('right', 'Right')],
+                 **when('end-panel', 'filler')},
+        'width': dict(number('Filler width', 50, 5, 300), **when('filler')),
+        'scribe': dict(number('Scribe', 0, 0, 50), description='Extra to cut to the wall on site', **when('end-panel', 'filler')),
+        'thickness': top(**number('Thickness', 0, 0, 100), description="0: the benchtop board's, or 33 mm"),
+        'front_overhang': top(**number('Front overhang', 20, 0, 400)),
+        'side_overhang': top(**number('Side overhang', 0, 0, 400)),
+        'edge': top(type='string', title='Edge', default='square', oneOf=[choice(e['id'], e['label']) for e in cat['edges']]),
+        'splashback': top(**number('Splashback height', 0, 0, 1200), description='0: none. In the benchtop board'),
+        'splashback_thickness': top(**number('Splashback thickness', 20, 0, 50)),
+        'sink': top(type='string', title='Sink', default='none',
+                    oneOf=[choice('none', 'None'), choice('custom', 'A cut-out of my size')]
+                          + [choice(s['id'], s['name']) for s in cat['sinks']]),
+        'sink_over': dict(pick_field('Sink over', 'The cabinet the sink sits over'),
+                          **{'x-solidcraft-visible-when': {'all': [{'field': 'piece', 'eq': 'benchtop'}, {'not': {'field': 'sink', 'eq': 'none'}}]}}),
+        'sink_width': dict(number('Sink cut-out width', 760, 100, 1500),
+                           **{'x-solidcraft-visible-when': {'all': [{'field': 'piece', 'eq': 'benchtop'}, {'field': 'sink', 'eq': 'custom'}]}}),
+        'sink_depth': dict(number('Sink cut-out depth', 450, 100, 700),
+                           **{'x-solidcraft-visible-when': {'all': [{'field': 'piece', 'eq': 'benchtop'}, {'field': 'sink', 'eq': 'custom'}]}}),
+        'cooktop': top(type='string', title='Cooktop', default='none', oneOf=[choice('none', 'None'), choice('cutout', 'A cut-out of my size')]),
+        'cooktop_over': dict(pick_field('Cooktop over', 'The cabinet the cooktop sits over'),
+                             **{'x-solidcraft-visible-when': {'all': [{'field': 'piece', 'eq': 'benchtop'}, {'field': 'cooktop', 'eq': 'cutout'}]}}),
+        'cooktop_width': dict(number('Cooktop cut-out width', 560, 100, 1200),
+                              **{'x-solidcraft-visible-when': {'all': [{'field': 'piece', 'eq': 'benchtop'}, {'field': 'cooktop', 'eq': 'cutout'}]}}),
+        'cooktop_depth': dict(number('Cooktop cut-out depth', 490, 100, 700),
+                              **{'x-solidcraft-visible-when': {'all': [{'field': 'piece', 'eq': 'benchtop'}, {'field': 'cooktop', 'eq': 'cutout'}]}}),
+        'remove': {'type': 'boolean', 'title': 'Remove it', 'default': False, 'x-solidcraft-section': ''},
+    }
     make = {'type': 'string', 'title': 'Make', 'default': 'csv', 'oneOf': [
         choice('csv', 'Cut list (CSV)'), choice('sheets', 'Cut sheets'), choice('labels', 'Part labels')]}
     entries = [
@@ -263,7 +303,7 @@ def main():
         entry('add', 'Add cabinet', 'add', add_props, ribbon='Add', dialog_hook=True, job=True),
         edit,
         entry('boards', 'Boards', 'boards', board_props, ribbon='Boards', dialog_hook=True, job=True),
-        entry('benchtop', 'Bench top and panels', 'benchtop', {'piece': piece}, ribbon='Bench top'),
+        entry('benchtop', 'Bench top and panels', 'benchtop', bench_props, ribbon='Bench top', dialog_hook=True, job=True),
         entry('export', 'Cut list', 'cutlist', {'make': make}, ribbon='Cut List'),
     ]
     old = json.loads(VERSION_FILE.read_text())

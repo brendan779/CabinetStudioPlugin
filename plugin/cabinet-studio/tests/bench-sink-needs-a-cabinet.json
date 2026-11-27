@@ -1,0 +1,13 @@
+{
+ "design": "one-base.sc",
+ "entry": "benchtop",
+ "params": {
+  "piece": "benchtop",
+  "edge": "square",
+  "sink": "custom"
+ },
+ "expect": {
+  "error": "invalid_input",
+  "message": "sink goes over"
+ }
+}

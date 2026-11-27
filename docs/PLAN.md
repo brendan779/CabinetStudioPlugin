@@ -292,6 +292,24 @@ Update keeps the granted exports folder. Installing through the control port's `
 (no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
 offered Update to 0.0.9 after a restart.
 
+## PLUG-3: the run's pieces (2026-11-28, 0.5.0)
+
+- The stored run holds cabinets and pieces (`item`: cabinet, benchtop, end_panel, filler); each
+  becomes the core's run item (`spec::item`), and the build treats them alike: fingerprints,
+  rebuild only what changed.
+- **Bench top** opens one dialog, its fields shown for the piece chosen:
+  - **Benchtop, splashback and cut-outs:** thickness (0: the benchtop board's, or 33 mm), front and
+    side overhang, edge (square, pencil round, bullnose, bevel), a splashback height (parametric,
+    in the benchtop's board), a sink (one of the 16 ABI sinks, or a cut-out of my size) over a
+    picked cabinet, a cooktop cut-out over a picked cabinet. Its board is the one chosen for
+    Benchtop with the Boards button. The dialog opens with the benchtop's settings.
+  - **End panel** and **Filler:** pick the cabinet it goes beside and the side; a filler's width;
+    scribe. Picking the panel itself with Remove takes it out.
+  - **Remove it** takes the benchtop out.
+- Kick and plinth come with each run from Job setup, as before.
+- Not yet: L-shaped runs and returns, stone slabs and joins, waterfalls, wall cabinets above a base
+  run; handles and legs are placeholders (PLUG-1).
+
 ## Boards as a dialog (2026-11-28, 0.4.0; 0.4.2 checked by the owner in SolidCraft)
 
 0.3.0's Boards panel failed the owner on SolidCraft 0.50: a declared panel always opens (a plugin

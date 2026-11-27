@@ -86,6 +86,14 @@ fn main() {
     }
     let groups = serde_json::to_value(cabinet_core::options::option_groups()).unwrap();
     let measurements = serde_json::to_value(cabinet_core::options::measurements()).unwrap();
+    // The catalogue's sinks, undermounted, one each (the granite ones also come top-mounted).
+    let mut sinks: Vec<Value> = Vec::new();
+    for s in cabinet_core::run::Appliance::catalog_sinks() {
+        if !sinks.iter().any(|x| x["id"] == s.product.as_str()) {
+            sinks.push(json!({"id": s.product, "name": s.name}));
+        }
+    }
+    let edges: Vec<Value> = spec::EDGES.iter().map(|(i, l)| json!({"id": i, "label": l})).collect();
     let defaults = serde_json::to_value(cabinet_core::ConstructionStandard::default()).unwrap();
     let sizes: Value = ["base", "wall", "tall"]
         .iter()
@@ -97,7 +105,7 @@ fn main() {
         "{}",
         serde_json::to_string_pretty(&json!({
             "kinds": kinds, "presets": presets, "opens": spec::OPENS.iter().map(|(i, l)| json!({"id": i, "label": l})).collect::<Vec<_>>(),
-            "groups": groups, "measurements": measurements, "defaults": defaults, "sizes": sizes,
+            "groups": groups, "measurements": measurements, "sinks": sinks, "edges": edges, "defaults": defaults, "sizes": sizes,
         }))
         .unwrap()
     );

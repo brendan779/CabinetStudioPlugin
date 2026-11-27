@@ -1,0 +1,25 @@
+{
+ "design": "one-base.sc",
+ "entry": "benchtop",
+ "params": {
+  "piece": "benchtop",
+  "edge": "square",
+  "splashback": 600,
+  "sink": "sink.abi.seba-single-sink-550mm",
+  "sink_over": [
+   {
+    "type": "body",
+    "name": "C01.LeftSide"
+   }
+  ]
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "rebuilt": [
+     "BT1"
+    ]
+   }
+  }
+ }
+}
