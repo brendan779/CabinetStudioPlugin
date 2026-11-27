@@ -197,13 +197,15 @@ and editing a cabinet to be separate buttons (2026-11-27).
 | Button | Icon | What it holds |
 |---|---|---|
 | **Job** ▾ | a grey cabinet and a blue settings dial | Job setup, Boards, Shop standard |
-| **Add cabinet** | a blue cabinet and a plus | A new cabinet at the end of the run, or beside the picked one (PLUG-1). With boxes picked, cabinets in them (PLUG-5) |
-| **Edit cabinet** | a grey cabinet and a blue pencil | Changes the picked cabinet |
-| **Benchtop & panels** ▾ | a grey cabinet under a blue top | Benchtop, End panel or filler, Splashback |
+| **Add** | a blue cabinet and a plus | A new cabinet at the end of the run, or beside the picked one (PLUG-1). With boxes picked, cabinets in them (PLUG-5) |
+| **Edit** | a grey cabinet and a blue pencil | Changes the picked cabinet |
+| **Benchtop** ▾ | a grey cabinet under a blue top | Benchtop, End panel or filler, Splashback |
 | **Cabinets** ▾ | a list | Show the Cabinets panel, Refresh, Select in the view, Rebuild all |
-| **Cut list** ▾ | a sheet with blue parts | Cut list, Cut sheets, Labels |
+| **Cut List** ▾ | a sheet with blue parts | Cut list, Cut sheets, Labels |
 
-A button with ▾ is a `ribbon_groups` drop-down; every entry must sit in a group or have its own
+Labels are at most 11 characters, as SolidCraft's own are ("Move / Copy"): longer ones are cut
+under the icon (owner, 2026-11-27). The dialogs and drop-down menus carry the full names ("Add
+cabinet", "End panel or filler"). A button with ▾ is a `ribbon_groups` drop-down; every entry must sit in a group or have its own
 button, so the panel's helpers (Refresh, Select in the view) sit under **Cabinets**.
 
 ### Editing a cabinet
