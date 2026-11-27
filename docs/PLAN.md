@@ -229,6 +229,8 @@ it can (see Asks of SolidCraft):
 
 ### Asks of SolidCraft
 
+All of them, with what happened and how to see it: [solidcraft-asks.md](solidcraft-asks.md).
+
 Drafts, to post on tangency-labs/solidcraft only with the owner's go-ahead:
 
 1. **A plugin entry enabled by the selection.** Posted 2026-11-27 as tangency-labs/solidcraft#23098. A manifest field on an entry, such as
