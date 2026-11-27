@@ -358,6 +358,12 @@ fn show(job_value: &Value, cabs: &[Value]) -> Result<(), PluginError> {
             n += 1;
         }
     }
+    // The job's board per role, chosen with the Boards button.
+    for (row, (role, label)) in boards::ROLES.iter().enumerate() {
+        let name = job_value["boards"][*role]["name"].as_str().unwrap_or("Not chosen").to_string();
+        cells.push(Datum { path: format!("/job_boards/{row}/role"), value: Cell::Text((*label).into()) });
+        cells.push(Datum { path: format!("/job_boards/{row}/board"), value: Cell::Text(name) });
+    }
     ui::clear_data("cabinets")?;
     ui::set_data("cabinets", &cells)
 }
@@ -382,9 +388,18 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
             title: "Cabinets".into(),
             zones: vec![DockZone::Right, DockZone::Bottom],
             layout: Layout { root: 0, nodes: vec![
-                Node { widget: Widget::Group(vec![1, 2, 3, 4]) },
+                Node { widget: Widget::Group(vec![1, 2, 3, 4, 5, 6]) },
                 Node { widget: Widget::Toolbar(vec![button("Refresh", "show"), button("Rebuild all", "rebuild")]) },
                 Node { widget: Widget::Table(table) },
+                Node { widget: Widget::Text("Boards".into()) },
+                Node { widget: Widget::Table(TableSpec {
+                    bind: "/job_boards".into(),
+                    row_id: "role".into(),
+                    columns: vec![column("role", "Role"), column("board", "Board")],
+                    select: SelectionMode::None,
+                    on_select: None,
+                    on_edit: None,
+                }) },
                 Node { widget: Widget::Text("Warnings".into()) },
                 Node { widget: Widget::ItemList(ListSpec { bind: "/warnings".into(), on_select: None }) },
             ] },

@@ -37,12 +37,15 @@ def panels():
     the plugin when the two differ, so `plugin test` catches a change made to one alone."""
     col = lambda key, label, unit=None: {'key': key, 'label': label, 'unit': unit}
     cabinets = {'id': 'cabinets', 'title': 'Cabinets', 'zones': ['right', 'bottom'], 'layout': {'root': 0, 'nodes': [
-        {'widget': {'group': [1, 2, 3, 4]}},
+        {'widget': {'group': [1, 2, 3, 4, 5, 6]}},
         {'widget': {'toolbar': [{'label': 'Refresh', 'icon': None, 'entry': 'show'},
                                 {'label': 'Rebuild all', 'icon': None, 'entry': 'rebuild'}]}},
         {'widget': {'table': {'bind': '/cabinets', 'row_id': 'id', 'columns': [
             col('id', 'Cabinet'), col('kind', 'Type'), col('size', 'W × H × D'), col('fronts', 'Fronts'), col('warnings', 'Warnings')],
             'select': 'single', 'on_select': 'select', 'on_edit': None}}},
+        {'widget': {'text': 'Boards'}},
+        {'widget': {'table': {'bind': '/job_boards', 'row_id': 'role', 'columns': [col('role', 'Role'), col('board', 'Board')],
+                              'select': 'none', 'on_select': None, 'on_edit': None}}},
         {'widget': {'text': 'Warnings'}},
         {'widget': {'item-list': {'bind': '/warnings', 'on_select': None}}},
     ]}}

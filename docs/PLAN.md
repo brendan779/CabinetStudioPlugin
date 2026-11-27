@@ -309,6 +309,8 @@ So the **Boards** button opens a dialog, as SolidCraft's own tools do:
 - A hook may spend only 10 million instructions, too few to read the whole board index. The index
   starts with a table of contents, where each brand's lines are, so the hook reads one brand's.
 - The Boards panel and its two helper entries are gone.
+- 0.4.3: the Cabinets panel lists the job's board per role under the cabinets (owner): a hook's
+  hint doesn't show, so the dialog can't.
 - 0.4.1: 0.4.0's dialog said "This entry needs to be run from the agent or CLI": SolidCraft's
   dialog draws a dropdown only of text, and Thickness was a dropdown of numbers. It is text now
   ("18", shown "18 mm"), and `make_manifest.py` checks every field against what the dialog draws
