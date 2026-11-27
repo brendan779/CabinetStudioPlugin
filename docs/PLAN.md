@@ -110,11 +110,11 @@ start from it) and **Use shop standard**. Applying the setup rebuilds every cabi
 with progress and Cancel. A long job has no preview, so the dialog shows what will change as text
 (the hook's hints: "12 cabinets rebuild; hinges change to EXPANDO").
 
-### Cabinet (one dialog for add and edit)
+### Add cabinet and Edit cabinet (the same fields)
 
 ```text
-┌ Cabinet ─────────────────────────────────────────────┐
-│ Picked:  B03 · Base 600          [ Edit ▾ ]          │  edit / new beside it / new above it
+┌ Edit cabinet ────────────────────────────────────────┐
+│ Cabinet  B03 · Base 600   "Changing B03"            │  Edit: the pick, required
 │                                                      │
 │ Type     ▣ Base  ▣ Drawers  ▣ Sink  ▣ Corner  ...    │  picture grid
 │ Size     Width 600   Height job (720)   Depth job    │  job values unless typed
@@ -129,10 +129,10 @@ with progress and Cancel. A long job has no preview, so the dialog shows what wi
 
 - **Type:** base, drawers, sink, blind corner, L-corner, wall, wall corner, tall, wardrobe,
   rangehood, open shelf. Pictures drawn from the cabinet itself.
-- **Mode (the first field):** the dialog hook reads the selection. A picked cabinet defaults to
-  **Edit it**. The other choices are **New beside it** (on the side picked) and **New above it**
-  (a wall cabinet over a base). With nothing picked, it's **New**. Woodwork guesses the mode from
-  which part was picked. We say what will happen instead, and the user can change it.
+- **Two buttons, one set of fields** (owner 2026-11-27). **Edit cabinet** starts with the pick
+  and fills in the rest from it. **Add cabinet** has no pick field to need: a cabinet picked when
+  it opens is where the new one goes, with **Beside it** (on the side picked) or **Above it** (a
+  wall cabinet over a base); with nothing picked, it goes at the end of the run.
 - **Fronts:** presets drawn as pictures, narrowed by type (a drawer bank offers drawer stacks, a
   wall cabinet offers doors and lift-ups when LIFT-HOLD ends). Finer splits are a later option
   (SEC-*).
