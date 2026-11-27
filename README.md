@@ -14,7 +14,7 @@ Needs Rust with `wasm32-unknown-unknown`, `wasm-tools` (`cargo install wasm-tool
 
 ```bash
 scripts/build.sh --test    # build, check and run the test cases
-scripts/build.sh --zip     # then pack target/cabinet-studio.zip
+scripts/build.sh --zip     # then pack target/cabinet-studio-<version>.zip
 ```
 
 Install the zip in SolidCraft from **Preferences › Plugins › Install plugin…**.

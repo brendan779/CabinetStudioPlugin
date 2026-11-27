@@ -31,10 +31,12 @@ impl exports::craft::plugin::entry::Guest for Plugin {
                 Ok(json!({"cabinets": cabs.len()}).to_string())
             }
             "select" => select(&params),
-            "export" => export(),
+            "export" => match params["make"].as_str().unwrap_or("csv") {
+                "csv" => export(),
+                _ => later("PLUG-4"),
+            },
             "setup" | "boards" | "rebuild" => later("PLUG-1"),
-            "benchtop" | "end-panel" | "splashback" => later("PLUG-3"),
-            "sheets" => later("PLUG-4"),
+            "benchtop" => later("PLUG-3"),
             _ => Err(invalid("entry", format!("no entry `{entry}`"))),
         }
     }

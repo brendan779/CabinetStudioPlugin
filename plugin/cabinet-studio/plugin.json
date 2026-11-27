@@ -1,7 +1,7 @@
 {
   "id": "cabinet-studio",
   "name": "Cabinet Studio",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "PLUG-0 spike: cabinets from Cabinet Studio's core, built in SolidCraft.",
   "capabilities": [
     "commands@0.2",
@@ -46,6 +46,7 @@
           "type": "object",
           "title": "Job setup",
           "x-solidcraft-icon": "icons/job.svg",
+          "x-solidcraft-field-order": "declared",
           "properties": {}
         }
       },
@@ -56,7 +57,58 @@
           "type": "object",
           "title": "Boards",
           "x-solidcraft-icon": "icons/job.svg",
+          "x-solidcraft-field-order": "declared",
           "properties": {}
+        }
+      },
+      {
+        "name": "show",
+        "effect": "edit",
+        "input_schema": {
+          "type": "object",
+          "title": "Show the Cabinets panel",
+          "x-solidcraft-icon": "icons/panel.svg",
+          "x-solidcraft-field-order": "declared",
+          "properties": {}
+        }
+      },
+      {
+        "name": "rebuild",
+        "effect": "edit",
+        "input_schema": {
+          "type": "object",
+          "title": "Rebuild all",
+          "x-solidcraft-icon": "icons/panel.svg",
+          "x-solidcraft-field-order": "declared",
+          "properties": {}
+        }
+      },
+      {
+        "name": "refresh",
+        "effect": "read",
+        "input_schema": {
+          "type": "object",
+          "title": "Refresh the Cabinets panel",
+          "x-solidcraft-icon": "icons/panel.svg",
+          "x-solidcraft-field-order": "declared",
+          "properties": {}
+        }
+      },
+      {
+        "name": "select",
+        "effect": "edit",
+        "input_schema": {
+          "type": "object",
+          "title": "Select a cabinet in the view",
+          "x-solidcraft-icon": "icons/panel.svg",
+          "x-solidcraft-field-order": "declared",
+          "properties": {
+            "row": {
+              "type": "string",
+              "title": "Cabinet",
+              "default": ""
+            }
+          }
         }
       },
       {
@@ -216,96 +268,78 @@
         "effect": "edit",
         "input_schema": {
           "type": "object",
-          "title": "Benchtop",
+          "title": "Bench top and panels",
           "x-solidcraft-icon": "icons/benchtop.svg",
-          "properties": {}
-        }
-      },
-      {
-        "name": "end-panel",
-        "effect": "edit",
-        "input_schema": {
-          "type": "object",
-          "title": "End panel or filler",
-          "x-solidcraft-icon": "icons/benchtop.svg",
-          "properties": {}
-        }
-      },
-      {
-        "name": "splashback",
-        "effect": "edit",
-        "input_schema": {
-          "type": "object",
-          "title": "Splashback",
-          "x-solidcraft-icon": "icons/benchtop.svg",
-          "properties": {}
-        }
-      },
-      {
-        "name": "show",
-        "effect": "edit",
-        "input_schema": {
-          "type": "object",
-          "title": "Show the Cabinets panel",
-          "x-solidcraft-icon": "icons/panel.svg",
-          "properties": {}
-        }
-      },
-      {
-        "name": "refresh",
-        "effect": "read",
-        "input_schema": {
-          "type": "object",
-          "title": "Refresh",
-          "x-solidcraft-icon": "icons/panel.svg",
-          "properties": {}
-        }
-      },
-      {
-        "name": "select",
-        "effect": "edit",
-        "input_schema": {
-          "type": "object",
-          "title": "Select in the view",
-          "x-solidcraft-icon": "icons/panel.svg",
+          "x-solidcraft-field-order": "declared",
           "properties": {
-            "row": {
+            "piece": {
               "type": "string",
-              "title": "Cabinet",
-              "default": ""
+              "title": "Piece",
+              "default": "benchtop",
+              "oneOf": [
+                {
+                  "const": "benchtop",
+                  "title": "Benchtop"
+                },
+                {
+                  "const": "end-panel",
+                  "title": "End panel"
+                },
+                {
+                  "const": "filler",
+                  "title": "Filler"
+                },
+                {
+                  "const": "splashback",
+                  "title": "Splashback"
+                }
+              ]
             }
           }
-        }
-      },
-      {
-        "name": "rebuild",
-        "effect": "edit",
-        "input_schema": {
-          "type": "object",
-          "title": "Rebuild all",
-          "x-solidcraft-icon": "icons/panel.svg",
-          "properties": {}
-        }
+        },
+        "slots": [
+          {
+            "kind": "ribbon",
+            "name": "Bench top"
+          }
+        ]
       },
       {
         "name": "export",
         "effect": "edit",
         "input_schema": {
           "type": "object",
-          "title": "Cut list (CSV)",
+          "title": "Cut list",
           "x-solidcraft-icon": "icons/cutlist.svg",
-          "properties": {}
-        }
-      },
-      {
-        "name": "sheets",
-        "effect": "edit",
-        "input_schema": {
-          "type": "object",
-          "title": "Cut sheets",
-          "x-solidcraft-icon": "icons/cutlist.svg",
-          "properties": {}
-        }
+          "x-solidcraft-field-order": "declared",
+          "properties": {
+            "make": {
+              "type": "string",
+              "title": "Make",
+              "default": "csv",
+              "oneOf": [
+                {
+                  "const": "csv",
+                  "title": "Cut list (CSV)"
+                },
+                {
+                  "const": "sheets",
+                  "title": "Cut sheets"
+                },
+                {
+                  "const": "labels",
+                  "title": "Part labels"
+                }
+              ]
+            }
+          }
+        },
+        "slots": [
+          {
+            "kind": "ribbon",
+            "name": "Cut List"
+          }
+        ]
       }
     ],
     "permissions": {
@@ -398,34 +432,11 @@
         "icon": "icons/job.svg",
         "entries": [
           "setup",
-          "boards"
-        ]
-      },
-      {
-        "label": "Benchtop",
-        "icon": "icons/benchtop.svg",
-        "entries": [
-          "benchtop",
-          "end-panel",
-          "splashback"
-        ]
-      },
-      {
-        "label": "Cabinets",
-        "icon": "icons/panel.svg",
-        "entries": [
+          "boards",
           "show",
+          "rebuild",
           "refresh",
-          "select",
-          "rebuild"
-        ]
-      },
-      {
-        "label": "Cut List",
-        "icon": "icons/cutlist.svg",
-        "entries": [
-          "export",
-          "sheets"
+          "select"
         ]
       }
     ]

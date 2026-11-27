@@ -1,5 +1,8 @@
 {
  "entry": "benchtop",
+ "params": {
+  "piece": "splashback"
+ },
  "expect": {
   "error": "unsupported",
   "message": "PLUG-3"

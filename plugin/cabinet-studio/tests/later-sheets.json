@@ -1,5 +1,8 @@
 {
- "entry": "sheets",
+ "entry": "export",
+ "params": {
+  "make": "sheets"
+ },
  "expect": {
   "error": "unsupported",
   "message": "PLUG-4"

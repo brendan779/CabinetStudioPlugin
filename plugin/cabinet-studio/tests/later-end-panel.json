@@ -1,7 +1,0 @@
-{
- "entry": "end-panel",
- "expect": {
-  "error": "unsupported",
-  "message": "PLUG-3"
- }
-}

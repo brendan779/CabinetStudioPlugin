@@ -189,24 +189,28 @@ of ours updates it when it runs, and Refresh covers edits made with SolidCraft's
 
 ### The ribbon
 
-Six buttons in workflow order, each with an icon drawn in SolidCraft's own style (isometric, grey
+Five buttons in workflow order, each with an icon drawn in SolidCraft's own style (isometric, grey
 for what is there, blue for what the button makes; `scripts/make_icons.py`). The owner asked for a
 few buttons covering the main functions, each with an icon that says what it does, and for adding
 and editing a cabinet to be separate buttons (2026-11-27).
 
-| Button | Icon | What it holds |
+| Button | Icon | What it opens |
 |---|---|---|
-| **Job** ▾ | a grey cabinet and a blue settings dial | Job setup, Boards, Shop standard |
-| **Add** | a blue cabinet and a plus | A new cabinet at the end of the run, or beside the picked one (PLUG-1). With boxes picked, cabinets in them (PLUG-5) |
-| **Edit** | a grey cabinet and a blue pencil | Changes the picked cabinet |
-| **Benchtop** ▾ | a grey cabinet under a blue top | Benchtop, End panel or filler, Splashback |
-| **Cabinets** ▾ | a list | Show the Cabinets panel, Refresh, Select in the view, Rebuild all |
-| **Cut List** ▾ | a sheet with blue parts | Cut list, Cut sheets, Labels |
+| **Job** ▾ | a grey cabinet and a blue settings dial | Job setup, Boards, Show the Cabinets panel, Rebuild all; and, until SolidCraft lets panel-only entries leave the ribbon (tangency-labs/solidcraft#22300), Refresh and Select a cabinet in the view |
+| **Add** | a blue cabinet and a plus | Add cabinet: at the end of the run, or beside the picked one (PLUG-1); with boxes picked, cabinets in them (PLUG-5) |
+| **Edit** | a grey cabinet and a blue pencil | Edit cabinet: changes the picked cabinet |
+| **Bench top** | a grey cabinet under a blue top | One dialog, its first field a picture choice of piece: benchtop, end panel, filler, splashback |
+| **Cut List** | a sheet with blue parts | One dialog, its first field what to make: cut list CSV, cut sheets, part labels |
 
-Labels are at most 11 characters, as SolidCraft's own are ("Move / Copy"): longer ones are cut
-under the icon (owner, 2026-11-27). The dialogs and drop-down menus carry the full names ("Add
-cabinet", "End panel or filler"). A button with ▾ is a `ribbon_groups` drop-down; every entry must sit in a group or have its own
-button, so the panel's helpers (Refresh, Select in the view) sit under **Cabinets**.
+SolidCraft 0.50's ribbon rules, found with the owner's screenshots (2026-11-27):
+
+- A button's label is its ribbon slot's `name`. Every entry gets a button unless it is in a
+  `ribbon_groups` drop-down.
+- **Drop-downs come first**, before every single button, whatever the manifest's order. So the only
+  drop-down is Job, which belongs first anyway.
+- **Labels are narrow.** A single button holds about 8 letters ("Benchtop" is cut), a drop-down
+  about 5 ("Bench…", "Cabin…") as its arrow takes the room. Two short words wrap onto two lines
+  ("Cut / List", "Bench / top"). Keep labels to one word of up to 5 letters, or two short words.
 
 ### Editing a cabinet
 
