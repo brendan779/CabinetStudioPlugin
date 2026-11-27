@@ -441,6 +441,7 @@ says so. Cabinet Studio can take its chips from the same list.
   after any change the whole run is worked out again, and only cabinets whose commands differ are
   taken out and built again (inserting one moves those after it, and the run's kick).
 - **Rebuild all** (Job ▾, and the panel's toolbar) builds every cabinet again.
+- 0.7.3: the view is re-framed only when the run gains or loses an item, not on every edit.
 - **A hook reply SolidCraft ignores only shows in the run's log** ("Dialog hook reply ignored: …"),
   and the dialog falls back to the manifest's defaults. `scripts/build.sh --test` fails on one. Its
   choices must keep the manifest's order, and its values must fit the field's limits.

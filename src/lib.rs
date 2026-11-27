@@ -165,7 +165,9 @@ fn sync(job_value: &Value, mut cabs: Vec<Value>, all: bool) -> Result<String, Pl
     }
     save(job_value, &cabs)?;
     let _ = show(job_value, &cabs).and_then(|_| ui::show_panel("cabinets", true));
-    if !rebuilt.is_empty() {
+    // Re-frame only when the run gains or loses something: an edit keeps the camera where it is.
+    let ids = |v: &[Value]| v.iter().filter_map(|c| c["id"].as_str().map(String::from)).collect::<std::collections::BTreeSet<_>>();
+    if ids(&before) != ids(&cabs) {
         run("view.fit", &json!({}))?;
     }
     let warnings: Vec<String> = built.iter().flat_map(|l| l.warnings.clone()).collect();
