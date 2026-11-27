@@ -1,0 +1,13 @@
+{
+ "design": "one-base.sc",
+ "entry": "rebuild",
+ "expect": {
+  "reply": {
+   "result": {
+    "rebuilt": [
+     "C01"
+    ]
+   }
+  }
+ }
+}

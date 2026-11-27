@@ -290,6 +290,34 @@ Update keeps the granted exports folder. Installing through the control port's `
 (no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
 offered Update to 0.0.9 after a restart.
 
+## PLUG-1: job and cabinets (2026-11-27, 0.1.0)
+
+- **Job setup** (Job ▾): the five sections of the plan, the choices generated from the core's
+  option groups (`examples/catalog.rs`), shown only where the core's `applies` says they apply.
+  It opens with the job's setup, or the shop standard for a job without one; **Also save as my shop
+  standard** keeps it on the Mac (`user-storage`). Applying it rebuilds what it changes.
+- **Add** and **Edit**: all 11 cabinet types and their front layouts as pictures, drawn from each
+  cabinet as the core builds it; height and depth 0 take the job's size for the type; type extras
+  (sink, blind corner) and **Different from the job** (door style, how fronts open). Add puts the
+  new cabinet at the end of the run, or after the cabinet picked in **Beside**. Edit can remove the
+  cabinet.
+- **Only what changed is rebuilt.** Each cabinet keeps a fingerprint of its SolidCraft commands;
+  after any change the whole run is worked out again, and only cabinets whose commands differ are
+  taken out and built again (inserting one moves those after it, and the run's kick).
+- **Rebuild all** (Job ▾, and the panel's toolbar) builds every cabinet again.
+- **Handles** are placeholders at their catalog sizes on their real holes, in the core
+  (`standins::handle`), so Cabinet Studio's builds without supplier models show them too.
+- **The Cabinets panel**: cabinet, type, width × height × depth, fronts and warnings per row, the
+  warnings listed below; a row click selects the cabinet for Edit.
+
+Different from the plan, and why:
+
+- **No live preview.** Add, Edit and Job setup run as long jobs: one change can rebuild many
+  cabinets, beyond an ordinary run's 256 engine calls, and SolidCraft previews no long job. When
+  `plugin.preview` ships (after 0.50), a preview can build just the cabinet in the dialog.
+- **"Above it"** (a wall cabinet over a base) waits for wall runs over base runs (PLUG-3).
+- **The Boards section** of Job setup is PLUG-2's Boards tab.
+
 ## PLUG-0: what the spike found (2026-11-27, SolidCraft 0.50.0)
 
 The spike is the code in this repo at its first commit: `cabinet`, `refresh`, `edit`, `export` and

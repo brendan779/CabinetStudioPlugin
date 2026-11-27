@@ -2,6 +2,6 @@
  "entry": "boards",
  "expect": {
   "error": "unsupported",
-  "message": "PLUG-1"
+  "message": "PLUG-2"
  }
 }

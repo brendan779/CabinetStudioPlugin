@@ -1,6 +1,6 @@
 {
- "entry": "show",
  "design": "one-base.sc",
+ "entry": "show",
  "expect": {
   "reply": {
    "result": {

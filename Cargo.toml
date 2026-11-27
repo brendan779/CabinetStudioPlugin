@@ -13,8 +13,8 @@ serde_json = "1"
 wit-bindgen = "0.63"
 # The cabinet rules live in Cabinet Studio's repo and are never copied here: a fix lands there
 # once, and this pin moves to take it (docs/PLAN.md).
-cabinet-core = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "953c2acabdcd7440a925124d4c6ae5875c206754" }
-solidcraft-bridge = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "953c2acabdcd7440a925124d4c6ae5875c206754" }
+cabinet-core = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "9968a4980cd5830d21d9aca095fb16e815f864fe" }
+solidcraft-bridge = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "9968a4980cd5830d21d9aca095fb16e815f864fe" }
 
 [lib]
 crate-type = ["cdylib"]

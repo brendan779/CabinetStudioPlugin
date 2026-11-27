@@ -1,7 +1,7 @@
 {
  "entry": "benchtop",
  "params": {
-  "piece": "splashback"
+  "piece": "benchtop"
  },
  "expect": {
   "error": "unsupported",

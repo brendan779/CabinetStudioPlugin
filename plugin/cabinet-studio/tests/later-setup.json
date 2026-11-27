@@ -1,7 +1,0 @@
-{
- "entry": "setup",
- "expect": {
-  "error": "unsupported",
-  "message": "PLUG-1"
- }
-}

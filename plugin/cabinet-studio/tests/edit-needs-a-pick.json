@@ -1,9 +1,8 @@
 {
- "entry": "edit",
  "design": "one-base.sc",
+ "entry": "edit",
  "params": {
-  "kind": "base",
-  "width": 600
+  "kind": "base"
  },
  "expect": {
   "error": "invalid_input"

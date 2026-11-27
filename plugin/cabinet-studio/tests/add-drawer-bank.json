@@ -2,13 +2,15 @@
  "entry": "add",
  "params": {
   "kind": "drawer_bank",
-  "width": 600,
-  "detail": "design"
+  "width": 600
  },
  "expect": {
   "reply": {
    "result": {
-    "id": "C01"
+    "cabinets": 1,
+    "rebuilt": [
+     "C01"
+    ]
    }
   }
  }

@@ -1,12 +1,12 @@
 {
- "entry": "export",
  "design": "one-base.sc",
+ "entry": "export",
+ "params": {
+  "make": "csv"
+ },
  "expect": {
   "files": [
    "exports/cut-list.csv"
   ]
- },
- "params": {
-  "make": "csv"
  }
 }

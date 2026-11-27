@@ -1,0 +1,17 @@
+{
+ "entry": "add",
+ "params": {
+  "kind": "rangehood",
+  "width": 600
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 1,
+    "rebuilt": [
+     "C01"
+    ]
+   }
+  }
+ }
+}

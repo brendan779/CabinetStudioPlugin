@@ -1,0 +1,24 @@
+{
+ "design": "one-base.sc",
+ "entry": "edit",
+ "params": {
+  "pick": [
+   {
+    "type": "body",
+    "name": "C01.LeftSide"
+   }
+  ],
+  "kind": "base",
+  "remove": true
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 0
+   }
+  },
+  "model": {
+   "body_count": 0
+  }
+ }
+}

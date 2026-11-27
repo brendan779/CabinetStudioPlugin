@@ -1,6 +1,6 @@
 {
- "entry": "edit",
  "design": "one-base.sc",
+ "entry": "edit",
  "params": {
   "pick": [
    {
@@ -8,8 +8,7 @@
     "name": "Body1"
    }
   ],
-  "kind": "base",
-  "width": 600
+  "kind": "base"
  },
  "expect": {
   "error": "invalid_input",

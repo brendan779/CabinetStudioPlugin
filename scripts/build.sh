@@ -2,10 +2,16 @@
 # Builds the plugin (docs/PLAN.md): the component into plugin/cabinet-studio, checked by
 # solidcraft-cli. --test runs its test cases; --zip packs it for Preferences › Plugins › Install plugin…
 set -euo pipefail
+# A Python with Pillow, for the pictures: the first one on the PATH before Homebrew's goes first.
+py=$(command -v python3)
 export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:/opt/homebrew/bin:$PATH"
 root=${0:A:h:h}
 cli=${SOLIDCRAFT_CLI:-/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli}
 cd "$root"
+# The manifest and the dialogs' pictures come from Cabinet Studio's core (scripts/make_manifest.py).
+mkdir -p target
+cargo run -q --example catalog --target "$(rustc -vV | sed -n 's/^host: //p')" > target/catalog.json
+"$py" -I scripts/make_manifest.py
 cargo build -q --release --target wasm32-unknown-unknown
 wasm-tools component new target/wasm32-unknown-unknown/release/cabinet_plugin.wasm \
   -o plugin/cabinet-studio/cabinet-studio.wasm

@@ -1,15 +1,15 @@
 {
- "entry": "add",
  "design": "one-base.sc",
+ "entry": "setup",
  "params": {
-  "kind": "sink",
-  "width": 900,
-  "detail": "design"
+  "detail": "manufacturing"
  },
  "expect": {
   "reply": {
    "result": {
-    "id": "C02"
+    "rebuilt": [
+     "C01"
+    ]
    }
   }
  }

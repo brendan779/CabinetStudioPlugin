@@ -1,0 +1,21 @@
+{
+ "design": "one-base.sc",
+ "entry": "add",
+ "params": {
+  "kind": "drawer_bank",
+  "width": 450,
+  "beside": [
+   {
+    "type": "body",
+    "name": "C01.LeftSide"
+   }
+  ]
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 2
+   }
+  }
+ }
+}

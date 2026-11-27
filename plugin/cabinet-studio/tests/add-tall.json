@@ -1,14 +1,16 @@
 {
  "entry": "add",
  "params": {
-  "kind": "base",
-  "width": 600,
-  "detail": "design"
+  "kind": "tall",
+  "width": 600
  },
  "expect": {
   "reply": {
    "result": {
-    "id": "C01"
+    "cabinets": 1,
+    "rebuilt": [
+     "C01"
+    ]
    }
   }
  }

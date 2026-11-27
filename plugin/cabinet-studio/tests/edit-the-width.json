@@ -1,0 +1,26 @@
+{
+ "design": "one-base.sc",
+ "entry": "edit",
+ "params": {
+  "pick": [
+   {
+    "type": "body",
+    "name": "C01.LeftSide"
+   }
+  ],
+  "kind": "base",
+  "width": 450,
+  "fronts": "door",
+  "hinge": "right"
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 1,
+    "rebuilt": [
+     "C01"
+    ]
+   }
+  }
+ }
+}

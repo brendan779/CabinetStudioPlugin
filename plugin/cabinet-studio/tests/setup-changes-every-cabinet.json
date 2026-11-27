@@ -1,0 +1,18 @@
+{
+ "design": "one-base.sc",
+ "entry": "setup",
+ "params": {
+  "opens": "sharknose",
+  "door_style": "shaker",
+  "base_height": 900
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "rebuilt": [
+     "C01"
+    ]
+   }
+  }
+ }
+}
