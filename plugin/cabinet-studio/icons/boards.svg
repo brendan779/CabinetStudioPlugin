@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Boards</title>
+  <path d="M10.00 48.00L39.27 64.90L39.27 61.52L10.00 44.62Z" fill="#b8c3cf"/>
+  <path d="M39.27 64.90L58.41 53.85L58.41 50.47L39.27 61.52Z" fill="#8e9faf"/>
+  <path d="M10.00 44.62L39.27 61.52L58.41 50.47L29.14 33.57Z" fill="#e2e8ef"/>
+  <path d="M10.00 48.00L39.27 64.90L58.41 53.85L58.41 50.47L29.14 33.57L10.00 44.62Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M10.00 44.62L39.27 61.52L58.41 50.47" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M39.27 64.90L39.27 61.52" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M10.00 39.16L39.27 56.06L39.27 52.68L10.00 35.78Z" fill="#b8c3cf"/>
+  <path d="M39.27 56.06L58.41 45.01L58.41 41.63L39.27 52.68Z" fill="#8e9faf"/>
+  <path d="M10.00 35.78L39.27 52.68L58.41 41.63L29.14 24.73Z" fill="#e2e8ef"/>
+  <path d="M10.00 39.16L39.27 56.06L58.41 45.01L58.41 41.63L29.14 24.73L10.00 35.78Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M10.00 35.78L39.27 52.68L58.41 41.63" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M39.27 56.06L39.27 52.68" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M10.00 30.32L39.27 47.22L39.27 43.84L10.00 26.94Z" fill="#328bd3"/>
+  <path d="M39.27 47.22L58.41 36.17L58.41 32.79L39.27 43.84Z" fill="#236ead"/>
+  <path d="M10.00 26.94L39.27 43.84L58.41 32.79L29.14 15.89Z" fill="#b9ddf8"/>
+  <path d="M10.00 30.32L39.27 47.22L58.41 36.17L58.41 32.79L29.14 15.89L10.00 26.94Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M10.00 26.94L39.27 43.84L58.41 32.79" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M39.27 47.22L39.27 43.84" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

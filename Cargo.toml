@@ -15,8 +15,10 @@ wit-bindgen = "0.63"
 # once, and this pin moves to take it (docs/PLAN.md).
 cabinet-core = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "4d1b579ac2a55ae3b0ea5788306ec91a38fab367" }
 solidcraft-bridge = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "4d1b579ac2a55ae3b0ea5788306ec91a38fab367" }
-# The board catalogue, built in: the plugin has no catalogue folder (PLUG-2).
-cabinet-catalog = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "4d1b579ac2a55ae3b0ea5788306ec91a38fab367", default-features = false, features = ["embedded"] }
+
+[dev-dependencies]
+# The examples write the board index from the full catalogue.
+cabinet-catalog = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "4d1b579ac2a55ae3b0ea5788306ec91a38fab367", features = ["embedded"] }
 
 [lib]
 crate-type = ["cdylib"]

@@ -89,6 +89,12 @@ def main():
     for x0, y0, x1, y1 in [(46, 31, 46, 34), (46, 56, 46, 59), (32, 45, 35, 45), (57, 45, 60, 45)]:
         dial.append(line([(x0, y0), (x1, y1)]))
     icons['job'] = svg('Job setup', cabinet(p, P2, P3, P1) + dial)
+    # Boards: a stack of sheets, the top one blue.
+    p = iso((10, 48), 26)
+    stack = []
+    for k, (front, side, top) in enumerate([(P2, P3, P1), (P2, P3, P1), (A2, A3, A1)]):
+        stack += block(p, 0, 0, k * 0.34, 1.3, 0.85, 0.13, front, side, top)
+    icons['boards'] = svg('Boards', stack)
     # Cabinets panel: a list of cabinets, the first one picked.
     rows = []
     for i, y in enumerate((10, 26, 42)):

@@ -32,34 +32,46 @@ SETUP = [
 
 # The Cabinets panel, as `describe` in src/lib.rs declares it: SolidCraft refuses the plugin
 # when the two differ, so `plugin test` catches a change made to one alone.
-PANEL = {'ui_version': 1, 'workspaces': [], 'panels': [{
-    'id': 'cabinets', 'title': 'Cabinets', 'zones': ['right', 'bottom'],
-    'layout': {'root': 0, 'nodes': [
-        {'widget': {'tabs': [{'label': 'Cabinets', 'child': 1}, {'label': 'Boards', 'child': 6}]}},
-        {'widget': {'group': [2, 3, 4, 5]}},
+def panels(brands):
+    """The Cabinets and Boards panels, as `describe` in src/lib.rs declares them: SolidCraft refuses
+    the plugin when the two differ, so `plugin test` catches a change made to one alone."""
+    col = lambda key, label, unit=None: {'key': key, 'label': label, 'unit': unit}
+    cabinets = {'id': 'cabinets', 'title': 'Cabinets', 'zones': ['right', 'bottom'], 'layout': {'root': 0, 'nodes': [
+        {'widget': {'group': [1, 2, 3, 4]}},
         {'widget': {'toolbar': [{'label': 'Refresh', 'icon': None, 'entry': 'show'},
                                 {'label': 'Rebuild all', 'icon': None, 'entry': 'rebuild'}]}},
         {'widget': {'table': {'bind': '/cabinets', 'row_id': 'id', 'columns': [
-            {'key': 'id', 'label': 'Cabinet', 'unit': None}, {'key': 'kind', 'label': 'Type', 'unit': None},
-            {'key': 'size', 'label': 'W × H × D', 'unit': None}, {'key': 'fronts', 'label': 'Fronts', 'unit': None},
-            {'key': 'warnings', 'label': 'Warnings', 'unit': None}],
+            col('id', 'Cabinet'), col('kind', 'Type'), col('size', 'W × H × D'), col('fronts', 'Fronts'), col('warnings', 'Warnings')],
             'select': 'single', 'on_select': 'select', 'on_edit': None}}},
         {'widget': {'text': 'Warnings'}},
         {'widget': {'item-list': {'bind': '/warnings', 'on_select': None}}},
-        {'widget': {'group': [7, 8, 9]}},
-        {'widget': {'table': {'bind': '/job_boards', 'row_id': 'role', 'columns': [
-            {'key': 'role', 'label': 'Role', 'unit': None}, {'key': 'board', 'label': 'Board', 'unit': None}],
-            'select': 'none', 'on_select': None, 'on_edit': None}}},
+    ]}}
+    boards = {'id': 'boards', 'title': 'Boards', 'zones': ['bottom', 'right'], 'layout': {'root': 0, 'nodes': [
+        {'widget': {'split': {'vertical': False, 'first': 1, 'second': 4}}},
+        {'widget': {'group': [2, 3]}},
+        {'widget': {'table': {'bind': '/job_boards', 'row_id': 'role', 'columns': [col('role', 'Role'), col('board', 'Board')],
+                              'select': 'none', 'on_select': None, 'on_edit': None}}},
         {'widget': {'form': {'bind': '/filter', 'fields': [
             {'key': 'role', 'label': 'Use for', 'kind': 'choice', 'choices': ['Carcass', 'Fronts', 'Backs', 'Benchtop'],
              'on_change': 'board-filter'},
+            {'key': 'brand', 'label': 'Brand', 'kind': 'choice', 'choices': brands, 'on_change': 'board-filter'},
             {'key': 'search', 'label': 'Search', 'kind': 'text', 'choices': [], 'on_change': 'board-filter'}]}}},
         {'widget': {'table': {'bind': '/boards', 'row_id': 'id', 'columns': [
-            {'key': 'brand', 'label': 'Brand', 'unit': None}, {'key': 'range', 'label': 'Range', 'unit': None},
-            {'key': 'decor', 'label': 'Decor', 'unit': None}, {'key': 'finish', 'label': 'Finish', 'unit': None},
-            {'key': 'thickness', 'label': 'Thick', 'unit': 'length'}, {'key': 'sheet', 'label': 'Sheet', 'unit': None}],
+            col('brand', 'Brand'), col('range', 'Range'), col('decor', 'Decor'), col('finish', 'Finish'),
+            col('thickness', 'Thickness', 'length'), col('sheet', 'Largest sheet')],
             'select': 'single', 'on_select': 'board-pick', 'on_edit': None}}},
-    ]}}]}
+    ]}}
+    return {'ui_version': 1, 'workspaces': [], 'panels': [cabinets, boards]}
+
+
+def brands_in_index():
+    """The Brand choice: "All brands", then each brand in catalogue order, as src/boards.rs reads it."""
+    out = ['All brands']
+    for line in (ROOT / 'src' / 'boards.tsv').read_text().splitlines():
+        brand = line.split('\t')[1]
+        if brand not in out:
+            out.append(brand)
+    return out
 
 
 def draw(view, path, size=256):
@@ -218,6 +230,7 @@ def main():
         entry('board-pick', 'Choose board', 'panel', {'row': {'type': 'string', 'title': 'Board', 'default': ''}}, job=True),
         entry('add', 'Add cabinet', 'add', add_props, ribbon='Add', dialog_hook=True, job=True),
         edit,
+        entry('boards', 'Boards', 'boards', ribbon='Boards'),
         entry('benchtop', 'Bench top and panels', 'benchtop', {'piece': piece}, ribbon='Bench top'),
         entry('export', 'Cut list', 'cutlist', {'make': make}, ribbon='Cut List'),
     ]
@@ -231,7 +244,7 @@ def main():
             'module': 'cabinet-studio.wasm', 'data_format': 1, 'commands': commands, 'entries': entries,
             'ribbon_groups': [{'label': 'Job', 'icon': 'icons/job.svg', 'entries': ['setup', 'show', 'rebuild', 'select', 'board-filter', 'board-pick']}],
             'permissions': {'files': [{'name': 'exports', 'write': True}]},
-            'ui': PANEL,
+            'ui': panels(brands_in_index()),
             'limits': old['runtime']['limits'],
         },
     }

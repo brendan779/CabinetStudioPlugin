@@ -2,7 +2,7 @@
  "design": "one-base.sc",
  "entry": "board-filter",
  "params": {
-  "panel": "cabinets",
+  "panel": "boards",
   "event": "change",
   "path": "/filter/search",
   "value": {

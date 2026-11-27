@@ -38,6 +38,12 @@ impl exports::craft::plugin::entry::Guest for Plugin {
                 "csv" => export(),
                 _ => later("PLUG-4"),
             },
+            "boards" => {
+                let (job, _) = load()?;
+                show_boards(&job)?;
+                ui::show_panel("boards", true)?;
+                Ok(json!({"shown": "boards"}).to_string())
+            }
             "board-filter" => board_filter(&params),
             "board-pick" => board_pick(&params),
             "benchtop" => later("PLUG-3"),
@@ -132,6 +138,7 @@ fn sync(job_value: &Value, mut cabs: Vec<Value>, all: bool) -> Result<String, Pl
         }
     }
     let mut rebuilt = Vec::new();
+    let mut repainted = Vec::new();
     let n = cabs.len().max(1) as f32;
     for (i, c) in cabs.iter_mut().enumerate() {
         let id = c["id"].as_str().unwrap_or_default().to_string();
@@ -140,13 +147,25 @@ fn sync(job_value: &Value, mut cabs: Vec<Value>, all: bool) -> Result<String, Pl
         let mut plain = c.clone();
         if let Some(o) = plain.as_object_mut() {
             o.remove("built");
+            o.remove("painted");
         }
-        let mut cmds = emit_cabinet(list, detail, Some(&plain));
-        cmds.extend(solidcraft_bridge::emit::board_colours(list, &colours));
+        let cmds = emit_cabinet(list, detail, Some(&plain));
+        // Colours apart from shape: a board of the same thickness only repaints the parts.
+        let paint = solidcraft_bridge::emit::board_colours(list, &colours);
         let print = fingerprint(&cmds);
-        let was = before.iter().find(|b| b["id"] == id.as_str()).and_then(|b| b["built"].as_str());
+        let paint_print = fingerprint(&paint);
+        let old = before.iter().find(|b| b["id"] == id.as_str());
+        let was = old.and_then(|b| b["built"].as_str());
+        let was_paint = old.and_then(|b| b["painted"].as_str());
+        c["painted"] = json!(paint_print);
         if !all && was == Some(print.as_str()) {
             c["built"] = json!(print);
+            if was_paint != Some(paint_print.as_str()) {
+                for cmd in &paint {
+                    run(cmd["command"].as_str().unwrap_or_default(), &cmd["params"])?;
+                }
+                repainted.push(id);
+            }
             continue;
         }
         control::progress(i as f32 / n, &format!("Building {id}"));
@@ -156,7 +175,7 @@ fn sync(job_value: &Value, mut cabs: Vec<Value>, all: bool) -> Result<String, Pl
         if was.is_some() {
             let _ = run("component.delete", &json!({"component": id}));
         }
-        for cmd in &cmds {
+        for cmd in cmds.iter().chain(&paint) {
             run(cmd["command"].as_str().unwrap_or_default(), &cmd["params"])?;
         }
         c["built"] = json!(print);
@@ -168,7 +187,7 @@ fn sync(job_value: &Value, mut cabs: Vec<Value>, all: bool) -> Result<String, Pl
         run("view.fit", &json!({}))?;
     }
     let warnings: Vec<String> = built.iter().flat_map(|l| l.warnings.clone()).collect();
-    Ok(json!({"rebuilt": rebuilt, "cabinets": cabs.len(), "warnings": warnings}).to_string())
+    Ok(json!({"rebuilt": rebuilt, "repainted": repainted, "cabinets": cabs.len(), "warnings": warnings}).to_string())
 }
 
 // ---- Entries ----
@@ -213,9 +232,10 @@ fn edit(p: &Value) -> Result<String, PluginError> {
         cabs.remove(i);
     } else {
         let id = cabs[i]["id"].as_str().unwrap_or_default().to_string();
-        let built = cabs[i]["built"].clone();
+        let (built, painted) = (cabs[i]["built"].clone(), cabs[i]["painted"].clone());
         cabs[i] = spec_from(p, &id);
         cabs[i]["built"] = built;
+        cabs[i]["painted"] = painted;
     }
     sync(&job, cabs, false)
 }
@@ -314,11 +334,12 @@ fn board_filter(p: &Value) -> Result<String, PluginError> {
     match p["path"].as_str().unwrap_or_default() {
         "/filter/role" => filter["role"] = json!(boards::role_of(value)),
         "/filter/search" => filter["search"] = json!(value),
+        "/filter/brand" => filter["brand"] = json!(value),
         _ => {}
     }
     user_storage::set("board_filter", &filter.to_string())?;
-    let (job, cabs) = load()?;
-    show(&job, &cabs)?;
+    let (job, _) = load()?;
+    show_boards(&job)?;
     Ok(filter.to_string())
 }
 
@@ -330,8 +351,10 @@ fn board_pick(p: &Value) -> Result<String, PluginError> {
     };
     let role = board_filter_stored()["role"].as_str().unwrap_or("carcass").to_string();
     let (mut job, cabs) = load()?;
-    boards::assign(&mut job, &role, board);
-    sync(&job, cabs, false)
+    boards::assign(&mut job, &role, &board);
+    let reply = sync(&job, cabs, false)?;
+    let _ = show_boards(&job);
+    Ok(reply)
 }
 
 // ---- The Cabinets panel ----
@@ -360,7 +383,13 @@ fn show(job_value: &Value, cabs: &[Value]) -> Result<(), PluginError> {
             n += 1;
         }
     }
-    // The Boards tab: the job's boards, the filter, and the catalogue's matching boards.
+    ui::clear_data("cabinets")?;
+    ui::set_data("cabinets", &cells)
+}
+
+/// The Boards panel: the job's board per role, the filter, and the catalogue's matching boards.
+fn show_boards(job_value: &Value) -> Result<(), PluginError> {
+    let mut cells = Vec::new();
     for (row, (role, label)) in boards::ROLES.iter().enumerate() {
         let name = job_value["boards"][*role]["name"].as_str().unwrap_or("Not chosen").to_string();
         cells.push(Datum { path: format!("/job_boards/{row}/role"), value: Cell::Text((*label).into()) });
@@ -369,35 +398,34 @@ fn show(job_value: &Value, cabs: &[Value]) -> Result<(), PluginError> {
     let filter = board_filter_stored();
     let role = filter["role"].as_str().unwrap_or("carcass");
     let search = filter["search"].as_str().unwrap_or("");
+    let brand = filter["brand"].as_str().unwrap_or(boards::ALL_BRANDS);
     cells.push(Datum { path: "/filter/role".into(), value: Cell::Text(boards::label_of(role).into()) });
     cells.push(Datum { path: "/filter/search".into(), value: Cell::Text(search.into()) });
-    let (rows, total) = boards::matching(role, search);
+    cells.push(Datum { path: "/filter/brand".into(), value: Cell::Text(brand.into()) });
+    let (rows, total) = boards::matching(role, brand, search);
     for (row, b) in rows.iter().enumerate() {
         let cell = |key: &str, value: Cell| Datum { path: format!("/boards/{row}/{key}"), value };
-        cells.push(cell("id", Cell::Text(b.id.clone())));
-        cells.push(cell("brand", Cell::Text(b.brand.clone())));
-        cells.push(cell("range", Cell::Text(b.range.clone())));
-        cells.push(cell("decor", Cell::Text(b.decor.clone())));
-        cells.push(cell("finish", Cell::Text(b.finish.clone())));
+        for (key, text) in [("id", b.id), ("brand", b.brand), ("range", b.range), ("decor", b.decor), ("finish", b.finish), ("sheet", b.sheet)] {
+            cells.push(cell(key, Cell::Text(text.into())));
+        }
         cells.push(cell("thickness", Cell::Number(b.thickness)));
-        cells.push(cell("sheet", Cell::Text(boards::sheet(b))));
     }
     if total > rows.len() {
         let row = rows.len();
         cells.push(Datum { path: format!("/boards/{row}/id"), value: Cell::Text("more".into()) });
         cells.push(Datum {
             path: format!("/boards/{row}/decor"),
-            value: Cell::Text(format!("{} more: type in the search to narrow them", total - row)),
+            value: Cell::Text(format!("{} more: choose a brand or search to narrow them", total - row)),
         });
     }
-    ui::clear_data("cabinets")?;
-    ui::set_data("cabinets", &cells)
+    ui::clear_data("boards")?;
+    ui::set_data("boards", &cells)
 }
 
 impl exports::craft::plugin::ui_provider::Guest for Plugin {
     /// The same panel as `runtime.ui` in plugin.json.
     fn describe() -> ui::Declarations {
-        use ui::{ButtonSpec, Column, Declarations, DockZone, Field, FieldKind, FormSpec, Layout, ListSpec, Node, PanelSpec, SelectionMode, Tab, TableSpec, Widget};
+        use ui::{ButtonSpec, Column, Declarations, DockZone, Field, FieldKind, FormSpec, Layout, ListSpec, Node, PanelSpec, SelectionMode, SplitSpec, TableSpec, Widget};
         let button = |label: &str, entry: &str| ButtonSpec { label: label.into(), icon: None, entry: entry.into() };
         let column = |key: &str, label: &str| Column { key: key.into(), label: label.into(), unit: None };
         let table = TableSpec {
@@ -413,8 +441,8 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
             bind: "/boards".into(),
             row_id: "id".into(),
             columns: vec![column("brand", "Brand"), column("range", "Range"), column("decor", "Decor"), column("finish", "Finish"),
-                          Column { key: "thickness".into(), label: "Thick".into(), unit: Some("length".into()) },
-                          column("sheet", "Sheet")],
+                          Column { key: "thickness".into(), label: "Thickness".into(), unit: Some("length".into()) },
+                          column("sheet", "Largest sheet")],
             select: SelectionMode::Single,
             on_select: Some("board-pick".into()),
             on_edit: None,
@@ -432,28 +460,37 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
             fields: vec![
                 Field { key: "role".into(), label: "Use for".into(), kind: FieldKind::Choice,
                         choices: boards::ROLES.iter().map(|(_, l)| (*l).to_string()).collect(), on_change: Some("board-filter".into()) },
+                Field { key: "brand".into(), label: "Brand".into(), kind: FieldKind::Choice, choices: boards::brands(),
+                        on_change: Some("board-filter".into()) },
                 Field { key: "search".into(), label: "Search".into(), kind: FieldKind::Text, choices: vec![], on_change: Some("board-filter".into()) },
             ],
         };
-        let nodes = vec![
-            Node { widget: Widget::Tabs(vec![Tab { label: "Cabinets".into(), child: 1 }, Tab { label: "Boards".into(), child: 6 }]) },
-            Node { widget: Widget::Group(vec![2, 3, 4, 5]) },
-            Node { widget: Widget::Toolbar(vec![button("Refresh", "show"), button("Rebuild all", "rebuild")]) },
-            Node { widget: Widget::Table(table) },
-            Node { widget: Widget::Text("Warnings".into()) },
-            Node { widget: Widget::ItemList(ListSpec { bind: "/warnings".into(), on_select: None }) },
-            Node { widget: Widget::Group(vec![7, 8, 9]) },
-            Node { widget: Widget::Table(job_boards) },
-            Node { widget: Widget::Form(filter) },
-            Node { widget: Widget::Table(boards) },
-        ];
-        let panel = PanelSpec {
+        let cabinets = PanelSpec {
             id: "cabinets".into(),
             title: "Cabinets".into(),
             zones: vec![DockZone::Right, DockZone::Bottom],
-            layout: Layout { root: 0, nodes },
+            layout: Layout { root: 0, nodes: vec![
+                Node { widget: Widget::Group(vec![1, 2, 3, 4]) },
+                Node { widget: Widget::Toolbar(vec![button("Refresh", "show"), button("Rebuild all", "rebuild")]) },
+                Node { widget: Widget::Table(table) },
+                Node { widget: Widget::Text("Warnings".into()) },
+                Node { widget: Widget::ItemList(ListSpec { bind: "/warnings".into(), on_select: None }) },
+            ] },
         };
-        Declarations { ui_version: 1, panels: vec![panel], workspaces: vec![] }
+        // Along the bottom of the window: the board columns need its width (owner, 2026-11-27).
+        let boards_panel = PanelSpec {
+            id: "boards".into(),
+            title: "Boards".into(),
+            zones: vec![DockZone::Bottom, DockZone::Right],
+            layout: Layout { root: 0, nodes: vec![
+                Node { widget: Widget::Split(SplitSpec { vertical: false, first: 1, second: 4 }) },
+                Node { widget: Widget::Group(vec![2, 3]) },
+                Node { widget: Widget::Table(job_boards) },
+                Node { widget: Widget::Form(filter) },
+                Node { widget: Widget::Table(boards) },
+            ] },
+        };
+        Declarations { ui_version: 1, panels: vec![cabinets, boards_panel], workspaces: vec![] }
     }
 
     fn on_event(_event: ui::UiEvent) -> Result<(), PluginError> {
@@ -557,9 +594,9 @@ fn setup_fields(values: &Value) -> Result<Value, PluginError> {
         .filter_map(|(r, l)| stored["boards"][*r]["name"].as_str().map(|n| format!("{l}: {n}")))
         .collect();
     patch["door_style"]["hint"] = json!(if chosen.is_empty() {
-        "Boards: none chosen yet. Choose them in the Cabinets panel's Boards tab".to_string()
+        "Boards: none chosen yet. Choose them with the Boards button".to_string()
     } else {
-        format!("Boards: {}. Change them in the Cabinets panel's Boards tab", chosen.join("; "))
+        format!("Boards: {}. Change them with the Boards button", chosen.join("; "))
     });
     Ok(patch)
 }

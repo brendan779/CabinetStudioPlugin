@@ -10,7 +10,9 @@ cli=${SOLIDCRAFT_CLI:-/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli
 cd "$root"
 # The manifest and the dialogs' pictures come from Cabinet Studio's core (scripts/make_manifest.py).
 mkdir -p target
-cargo run -q --example catalog --target "$(rustc -vV | sed -n 's/^host: //p')" > target/catalog.json
+host=$(rustc -vV | sed -n 's/^host: //p')
+cargo run -q --example catalog --target "$host" > target/catalog.json
+cargo run -q --example catalog --target "$host" -- --boards > src/boards.tsv
 "$py" -I scripts/make_manifest.py
 cargo build -q --release --target wasm32-unknown-unknown
 wasm-tools component new target/wasm32-unknown-unknown/release/cabinet_plugin.wasm \

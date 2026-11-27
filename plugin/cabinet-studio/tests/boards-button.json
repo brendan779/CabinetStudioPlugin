@@ -1,0 +1,11 @@
+{
+ "design": "one-base.sc",
+ "entry": "boards",
+ "expect": {
+  "reply": {
+   "result": {
+    "shown": "boards"
+   }
+  }
+ }
+}

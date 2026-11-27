@@ -290,6 +290,24 @@ Update keeps the granted exports folder. Installing through the control port's `
 (no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
 offered Update to 0.0.9 after a restart.
 
+## Boards reworked (2026-11-27, 0.3.0)
+
+The owner tried 0.2.x: the Cabinets panel's Boards tab had no room for its columns, Laminex was
+hard to find (an empty search shows the first boards in catalogue order, Dekton and EGGER), and a
+pick looked like it did nothing as it was slow. Now:
+
+- A **Boards** ribbon button (a stack of sheets, the top one blue) opens a **Boards panel**
+  docked along the bottom of the window: the job's board per role and the filters (Use for,
+  **Brand**, Search) on the left, the boards on the right with the window's width (300 rows).
+  The Cabinets panel is cabinets only again. The ribbon: Job ▾, Add, Edit, Boards, Bench top,
+  Cut List.
+- The plugin reads a compact index of the catalogue, `src/boards.tsv`, which the build writes from
+  Cabinet Studio's catalogue (`examples/catalog.rs --boards`), not the whole catalogue: 365 KB
+  against 3.3 MB, and the component no longer carries `cabinet-catalog`.
+- **A pick rebuilds only what its thickness changes.** Each cabinet keeps a fingerprint of its
+  shape and one of its colours: a board of the same thickness repaints the parts (48 ms against
+  771 ms a cabinet, headless).
+
 ## Job setup's sizes (2026-11-27, 0.2.1)
 
 The owner missed the sharknose finger gap and the drawer rail sizes: Job setup had only Cabinet

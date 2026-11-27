@@ -25,7 +25,32 @@ fn front_view(list: &PartList) -> Value {
     json!({"carcass": carcass, "fronts": fronts, "hardware": handles})
 }
 
+/// The board index the plugin scans (src/boards.tsv): one board a line, tab-separated, in
+/// catalogue order. Reading the whole catalogue on every panel change was too slow (owner).
+fn board_index() -> String {
+    let cat = cabinet_catalog::embedded::catalog().expect("the built-in catalogue");
+    let clean = |s: &str| s.replace(['\t', '\n'], " ");
+    let mut out = String::new();
+    for b in &cat.boards {
+        let top = matches!(b.kind, cabinet_catalog::BoardKind::LaminateTop | cabinet_catalog::BoardKind::SinteredStone);
+        let role = if top { "top" } else if b.kind == cabinet_catalog::BoardKind::Lining { "lining" } else { "sheet" };
+        let sheet = b
+            .sheets
+            .iter()
+            .max_by(|x, y| (x.length * x.width).total_cmp(&(y.length * y.width)))
+            .map_or(String::new(), |s| format!("{:.0} × {:.0}", s.length, s.width));
+        out.push_str(&[b.id.clone(), clean(&b.brand), clean(&b.range), clean(&b.decor), clean(&b.finish),
+            format!("{}", b.thickness), sheet, b.preview_colour.clone(), role.into()].join("\t"));
+        out.push('\n');
+    }
+    out
+}
+
 fn main() {
+    if std::env::args().any(|a| a == "--boards") {
+        print!("{}", board_index());
+        return;
+    }
     let job = spec::Job::from_stored(&json!({}));
     let mut kinds = Vec::new();
     for (id, label) in spec::KINDS {
