@@ -294,6 +294,10 @@ offered Update to 0.0.9 after a restart.
 
 ## PLUG-4: outputs (2026-11-28, 0.5.1)
 
+Checked in SolidCraft's window by Claude: Cut List › Everything below wrote the cut list (the job's
+Laminex Avignon Walnut carcass), cut sheets, cutting layouts, labels, 12 DXFs and the hardware list
+(Blum and Häfele articles) into the granted exports folder (the owner's Desktop).
+
 **Cut List** opens a dialog of what to make, written into the exports folder granted at install:
 everything at once, the cut list (CSV), cut sheets (a PDF page a part), cutting layouts (the parts
 nested on each board's largest sheet, our panel-saw settings: 4.4 mm kerf, 10 mm trim; a board
