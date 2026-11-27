@@ -90,6 +90,23 @@ def draw(view, path, size=256):
     im.save(path, optimize=True)
 
 
+def corner_plan(path, left, size=256):
+    """An L corner from above: the back wall along the top, the side wall down one side, the
+    cabinet's two legs against them, fronts toward the room (the core's Corner.side)."""
+    im = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    wall, leg, depth = (120, 124, 130), 196, 70
+    m = lambda x: x if left else size - x
+    box = lambda x0, y0, x1, y1: (min(m(x0), m(x1)), y0, max(m(x0), m(x1)), y1)
+    d.rectangle(box(20, 20, 236, 36), fill=wall)          # back wall
+    d.rectangle(box(20, 20, 36, 236), fill=wall)          # side wall
+    d.rectangle(box(36, 36, 36 + leg, 36 + depth), fill=CARCASS, outline=LINE, width=3)   # main leg
+    d.rectangle(box(36, 36, 36 + depth, 36 + leg), fill=CARCASS, outline=LINE, width=3)   # second leg
+    d.line([(m(36 + depth), 36 + depth), (m(36 + leg), 36 + depth)], fill=FRONT, width=8)
+    d.line([(m(36 + depth), 36 + depth), (m(36 + depth), 36 + leg)], fill=FRONT, width=8)
+    im.save(path, optimize=True)
+
+
 def choice(const, title, **extra):
     return dict({'const': const, 'title': title}, **extra)
 
@@ -134,6 +151,8 @@ def main():
         draw(k['view'], pics / f"kind-{k['id']}.png")
     for p in cat['presets']:
         draw(p['view'], pics / f"fronts-{p['id']}.png")
+    corner_plan(pics / 'corner-left.png', left=True)
+    corner_plan(pics / 'corner-right.png', left=False)
 
     groups = {g['field']: g for g in cat['groups']}
     defaults = cat['defaults']
@@ -209,6 +228,12 @@ def main():
         'blind_side': {'type': 'string', 'title': 'Blind side', 'default': 'left', 'oneOf': side,
                        'x-solidcraft-section': 'Blind corner',
                        'x-solidcraft-visible-when': {'field': 'kind', 'eq': 'blind_corner'}},
+        'corner_side': {'type': 'string', 'title': 'Return side', 'default': 'left', 'x-solidcraft-section': 'L corner',
+                        'oneOf': [choice('left', 'Side wall on the left', **{'x-solidcraft-image': 'pictures/corner-left.png'}),
+                                  choice('right', 'Side wall on the right', **{'x-solidcraft-image': 'pictures/corner-right.png'})],
+                        'x-solidcraft-visible-when': {'field': 'kind', 'in': ['corner_base', 'corner_wall']}},
+        'corner_width': dict(number('Return length', 900, 300, 1500), description='The second leg, from the back wall',
+                             **{'x-solidcraft-visible-when': {'field': 'kind', 'in': ['corner_base', 'corner_wall']}}),
         'door_style': {'type': 'string', 'title': 'Door style', 'default': 'job',
                        'oneOf': [job] + group_field('door_style')['oneOf'],
                        'x-solidcraft-section': 'Different from the job'},
@@ -252,10 +277,7 @@ def main():
     edit_props = {'pick': pick, **cabinet_props,
                   'remove': {'type': 'boolean', 'title': 'Remove this cabinet', 'default': False,
                              'x-solidcraft-section': ''}}
-    boxes = {'type': 'array', 'title': 'From boxes',
-             'description': 'Boxes you drew: a cabinet in each, sized to it, and the boxes go. Leaves the fields below',
-             'x-solidcraft-selection': {'version': 1, 'accept': ['body']}, 'x-solidcraft-section': 'Or from boxes'}
-    add_props = {'beside': beside, **cabinet_props, 'boxes': boxes}
+    add_props = {'beside': beside, **cabinet_props}
     edit = entry('edit', 'Edit cabinet', 'edit', edit_props, ribbon='Edit', dialog_hook=True, job=True)
     edit['input_schema']['required'] = ['pick']
     # Bench top: the run's pieces (PLUG-3). Each field shows for its piece.
@@ -317,7 +339,7 @@ def main():
         entry('export', 'Cut list', 'cutlist', {'make': make}, ribbon='Cut List', job=True),
     ]
     old = json.loads(VERSION_FILE.read_text())
-    commands = sorted(set(old['runtime']['commands']) | {'select.set', 'component.list', 'inspect.measure', 'solid.remove'})
+    commands = sorted((set(old['runtime']['commands']) | {'select.set', 'component.list'}) - {'inspect.measure', 'solid.remove'})
     manifest = {
         'id': 'cabinet-studio', 'name': 'Cabinet Studio', 'version': old['version'], 'updates': old['updates'],
         'description': old['description'],

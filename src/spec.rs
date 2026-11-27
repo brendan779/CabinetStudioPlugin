@@ -221,6 +221,15 @@ pub fn cabinet(spec: &Value, job: &Job) -> Option<Cabinet> {
     if kind == CabinetKind::BlindCorner {
         cab.blind.side = hinge(spec["blind_side"].as_str().unwrap_or("left"));
     }
+    // An L corner's second leg: along the side wall on the left or right, and its length.
+    if matches!(kind, CabinetKind::CornerBase | CabinetKind::CornerWall) {
+        if let Some(side) = spec["corner_side"].as_str() {
+            cab.corner.side = hinge(side);
+        }
+        if let Some(w) = spec["corner_width"].as_f64().filter(|w| *w > 0.0) {
+            cab.corner.width = w;
+        }
+    }
     Some(cab)
 }
 

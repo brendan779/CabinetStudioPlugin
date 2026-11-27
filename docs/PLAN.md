@@ -294,6 +294,9 @@ offered Update to 0.0.9 after a restart.
 
 ## PLUG-5: from boxes (2026-11-28, 0.6.0)
 
+**From boxes was taken out in 0.7.4** (owner: cabinets are made directly in SolidCraft now). Gap
+items stay: a wall cabinet above a base uses them.
+
 - **Add cabinet › Or from boxes:** pick boxes drawn in SolidCraft; each becomes a cabinet sized to
   it, its type by the core's `CabinetKind::for_box` (tall, wall when up off the floor, else base),
   in a run along X from the first box's corner (the job's `origin`) with the gaps between boxes
@@ -442,6 +445,9 @@ says so. Cabinet Studio can take its chips from the same list.
   taken out and built again (inserting one moves those after it, and the run's kick).
 - **Rebuild all** (Job ▾, and the panel's toolbar) builds every cabinet again.
 - 0.7.3: the view is re-framed only when the run gains or loses an item, not on every edit.
+- 0.7.4: an L corner or wall corner has **Return side** (pictures: side wall on the left or right,
+  the core's `Corner.side`) and **Return length** (its second leg), in Add and Edit (owner: it was
+  only ever drawn one way). From boxes taken out.
 - **A hook reply SolidCraft ignores only shows in the run's log** ("Dialog hook reply ignored: …"),
   and the dialog falls back to the manifest's defaults. `scripts/build.sh --test` fails on one. Its
   choices must keep the manifest's order, and its values must fit the field's limits.

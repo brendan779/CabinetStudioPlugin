@@ -1,0 +1,19 @@
+{
+ "entry": "add",
+ "params": {
+  "kind": "corner_base",
+  "width": 900,
+  "corner_side": "left",
+  "corner_width": 900
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 1,
+    "rebuilt": [
+     "C01"
+    ]
+   }
+  }
+ }
+}
