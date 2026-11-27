@@ -280,6 +280,15 @@ Rules for the work:
   (the PLG-3 weekly check), revisit the panel: a Cabinets workspace and pictures in the
   panel are the next step.
 
+## Getting builds to the owner (and later, users)
+
+Each build the owner should try is a GitHub release of this repo: `scripts/release.sh` builds,
+tests, checks and publishes `cabinet-studio-<version>.zip`. `plugin.json` names the repo under
+`updates`, so SolidCraft (0.49+) offers a newer release on the plugin's card in Preferences ›
+Plugins as **Update to x.y.z**, checking at start and once a day (owner 2026-11-27). The card's
+Update keeps the granted exports folder. Installing through the control port's `plugin.install`
+(no dialog) hung on 0.50 and was given up.
+
 ## PLUG-0: what the spike found (2026-11-27, SolidCraft 0.50.0)
 
 The spike is the code in this repo at its first commit: `cabinet`, `refresh`, `edit`, `export` and
