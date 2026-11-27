@@ -229,8 +229,11 @@ Drafts, to post on tangency-labs/solidcraft only with the owner's go-ahead:
    check entry the host calls on selection change (with the same budget as a dialog hook) that
    answers whether the button is enabled and why not, shown as its tooltip. Our use: Edit cabinet
    is greyed until a cabinet is picked.
-2. **Open a populated form from a panel event**, so a row's double-click opens its cabinet.
+2. **Open a populated form from a panel event**, so a row's double-click opens its cabinet. Already
+   fixed upstream: tangency-labs/solidcraft#22032, merged as #22044 on 2026-11-26, after 0.50.0. When
+   the plugin targets 0.51, a row's double-click (`on_edit`) can open Edit cabinet filled in.
 3. **Images in panels** (a picture column or tile list), for board swatches and cabinet thumbnails.
+   Already asked: tangency-labs/solidcraft#20553 (open), pictures in form choice lists and panel rows.
 
 ## Data
 
