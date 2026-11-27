@@ -449,16 +449,30 @@ fn cabinet_fields(values: &Value, cab: Option<&Value>) -> Result<Value, PluginEr
                   "blind_side", "door_style", "opens", "remove"] {
             patch[f] = if c[f].is_null() { json!({"enabled": true}) } else { json!({"value": c[f], "enabled": true}) };
         }
+        // A size stored as 0 (the job's, in 0.1.0) shows as the job's size for its type.
+        if let Some(kind) = c["kind"].as_str().and_then(spec::kind) {
+            let (h, d) = job.size(kind);
+            for (f, v) in [("height", h), ("depth", d)] {
+                if c[f].as_f64().is_none_or(|x| x <= 0.0) {
+                    patch[f]["value"] = json!(v);
+                }
+            }
+        }
     }
     let kind_name = values["kind"].as_str().or(cab.and_then(|c| c["kind"].as_str())).unwrap_or("base");
     if let Some(kind) = spec::kind(kind_name) {
         let presets = spec::presets_for(kind);
-        patch["fronts"]["choices"] = json!(presets);
+        // SolidCraft takes choices only in the manifest's order; the usual one is the default.
+        let ordered: Vec<&str> = spec::PRESETS.iter().map(|(id, _)| *id).filter(|id| presets.contains(id)).collect();
+        patch["fronts"]["choices"] = json!(ordered);
         patch["fronts"]["default"] = json!(presets[0]);
         let (h, d) = job.size(kind);
         let usual = cabinet_core::Cabinet::new("X", kind);
-        patch["height"]["hint"] = json!(format!("0 takes the job's {h:.0} mm"));
-        patch["depth"]["hint"] = json!(format!("0 takes the job's {d:.0} mm"));
+        let class = spec::size_class(kind);
+        patch["height"]["default"] = json!(h);
+        patch["depth"]["default"] = json!(d);
+        patch["height"]["hint"] = json!(format!("The job's {class} height is {h:.0} mm"));
+        patch["depth"]["hint"] = json!(format!("The job's {class} depth is {d:.0} mm"));
         patch["width"]["default"] = json!(usual.width);
         patch["shelves"]["default"] = json!(usual.adjustable_shelves);
         patch["shelves"]["visible"] = json!(presets[0] != "own" && kind != cabinet_core::CabinetKind::DrawerBank);

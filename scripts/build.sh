@@ -18,7 +18,14 @@ wasm-tools component new target/wasm32-unknown-unknown/release/cabinet_plugin.wa
 "$cli" plugin check plugin/cabinet-studio
 for arg in "$@"; do
   case $arg in
-    --test) "$cli" plugin test plugin/cabinet-studio --require-cases ;;
+    --test)
+      # A hook reply SolidCraft throws away is only echoed in a test's log: it fails the gate here.
+      logs="$root/target/test-logs"
+      rm -rf "${logs:?}"
+      "$cli" plugin test plugin/cabinet-studio --require-cases --out "$logs"
+      if grep -h "hook reply ignored" "$logs"/*.log 2>/dev/null | sort -u | grep .; then
+        echo "a dialog hook's reply was ignored (above)"; exit 1
+      fi ;;
     --zip)
       # A new name for each version: the macOS file picker can grey out a file replaced while
       # it was open, so a rebuilt zip of the same name sometimes couldn't be picked.

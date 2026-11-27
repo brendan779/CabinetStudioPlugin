@@ -130,8 +130,9 @@ def main():
     cabinet_props = {
         'kind': {'type': 'string', 'title': 'Type', 'default': 'base', 'oneOf': kinds, 'x-solidcraft-section': 'Cabinet'},
         'width': number('Width', 600, 150, 2400),
-        'height': dict(number('Height', 0, 0, 2700), description="0: the job's height for its type"),
-        'depth': dict(number('Depth', 0, 0, 900), description="0: the job's depth for its type"),
+        # The job's base sizes until the hook gives the type's; a cabinet keeps the sizes it was given.
+        'height': number('Height', sizes['base'][0], 200, 2700),
+        'depth': number('Depth', sizes['base'][1], 100, 900),
         'fronts': {'type': 'string', 'title': 'Fronts', 'default': 'doors', 'oneOf': fronts, 'x-solidcraft-section': 'Fronts'},
         'hinge': {'type': 'string', 'title': 'Hinged on the', 'default': 'left', 'oneOf': side,
                   'x-solidcraft-visible-when': {'field': 'fronts', 'eq': 'door'}},

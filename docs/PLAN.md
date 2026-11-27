@@ -297,7 +297,8 @@ offered Update to 0.0.9 after a restart.
   It opens with the job's setup, or the shop standard for a job without one; **Also save as my shop
   standard** keeps it on the Mac (`user-storage`). Applying it rebuilds what it changes.
 - **Add** and **Edit**: all 11 cabinet types and their front layouts as pictures, drawn from each
-  cabinet as the core builds it; height and depth 0 take the job's size for the type; type extras
+  cabinet as the core builds it; height and depth start at the job's sizes for the type and
+  follow the type until changed (0.1.1: 0.1.0 showed 0, as SolidCraft ignored the hook's reply); type extras
   (sink, blind corner) and **Different from the job** (door style, how fronts open). Add puts the
   new cabinet at the end of the run, or after the cabinet picked in **Beside**. Edit can remove the
   cabinet.
@@ -305,6 +306,9 @@ offered Update to 0.0.9 after a restart.
   after any change the whole run is worked out again, and only cabinets whose commands differ are
   taken out and built again (inserting one moves those after it, and the run's kick).
 - **Rebuild all** (Job ▾, and the panel's toolbar) builds every cabinet again.
+- **A hook reply SolidCraft ignores only shows in the run's log** ("Dialog hook reply ignored: …"),
+  and the dialog falls back to the manifest's defaults. `scripts/build.sh --test` fails on one. Its
+  choices must keep the manifest's order, and its values must fit the field's limits.
 - **Handles** are placeholders at their catalog sizes on their real holes, in the core
   (`standins::handle`), so Cabinet Studio's builds without supplier models show them too.
 - **The Cabinets panel**: cabinet, type, width × height × depth, fronts and warnings per row, the
