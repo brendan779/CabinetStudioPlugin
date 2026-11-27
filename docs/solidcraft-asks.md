@@ -21,6 +21,35 @@ in [PLAN.md](PLAN.md).
 
 ## Bugs
 
+### 19. A panel with an item list sends every button press with an empty row (0.51.1)
+
+- **Seen:** Cabinet Studio 0.8.0's Cabinets panel (toolbar, two tables, an item list): every toolbar
+  button failed with "requires a panel id, printable path and optional row id".
+- **Why:** the item list stores `selected.unwrap_or_default()` (an empty string) and reads it back
+  next frame as `Some("")`, which it writes as the panel's selection; a button's event carries that
+  as `row`, and `UiEvent::validate` refuses an empty row (`panel_runtime/plugin.rs`, ItemList).
+- **Ask:** keep `None` for no selection. The plugin uses a table instead (0.8.2).
+
+### 20. Every table overwrites the panel's selection
+
+- **Seen:** each `table` writes its own selection to the panel's one selection slot, so with more
+  than one table a button's `row` is the last-drawn table's (usually none), not the row picked.
+- **Ask:** a button's event carrying the selection of the table the user last picked in, or the
+  button naming its table. The plugin draws its cabinets table last (0.8.3).
+
+### 21. A table row's double-click doesn't reach the plugin (0.51.1)
+
+- **Seen:** `on_edit: "open"` on the Cabinets table; double-clicking a row (synthetic and timed by
+  hand, 40 ms press, 80 ms gap) toggles the row's highlight and runs nothing: no run in the log, no
+  message, and a marker the entry writes first never appears. The same entry runs from a button.
+- **Ask:** check `table()` in `panel_runtime/plugin.rs` sees `double_clicked()` on kit table rows.
+
+### 22. `select.set` from a plugin run doesn't change the app's selection
+
+- **Seen:** the plugin's `select` entry (run from a panel row and from the control port) answers
+  `selected: 23 bodies`, but nothing is selected in the window; `select.set` run directly selects.
+- **Ask:** let a plugin's `select.set` select in the window, or say in docs/plugins.md that it can't.
+
 ### 1. The window stops resizing after a plugin panel is resized
 
 - **Seen:** the owner widened the plugin's Boards panel (docked at the bottom, a six-column table)

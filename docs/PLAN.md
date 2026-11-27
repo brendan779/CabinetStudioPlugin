@@ -324,7 +324,9 @@ items stay: a wall cabinet above a base uses them.
   false`, off the ribbon and the Job menu; the plugin needs SolidCraft 0.51. Point 3 (Add and Edit
   as ordinary runs with a preview) needs the user's Max plugin host calls raised first.
   0.8.1 drops the row's select action: `select.set` from a plugin run doesn't reach the app's
-  selection, and the run each click started kept the double-click from registering.
+  selection. A row's double-click still reaches nothing in 0.51.1 (solidcraft-asks 21), so 0.8.3
+  adds **Edit** to the panel's toolbar: pick a row, press Edit. Warnings is a table (0.8.2; an item
+  list broke every button, 19) and the cabinets table is drawn last (20).
 - PLUG-9 as planned: **what SolidCraft 0.51 allows** (the owner updated to 0.51.1): panel helpers opting out of
   the ribbon (#21604), a panel row's double-click opening Edit filled in (`forms.open`, #22044),
   previews that build less (`plugin.preview`, #22502), and a raised engine-call ceiling (#19515), so

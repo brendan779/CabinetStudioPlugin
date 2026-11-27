@@ -37,8 +37,9 @@ def panels():
     the plugin when the two differ, so `plugin test` catches a change made to one alone."""
     col = lambda key, label, unit=None: {'key': key, 'label': label, 'unit': unit}
     cabinets = {'id': 'cabinets', 'title': 'Cabinets', 'zones': ['right', 'bottom'], 'layout': {'root': 0, 'nodes': [
-        {'widget': {'group': [1, 2, 3, 4, 5, 6]}},
+        {'widget': {'group': [1, 3, 4, 5, 6, 7, 2]}},
         {'widget': {'toolbar': [{'label': 'Refresh', 'icon': None, 'entry': 'show'},
+                                {'label': 'Edit', 'icon': None, 'entry': 'open'},
                                 {'label': 'Rebuild all', 'icon': None, 'entry': 'rebuild'}]}},
         {'widget': {'table': {'bind': '/cabinets', 'row_id': 'id', 'columns': [
             col('id', 'Cabinet'), col('kind', 'Type'), col('size', 'W × H × D'), col('fronts', 'Fronts'), col('warnings', 'Warnings')],
@@ -49,6 +50,7 @@ def panels():
         {'widget': {'text': 'Warnings'}},
         {'widget': {'table': {'bind': '/warnings', 'row_id': 'text', 'columns': [col('cabinet', 'Cabinet'), col('text', 'Warning')],
                               'select': 'none', 'on_select': None, 'on_edit': None}}},
+        {'widget': {'text': 'Cabinets'}},
     ]}}
     return {'ui_version': 1, 'workspaces': [], 'panels': [cabinets]}
 
