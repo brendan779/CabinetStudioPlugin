@@ -431,6 +431,8 @@ fn open_row(p: &Value) -> Result<String, PluginError> {
     let mut bodies = Vec::new();
     collect_bodies(&reply, &row, &mut bodies);
     let pick = json!(bodies.first().map(|b| vec![b.clone()]).unwrap_or_default());
+    // TEMP (0.8.2): shows the double-click reached the plugin.
+    ui::set_data("cabinets", &[Datum { path: "/warnings/90/cabinet".into(), value: Cell::Text(row.clone()) }, Datum { path: "/warnings/90/text".into(), value: Cell::Text("double-click received".into()) }])?;
     match spec::item_kind(c) {
         "benchtop" => forms::open("benchtop", &json!({"piece": "benchtop"}).to_string())?,
         "end_panel" => forms::open("benchtop", &json!({"piece": "end-panel", "beside": pick}).to_string())?,
@@ -557,7 +559,8 @@ fn show(job_value: &Value, cabs: &[Value]) -> Result<(), PluginError> {
     let mut n = 0;
     for l in &built {
         for w in &l.warnings {
-            cells.push(Datum { path: format!("/warnings/{n}"), value: Cell::Text(format!("{}: {w}", l.cabinet)) });
+            cells.push(Datum { path: format!("/warnings/{n}/cabinet"), value: Cell::Text(l.cabinet.clone()) });
+            cells.push(Datum { path: format!("/warnings/{n}/text"), value: Cell::Text(w.to_string()) });
             n += 1;
         }
     }
@@ -574,7 +577,7 @@ fn show(job_value: &Value, cabs: &[Value]) -> Result<(), PluginError> {
 impl exports::craft::plugin::ui_provider::Guest for Plugin {
     /// The same panel as `runtime.ui` in plugin.json.
     fn describe() -> ui::Declarations {
-        use ui::{ButtonSpec, Column, Declarations, DockZone, Layout, ListSpec, Node, PanelSpec, SelectionMode, TableSpec, Widget};
+        use ui::{ButtonSpec, Column, Declarations, DockZone, Layout, Node, PanelSpec, SelectionMode, TableSpec, Widget};
         let button = |label: &str, entry: &str| ButtonSpec { label: label.into(), icon: None, entry: entry.into() };
         let column = |key: &str, label: &str| Column { key: key.into(), label: label.into(), unit: None };
         let table = TableSpec {
@@ -604,7 +607,16 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
                     on_edit: None,
                 }) },
                 Node { widget: Widget::Text("Warnings".into()) },
-                Node { widget: Widget::ItemList(ListSpec { bind: "/warnings".into(), on_select: None }) },
+                // A table, not an item list: 0.51's item list makes every button's event carry an
+                // empty row, which the host refuses.
+                Node { widget: Widget::Table(TableSpec {
+                    bind: "/warnings".into(),
+                    row_id: "text".into(),
+                    columns: vec![column("cabinet", "Cabinet"), column("text", "Warning")],
+                    select: SelectionMode::None,
+                    on_select: None,
+                    on_edit: None,
+                }) },
             ] },
         };
         Declarations { ui_version: 1, panels: vec![cabinets], workspaces: vec![] }

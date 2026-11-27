@@ -47,7 +47,8 @@ def panels():
         {'widget': {'table': {'bind': '/job_boards', 'row_id': 'role', 'columns': [col('role', 'Role'), col('board', 'Board')],
                               'select': 'none', 'on_select': None, 'on_edit': None}}},
         {'widget': {'text': 'Warnings'}},
-        {'widget': {'item-list': {'bind': '/warnings', 'on_select': None}}},
+        {'widget': {'table': {'bind': '/warnings', 'row_id': 'text', 'columns': [col('cabinet', 'Cabinet'), col('text', 'Warning')],
+                              'select': 'none', 'on_select': None, 'on_edit': None}}},
     ]}}
     return {'ui_version': 1, 'workspaces': [], 'panels': [cabinets]}
 
