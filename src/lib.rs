@@ -34,6 +34,7 @@ impl exports::craft::plugin::entry::Guest for Plugin {
                 Ok(json!({"cabinets": cabs.len()}).to_string())
             }
             "select" => select(&params),
+            "open" => open_row(&params),
             "import" => import(&params),
             "export" => export(params["make"].as_str().unwrap_or("csv")),
             "boards" => board_choose(&params),
@@ -419,6 +420,26 @@ fn select(p: &Value) -> Result<String, PluginError> {
     Ok(json!({"selected": row, "bodies": items.len()}).to_string())
 }
 
+/// A row's double-click (0.51 opens a panel's form): a cabinet in Edit, a piece in Bench top,
+/// filled in with it.
+fn open_row(p: &Value) -> Result<String, PluginError> {
+    use craft::plugin::forms;
+    let row = p["row"].as_str().unwrap_or_default().to_string();
+    let (_, cabs) = load()?;
+    let c = cabs.iter().find(|c| c["id"] == row.as_str()).ok_or_else(|| invalid("row", format!("no {row} in the run")))?;
+    let reply = run("component.list", &json!({"compact": true, "bodies": true}))?;
+    let mut bodies = Vec::new();
+    collect_bodies(&reply, &row, &mut bodies);
+    let pick = json!(bodies.first().map(|b| vec![b.clone()]).unwrap_or_default());
+    match spec::item_kind(c) {
+        "benchtop" => forms::open("benchtop", &json!({"piece": "benchtop"}).to_string())?,
+        "end_panel" => forms::open("benchtop", &json!({"piece": "end-panel", "beside": pick}).to_string())?,
+        "filler" => forms::open("benchtop", &json!({"piece": "filler", "beside": pick}).to_string())?,
+        _ => forms::open("edit", &json!({"pick": pick}).to_string())?,
+    }
+    Ok(json!({"opened": row}).to_string())
+}
+
 /// Bodies named `<row>.…` anywhere in `component.list`'s reply.
 fn collect_bodies(v: &Value, row: &str, out: &mut Vec<Value>) {
     match v {
@@ -563,7 +584,7 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
                           column("fronts", "Fronts"), column("warnings", "Warnings")],
             select: SelectionMode::Single,
             on_select: Some("select".into()),
-            on_edit: None,
+            on_edit: Some("open".into()),
         };
         let cabinets = PanelSpec {
             id: "cabinets".into(),

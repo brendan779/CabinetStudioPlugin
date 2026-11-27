@@ -42,7 +42,7 @@ def panels():
                                 {'label': 'Rebuild all', 'icon': None, 'entry': 'rebuild'}]}},
         {'widget': {'table': {'bind': '/cabinets', 'row_id': 'id', 'columns': [
             col('id', 'Cabinet'), col('kind', 'Type'), col('size', 'W × H × D'), col('fronts', 'Fronts'), col('warnings', 'Warnings')],
-            'select': 'single', 'on_select': 'select', 'on_edit': None}}},
+            'select': 'single', 'on_select': 'select', 'on_edit': 'open'}}},
         {'widget': {'text': 'Boards'}},
         {'widget': {'table': {'bind': '/job_boards', 'row_id': 'role', 'columns': [col('role', 'Role'), col('board', 'Board')],
                               'select': 'none', 'on_select': None, 'on_edit': None}}},
@@ -327,7 +327,9 @@ def main():
         entry('setup', 'Job setup', 'job', setup_props, dialog_hook=True, job=True),
         entry('show', 'Cabinets panel', 'panel'),
         entry('rebuild', 'Rebuild all', 'panel', job=True),
-        entry('select', 'Select cabinet', 'panel', {'row': {'type': 'string', 'title': 'Cabinet', 'default': ''}}),
+        # The panel's row click and double-click: off the ribbon and the Job menu (0.51's model_group).
+        entry('select', 'Select cabinet', 'panel', {'row': {'type': 'string', 'title': 'Cabinet', 'default': ''}}, model_group=False),
+        entry('open', 'Open in its dialog', 'panel', {'row': {'type': 'string', 'title': 'Row', 'default': ''}}, model_group=False),
         entry('import', 'Open a Cabinet Studio job', 'job', {
             'file': {'type': 'string', 'title': 'Job file', 'default': '', 'minLength': 1,
                      'description': 'Its name in your jobs folder (chosen when installing), such as Kitchen.cabinetjob. '
@@ -343,10 +345,12 @@ def main():
     manifest = {
         'id': 'cabinet-studio', 'name': 'Cabinet Studio', 'version': old['version'], 'updates': old['updates'],
         'description': old['description'],
-        'capabilities': ['commands@0.2', 'ui@0.1', 'storage@0.1', 'dialog@0.1', 'user-storage@0.1'],
+        # 0.51: a panel's action may open a form, and entries may leave the Model group.
+        'min_host_version': '0.51.0',
+        'capabilities': ['commands@0.2', 'ui@0.1', 'storage@0.1', 'dialog@0.1', 'user-storage@0.1', 'forms@0.1'],
         'runtime': {
             'module': 'cabinet-studio.wasm', 'data_format': 1, 'commands': commands, 'entries': entries,
-            'ribbon_groups': [{'label': 'Job', 'icon': 'icons/job.svg', 'entries': ['setup', 'import', 'show', 'rebuild', 'select']}],
+            'ribbon_groups': [{'label': 'Job', 'icon': 'icons/job.svg', 'entries': ['setup', 'import', 'show', 'rebuild']}],
             'permissions': {'files': [{'name': 'exports', 'write': True}, {'name': 'jobs', 'read': True}]},
             'ui': panels(),
             'limits': old['runtime']['limits'],

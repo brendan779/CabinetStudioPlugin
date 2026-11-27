@@ -1,0 +1,10 @@
+{
+ "design": "one-base.sc",
+ "entry": "open",
+ "params": {
+  "row": "C01"
+ },
+ "expect": {
+  "error": "any"
+ }
+}
