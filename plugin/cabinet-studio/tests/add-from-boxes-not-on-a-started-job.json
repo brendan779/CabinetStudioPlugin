@@ -1,0 +1,17 @@
+{
+ "design": "one-base.sc",
+ "entry": "add",
+ "params": {
+  "kind": "base",
+  "boxes": [
+   {
+    "type": "body",
+    "name": "C01.LeftSide"
+   }
+  ]
+ },
+ "expect": {
+  "error": "invalid_input",
+  "message": "already has cabinets"
+ }
+}

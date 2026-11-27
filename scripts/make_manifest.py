@@ -252,7 +252,10 @@ def main():
     edit_props = {'pick': pick, **cabinet_props,
                   'remove': {'type': 'boolean', 'title': 'Remove this cabinet', 'default': False,
                              'x-solidcraft-section': ''}}
-    add_props = {'beside': beside, **cabinet_props}
+    boxes = {'type': 'array', 'title': 'From boxes',
+             'description': 'Boxes you drew: a cabinet in each, sized to it, and the boxes go. Leaves the fields below',
+             'x-solidcraft-selection': {'version': 1, 'accept': ['body']}, 'x-solidcraft-section': 'Or from boxes'}
+    add_props = {'beside': beside, **cabinet_props, 'boxes': boxes}
     edit = entry('edit', 'Edit cabinet', 'edit', edit_props, ribbon='Edit', dialog_hook=True, job=True)
     edit['input_schema']['required'] = ['pick']
     # Bench top: the run's pieces (PLUG-3). Each field shows for its piece.
@@ -310,7 +313,7 @@ def main():
         entry('export', 'Cut list', 'cutlist', {'make': make}, ribbon='Cut List', job=True),
     ]
     old = json.loads(VERSION_FILE.read_text())
-    commands = sorted(set(old['runtime']['commands']) | {'select.set', 'component.list'})
+    commands = sorted(set(old['runtime']['commands']) | {'select.set', 'component.list', 'inspect.measure', 'solid.remove'})
     manifest = {
         'id': 'cabinet-studio', 'name': 'Cabinet Studio', 'version': old['version'], 'updates': old['updates'],
         'description': old['description'],

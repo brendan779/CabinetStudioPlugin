@@ -83,7 +83,7 @@ fn lists(job: &Job, cabs: &[Value]) -> Result<Vec<PartList>, PluginError> {
         .iter()
         .map(|c| spec::item(c, job, &job.benchtop_board).ok_or_else(|| invalid("cabinet", format!("can't read {c}"))))
         .collect::<Result<Vec<RunItem>, _>>()?;
-    build_run(&Run { origin: Vec3::default(), items }).map_err(|e| invalid("cabinet", e))
+    build_run(&Run { origin: job.origin, items }).map_err(|e| invalid("cabinet", e))
 }
 
 /// A short fingerprint of a cabinet's commands: equal fingerprints build the same bodies.
@@ -208,6 +208,49 @@ fn next_id(cabs: &[Value]) -> String {
     next_with("C", cabs)
 }
 
+/// From boxes (PLUG-5): a cabinet in each picked box, the type by Cabinet Studio's rule (tall,
+/// wall when up off the floor, else base), in a run along X from the first box with the gaps
+/// between them kept; the boxes then go. One row, on a job with no cabinets yet, for now.
+fn from_boxes(p: &Value) -> Result<String, PluginError> {
+    use cabinet_core::geom::Aabb;
+    let (mut job, cabs) = load()?;
+    if !cabs.is_empty() {
+        return Err(invalid("boxes", "From boxes starts a job's run: this job already has cabinets"));
+    }
+    let names: Vec<String> = p["boxes"].as_array().into_iter().flatten().filter_map(|b| b["name"].as_str().map(String::from)).collect();
+    let measured = run("inspect.measure", &json!({"bodies": names}))?;
+    let mut boxes: Vec<(String, Aabb)> = Vec::new();
+    for b in measured["bodies"].as_array().into_iter().flatten() {
+        let (Some(name), Some(min), Some(max)) = (b["name"].as_str(), b["bbox"]["min"].as_array(), b["bbox"]["max"].as_array()) else { continue };
+        let v = |a: &Vec<Value>| Vec3::new(a[0].as_f64().unwrap_or(0.0), a[1].as_f64().unwrap_or(0.0), a[2].as_f64().unwrap_or(0.0));
+        let (lo, hi) = (v(min), v(max));
+        boxes.push((name.to_string(), Aabb::new(lo, Vec3::new(hi.x - lo.x, hi.y - lo.y, hi.z - lo.z))));
+    }
+    if boxes.is_empty() {
+        return Err(invalid("boxes", "the picked bodies couldn't be measured"));
+    }
+    boxes.sort_by(|a, b| a.1.min.x.total_cmp(&b.1.min.x));
+    if boxes.windows(2).any(|w| w[1].1.min.x < w[0].1.max().x - 0.5) {
+        return Err(invalid("boxes", "the boxes overlap along the run: one row of boxes, side by side, for now"));
+    }
+    let first = boxes[0].1.min;
+    job["origin"] = json!([first.x, first.y, first.z]);
+    let mut items: Vec<Value> = Vec::new();
+    let mut x = first.x;
+    for (_, b) in &boxes {
+        if b.min.x - x > 0.5 {
+            items.push(json!({"item": "gap", "id": next_with("G", &items), "width": b.min.x - x}));
+        }
+        let kind = cabinet_core::CabinetKind::for_box(b);
+        let kind_name = serde_json::to_value(kind).ok().and_then(|k| k.as_str().map(String::from)).unwrap_or("base".into());
+        items.push(json!({"id": next_with("C", &items), "kind": kind_name, "width": b.size.x, "height": b.size.z, "depth": b.size.y}));
+        x = b.max().x;
+    }
+    let reply = sync(&job, items, false)?;
+    run("solid.remove", &json!({"bodies": names}))?;
+    Ok(reply)
+}
+
 /// The Bench top dialog: the benchtop, an end panel or a filler, added, changed or removed.
 fn pieces(p: &Value) -> Result<String, PluginError> {
     let (job, mut cabs) = load()?;
@@ -276,6 +319,9 @@ fn pieces(p: &Value) -> Result<String, PluginError> {
 }
 
 fn add(p: &Value) -> Result<String, PluginError> {
+    if p["boxes"].as_array().is_some_and(|a| !a.is_empty()) {
+        return from_boxes(p);
+    }
     let (job, mut cabs) = load()?;
     let id = next_id(&cabs);
     let at = picked(&p["beside"], &cabs).map_or(cabs.len(), |i| i + 1);

@@ -292,6 +292,17 @@ Update keeps the granted exports folder. Installing through the control port's `
 (no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
 offered Update to 0.0.9 after a restart.
 
+## PLUG-5: from boxes (2026-11-28, 0.6.0)
+
+- **Add cabinet › Or from boxes:** pick boxes drawn in SolidCraft; each becomes a cabinet sized to
+  it, its type by the core's `CabinetKind::for_box` (tall, wall when up off the floor, else base),
+  in a run along X from the first box's corner (the job's `origin`) with the gaps between boxes
+  kept as gap items; then the boxes are removed (`solid.remove`).
+- For now one row of boxes, on a job with no cabinets yet; anything else is refused with why.
+- Importing a Cabinet Studio `.cabinetjob` (the other half of PLUG-5) is still to do: it needs a
+  folder the user grants for reading, and the app's richer cabinets (sections, corners, linings)
+  stored as they are rather than as the plugin's simpler choices.
+
 ## PLUG-4: outputs (2026-11-28, 0.5.1)
 
 Checked in SolidCraft's window by Claude: Cut List › Everything below wrote the cut list (the job's

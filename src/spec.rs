@@ -86,6 +86,8 @@ pub struct Job {
     pub detail: String,
     /// The benchtop's board, chosen with the Boards button.
     pub benchtop_board: String,
+    /// Where the run starts: the first box's corner for a run made From boxes, else the origin.
+    pub origin: cabinet_core::geom::Vec3,
 }
 
 impl Job {
@@ -109,6 +111,10 @@ impl Job {
             sizes,
             detail: v["detail"].as_str().unwrap_or("design").into(),
             benchtop_board: v["boards"]["benchtop"]["id"].as_str().unwrap_or_default().into(),
+            origin: {
+                let o = |i: usize| v["origin"][i].as_f64().unwrap_or(0.0);
+                cabinet_core::geom::Vec3::new(o(0), o(1), o(2))
+            },
         }
     }
 
@@ -244,6 +250,7 @@ pub fn item(spec: &Value, job: &Job, benchtop_board: &str) -> Option<cabinet_cor
         "end_panel" => RunItem::EndPanel(serde_json::from_value(json!({
             "id": id, "scribe": num("scribe", 0.0), "to_floor": spec["to_floor"].as_bool().unwrap_or(true),
         })).ok()?),
+        "gap" => RunItem::Gap(serde_json::from_value(json!({"id": id, "width": num("width", 0.0)})).ok()?),
         "filler" => RunItem::Filler(serde_json::from_value(json!({
             "id": id, "width": num("width", 50.0), "scribe": num("scribe", 0.0),
         })).ok()?),
@@ -288,6 +295,7 @@ pub fn item_label(spec: &Value) -> String {
         "end_panel" => "End panel".into(),
         "filler" => "Filler".into(),
         "benchtop" => "Benchtop".into(),
+        "gap" => "Gap".into(),
         _ => KINDS.iter().find(|(k, _)| Some(*k) == spec["kind"].as_str()).map_or(String::new(), |(_, l)| (*l).to_string()),
     }
 }
