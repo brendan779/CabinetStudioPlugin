@@ -287,7 +287,8 @@ tests, checks and publishes `cabinet-studio-<version>.zip`. `plugin.json` names 
 `updates`, so SolidCraft (0.49+) offers a newer release on the plugin's card in Preferences ›
 Plugins as **Update to x.y.z**, checking at start and once a day (owner 2026-11-27). The card's
 Update keeps the granted exports folder. Installing through the control port's `plugin.install`
-(no dialog) hung on 0.50 and was given up.
+(no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
+offered Update to 0.0.9 after a restart.
 
 ## PLUG-0: what the spike found (2026-11-27, SolidCraft 0.50.0)
 
