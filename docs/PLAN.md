@@ -324,7 +324,7 @@ items stay: a wall cabinet above a base uses them.
   previews that build less (`plugin.preview`, #22502), and a raised engine-call ceiling (#19515), so
   Add and Edit could be ordinary runs with a preview again.
 - **Quick size buttons** like Cabinet Studio's chips (600, 900...): SolidCraft's dialogs have no such
-  control (number fields, text dropdowns only). Asked of SolidCraft (solidcraft-asks.md, 18).
+  control (number fields, text dropdowns only). Asked of SolidCraft: tangency-labs/solidcraft#23309.
   Meanwhile a size could be a dropdown of the usual sizes plus "Other" and a number field.
 
 ## PLUG-4: outputs (2026-11-28, 0.5.1)

@@ -146,6 +146,8 @@ in [PLAN.md](PLAN.md).
 
 ### 18. Quick picks on a number field
 
+Posted 2026-11-28 as tangency-labs/solidcraft#23309.
+
 - Cabinet Studio sets sizes with a row of buttons of the usual values (widths 300…1200, finger gaps
   10…30). A SolidCraft dialog has number fields and text dropdowns only, so a plugin can offer the
   usual values only in a description, or as a dropdown with an "Other" field beside it.
