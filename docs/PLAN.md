@@ -302,9 +302,9 @@ offered Update to 0.0.9 after a restart.
 - 0.7.0: **Job ▾ › Open a Cabinet Studio job** reads a `.cabinetjob` from the folder granted as
   `jobs` at install (the update asks for it once): the file's standard becomes the job's, and its
   cabinets and pieces replace the run, kept as Cabinet Studio wrote them (`item: "core"`) so
-  sections, corners and the rest build as in the app; the job's boards and sizes stay. Imported
-  cabinets build and list, but Edit can't change them yet (it knows the plugin's simpler cabinets
-  only). The owner's six job files all build this way (`examples/check_import.rs`). A dialog's
+  sections, corners and the rest build as in the app; the job's boards and sizes stay. Edit
+  changes an imported cabinet's width, height and depth or removes it (0.7.1); its type, sections
+  and fronts stay the app's, as the plugin's front layouts are simpler. The owner's six job files all build this way (`examples/check_import.rs`). A dialog's
   one-run folder field was tried first: SolidCraft 0.50 can't link it into a plugin with panels and
   hooks (solidcraft-asks.md, 16).
 

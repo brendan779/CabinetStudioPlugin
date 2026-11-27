@@ -188,7 +188,16 @@ fn spec_from(p: &Value, id: &str) -> Value {
 
 /// The cabinet a picked body belongs to: bodies are named `<cabinet>.<part>`.
 fn picked(pick: &Value, cabs: &[Value]) -> Option<usize> {
-    picked_item(pick, cabs).filter(|i| spec::item_kind(&cabs[*i]) == "cabinet")
+    picked_item(pick, cabs).filter(|i| is_cabinet(&cabs[*i]))
+}
+
+/// A cabinet: the plugin's own, or one opened from a Cabinet Studio job.
+fn is_cabinet(c: &Value) -> bool {
+    match spec::item_kind(c) {
+        "cabinet" => true,
+        "core" => c["core"]["type"].is_null(),
+        _ => false,
+    }
 }
 
 /// The run item, cabinet or piece, a picked body belongs to.
@@ -354,6 +363,14 @@ fn edit(p: &Value) -> Result<String, PluginError> {
     let i = picked(&p["pick"], &cabs).ok_or_else(|| invalid("pick", "pick one of the cabinets: what is picked isn't one"))?;
     if p["remove"].as_bool() == Some(true) {
         cabs.remove(i);
+    } else if spec::item_kind(&cabs[i]) == "core" {
+        // A cabinet from a Cabinet Studio job: its size changes here; its type, sections and fronts
+        // are the app's, kept as they are.
+        for k in ["width", "height", "depth"] {
+            if let Some(x) = p[k].as_f64().filter(|x| *x > 0.0) {
+                cabs[i]["core"][k] = json!(x);
+            }
+        }
     } else {
         let id = cabs[i]["id"].as_str().unwrap_or_default().to_string();
         let (built, painted) = (cabs[i]["built"].clone(), cabs[i]["painted"].clone());
@@ -755,6 +772,18 @@ fn cabinet_fields(values: &Value, cab: Option<&Value>) -> Result<Value, PluginEr
     let (stored, _) = load()?;
     let job = Job::from_stored(&stored);
     let mut patch = json!({});
+    if let Some(c) = cab.filter(|c| spec::item_kind(c) == "core") {
+        // From a Cabinet Studio job: only its size is changed here.
+        let mut patch = json!({});
+        for f in ["width", "height", "depth"] {
+            patch[f] = json!({"value": c["core"][f], "enabled": true});
+        }
+        for f in ["kind", "fronts", "hinge", "shelves", "pipe_cutout", "liner", "blind_side", "door_style", "opens"] {
+            patch[f] = json!({"enabled": false});
+        }
+        patch["remove"] = json!({"enabled": true});
+        return Ok(patch);
+    }
     if let Some(c) = cab {
         patch["pick"] = json!({"hint": format!("Changing {}", c["id"].as_str().unwrap_or_default())});
         for f in ["kind", "width", "height", "depth", "fronts", "hinge", "shelves", "pipe_cutout", "liner",

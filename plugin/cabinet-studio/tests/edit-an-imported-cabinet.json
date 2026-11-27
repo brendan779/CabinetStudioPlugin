@@ -1,0 +1,25 @@
+{
+ "design": "imported-job.sc",
+ "entry": "edit",
+ "params": {
+  "pick": [
+   {
+    "type": "body",
+    "name": "W01.LeftSide"
+   }
+  ],
+  "kind": "wardrobe",
+  "width": 1000
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 2,
+    "rebuilt": [
+     "W01",
+     "W05"
+    ]
+   }
+  }
+ }
+}
