@@ -292,7 +292,7 @@ Update keeps the granted exports folder. Installing through the control port's `
 (no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
 offered Update to 0.0.9 after a restart.
 
-## Boards as a dialog (2026-11-28, 0.4.0)
+## Boards as a dialog (2026-11-28, 0.4.0; 0.4.2 checked by the owner in SolidCraft)
 
 0.3.0's Boards panel failed the owner on SolidCraft 0.50: a declared panel always opens (a plugin
 can't start one closed), a ribbon button always opens a dialog (it can't toggle a panel), after
