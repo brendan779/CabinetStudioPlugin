@@ -1,0 +1,26 @@
+{
+ "entry": "import",
+ "params": {
+  "file": "wardrobe-runners.cabinetjob"
+ },
+ "grants": {
+  "folders": [
+   {
+    "name": "jobs",
+    "read": true,
+    "from": "jobs"
+   },
+   {
+    "name": "exports",
+    "write": true
+   }
+  ]
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 2
+   }
+  }
+ }
+}

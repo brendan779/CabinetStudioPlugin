@@ -34,6 +34,7 @@ impl exports::craft::plugin::entry::Guest for Plugin {
                 Ok(json!({"cabinets": cabs.len()}).to_string())
             }
             "select" => select(&params),
+            "import" => import(&params),
             "export" => export(params["make"].as_str().unwrap_or("csv")),
             "boards" => board_choose(&params),
             "benchtop" => pieces(&params),
@@ -206,6 +207,25 @@ fn next_with(prefix: &str, cabs: &[Value]) -> String {
 
 fn next_id(cabs: &[Value]) -> String {
     next_with("C", cabs)
+}
+
+/// Opens a Cabinet Studio job file (PLUG-5): its standard becomes the job's, and its cabinets and
+/// pieces replace the run, built as the app builds them. The file is read from the folder granted
+/// as `jobs` at install: SolidCraft 0.50 can't give a dialog's one-run folder access to a plugin
+/// with panels and dialog hooks ("function implementation is missing").
+fn import(p: &Value) -> Result<String, PluginError> {
+    let name = p["file"].as_str().unwrap_or_default().trim().to_string();
+    let bytes = files::read_file("jobs", &name)?;
+    let text = String::from_utf8(bytes).map_err(|e| invalid("file", e))?;
+    let (mut job, items) = spec::import_job(&text).map_err(|e| invalid("file", e))?;
+    // The job's boards and sizes stay as they were set here; the file brings its standard.
+    let (old, _) = load()?;
+    for k in ["boards", "sizes", "detail", "origin"] {
+        if !old[k].is_null() {
+            job[k] = old[k].clone();
+        }
+    }
+    sync(&job, items, false)
 }
 
 /// From boxes (PLUG-5): a cabinet in each picked box, the type by Cabinet Studio's rule (tall,
@@ -501,6 +521,10 @@ fn show(job_value: &Value, cabs: &[Value]) -> Result<(), PluginError> {
         let size = match spec::item_kind(c) {
             "cabinet" => spec::cabinet(c, &job).map_or(String::new(), |k| format!("{:.0} × {:.0} × {:.0}", k.width, k.height, k.depth)),
             "filler" => format!("{:.0} wide", c["width"].as_f64().unwrap_or(50.0)),
+            "core" if c["core"]["type"].is_null() => {
+                let n = |k: &str| c["core"][k].as_f64().unwrap_or(0.0);
+                format!("{:.0} × {:.0} × {:.0}", n("width"), n("height"), n("depth"))
+            }
             _ => String::new(),
         };
         let warnings = built.iter().find(|l| l.cabinet == id).map_or(0, |l| l.warnings.len());

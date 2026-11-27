@@ -106,7 +106,7 @@ DRAWN = {
 }
 PICK = {'type', 'title', 'description', 'minItems', 'maxItems', 'items', '$comment', 'deprecated', 'x-solidcraft-selection',
         'x-solidcraft-visible-when', 'x-solidcraft-enabled-when', 'x-solidcraft-section', 'x-solidcraft-help'}
-NOTES = {'type', 'title', 'description', 'default', 'unit', 'x-unit', 'units', 'examples', '$comment', 'deprecated',
+NOTES = {'x-solidcraft-grant', 'type', 'title', 'description', 'default', 'unit', 'x-unit', 'units', 'examples', '$comment', 'deprecated',
          'x-solidcraft-visible-when', 'x-solidcraft-enabled-when', 'x-solidcraft-defaults', 'x-solidcraft-grant',
          'x-solidcraft-section', 'x-solidcraft-unit-from', 'x-solidcraft-help'}
 
@@ -306,6 +306,10 @@ def main():
         entry('show', 'Cabinets panel', 'panel'),
         entry('rebuild', 'Rebuild all', 'panel', job=True),
         entry('select', 'Select cabinet', 'panel', {'row': {'type': 'string', 'title': 'Cabinet', 'default': ''}}),
+        entry('import', 'Open a Cabinet Studio job', 'job', {
+            'file': {'type': 'string', 'title': 'Job file', 'default': '', 'minLength': 1,
+                     'description': 'Its name in your jobs folder (chosen when installing), such as Kitchen.cabinetjob. '
+                                    'It replaces this design\'s cabinets'}}, job=True),
         entry('add', 'Add cabinet', 'add', add_props, ribbon='Add', dialog_hook=True, job=True),
         edit,
         entry('boards', 'Boards', 'boards', board_props, ribbon='Boards', dialog_hook=True, job=True),
@@ -320,8 +324,8 @@ def main():
         'capabilities': ['commands@0.2', 'ui@0.1', 'storage@0.1', 'dialog@0.1', 'user-storage@0.1'],
         'runtime': {
             'module': 'cabinet-studio.wasm', 'data_format': 1, 'commands': commands, 'entries': entries,
-            'ribbon_groups': [{'label': 'Job', 'icon': 'icons/job.svg', 'entries': ['setup', 'show', 'rebuild', 'select']}],
-            'permissions': {'files': [{'name': 'exports', 'write': True}]},
+            'ribbon_groups': [{'label': 'Job', 'icon': 'icons/job.svg', 'entries': ['setup', 'import', 'show', 'rebuild', 'select']}],
+            'permissions': {'files': [{'name': 'exports', 'write': True}, {'name': 'jobs', 'read': True}]},
             'ui': panels(),
             'limits': old['runtime']['limits'],
         },

@@ -250,6 +250,7 @@ pub fn item(spec: &Value, job: &Job, benchtop_board: &str) -> Option<cabinet_cor
         "end_panel" => RunItem::EndPanel(serde_json::from_value(json!({
             "id": id, "scribe": num("scribe", 0.0), "to_floor": spec["to_floor"].as_bool().unwrap_or(true),
         })).ok()?),
+        "core" => return core_item(&spec["core"], job),
         "gap" => RunItem::Gap(serde_json::from_value(json!({"id": id, "width": num("width", 0.0)})).ok()?),
         "filler" => RunItem::Filler(serde_json::from_value(json!({
             "id": id, "width": num("width", 50.0), "scribe": num("scribe", 0.0),
@@ -296,6 +297,46 @@ pub fn item_label(spec: &Value) -> String {
         "filler" => "Filler".into(),
         "benchtop" => "Benchtop".into(),
         "gap" => "Gap".into(),
+        "core" => match spec["core"]["type"].as_str() {
+            Some(t) => t.replace('_', " "),
+            None => KINDS.iter().find(|(k, _)| Some(*k) == spec["core"]["kind"].as_str()).map_or("Cabinet".into(), |(_, l)| format!("{l} (from the app)")),
+        },
         _ => KINDS.iter().find(|(k, _)| Some(*k) == spec["kind"].as_str()).map_or(String::new(), |(_, l)| (*l).to_string()),
+    }
+}
+
+/// A Cabinet Studio job file (`.cabinetjob`: `{name, standard, cabinets}`) as the plugin's job and
+/// run: the file's standard becomes the job's, and each item is kept as Cabinet Studio wrote it
+/// (`item: "core"`), so its sections, corners and the rest build as they do in the app.
+pub fn import_job(text: &str) -> Result<(Value, Vec<Value>), String> {
+    let file: Value = serde_json::from_str(text).map_err(|e| format!("not a Cabinet Studio job file: {e}"))?;
+    let items = file["cabinets"].as_array().ok_or("not a Cabinet Studio job file: it has no cabinets")?;
+    let mut standard = file["standard"].clone();
+    if let Some(s) = standard.as_object_mut() {
+        s.remove("name");
+    }
+    let job = json!({"standard": standard, "name": file["name"]});
+    let run = items
+        .iter()
+        .filter_map(|raw| Some(json!({"item": "core", "id": raw["id"].as_str()?, "core": raw})))
+        .collect();
+    Ok((job, run))
+}
+
+/// A Cabinet Studio item as the core's: a piece as it is, a cabinet over the job's standard where it
+/// has none of its own.
+pub fn core_item(raw: &Value, job: &Job) -> Option<cabinet_core::run::RunItem> {
+    use cabinet_core::run::RunItem;
+    match raw["type"].as_str() {
+        Some("filler" | "end_panel" | "benchtop" | "floating_shelf" | "moulding" | "walls" | "gap" | "splashback") => {
+            serde_json::from_value(raw.clone()).ok()
+        }
+        _ => {
+            let mut cab = raw.clone();
+            if cab["standard"].is_null() {
+                cab["standard"] = serde_json::to_value(&job.standard).ok()?;
+            }
+            Some(RunItem::Cabinet(Box::new(serde_json::from_value(cab).ok()?)))
+        }
     }
 }

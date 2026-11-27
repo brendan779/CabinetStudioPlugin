@@ -123,7 +123,16 @@ in [PLAN.md](PLAN.md).
   nowhere in the 0.50.0 dialog that took the same reply's choices and values.
 - **Ask:** show a field's hint under it, or say in docs/plugins.md where it goes.
 
-### 15. The docs disagree on the manifest's limit
+### 16. One-run folder access can't be had with panels or dialog hooks
+
+- A plugin that declares `folders@0.1` and builds against its own world (`include
+  panel-dialog-plugin; import folders;`, as docs/plugins.md suggests composing) passes `plugin check`,
+  but every entry then fails at run time with "function implementation is missing": the host links
+  `folders` only into `command-with-folders` and `importer-with-folders`.
+- **Ask:** link `folders` into any command world that asks for it (or ship worlds with panels and
+  hooks that include it), and have `plugin check` refuse a world the host can't link.
+
+### 17. The docs disagree on the manifest's limit
 
 - plugins.md says 64 KiB; plugin-runtime.md says 16 KiB, and the writing guide's Limits table says
   16 KiB. 0.50.0 accepted 47 KB.

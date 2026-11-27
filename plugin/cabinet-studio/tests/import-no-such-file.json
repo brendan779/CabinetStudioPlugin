@@ -1,0 +1,22 @@
+{
+ "entry": "import",
+ "params": {
+  "file": "nothing.cabinetjob"
+ },
+ "grants": {
+  "folders": [
+   {
+    "name": "jobs",
+    "read": true,
+    "from": "jobs"
+   },
+   {
+    "name": "exports",
+    "write": true
+   }
+  ]
+ },
+ "expect": {
+  "error": "any"
+ }
+}

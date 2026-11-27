@@ -299,9 +299,14 @@ offered Update to 0.0.9 after a restart.
   in a run along X from the first box's corner (the job's `origin`) with the gaps between boxes
   kept as gap items; then the boxes are removed (`solid.remove`).
 - For now one row of boxes, on a job with no cabinets yet; anything else is refused with why.
-- Importing a Cabinet Studio `.cabinetjob` (the other half of PLUG-5) is still to do: it needs a
-  folder the user grants for reading, and the app's richer cabinets (sections, corners, linings)
-  stored as they are rather than as the plugin's simpler choices.
+- 0.7.0: **Job ▾ › Open a Cabinet Studio job** reads a `.cabinetjob` from the folder granted as
+  `jobs` at install (the update asks for it once): the file's standard becomes the job's, and its
+  cabinets and pieces replace the run, kept as Cabinet Studio wrote them (`item: "core"`) so
+  sections, corners and the rest build as in the app; the job's boards and sizes stay. Imported
+  cabinets build and list, but Edit can't change them yet (it knows the plugin's simpler cabinets
+  only). The owner's six job files all build this way (`examples/check_import.rs`). A dialog's
+  one-run folder field was tried first: SolidCraft 0.50 can't link it into a plugin with panels and
+  hooks (solidcraft-asks.md, 16).
 
 ## PLUG-4: outputs (2026-11-28, 0.5.1)
 
