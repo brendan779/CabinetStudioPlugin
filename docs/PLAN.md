@@ -311,6 +311,22 @@ items stay: a wall cabinet above a base uses them.
   one-run folder field was tried first: SolidCraft 0.50 can't link it into a plugin with panels and
   hooks (solidcraft-asks.md, 16).
 
+## Next (owner's notes, 2026-11-28)
+
+- **PLUG-7: cut sheets as SolidCraft drawings.** The cut list, cut sheets and cutting layouts should
+  be SolidCraft's own sheet drawings (its `drawing.*` commands: sheets, views, tables, dimensions),
+  made in the design, not PDFs written by a script. The PDFs and CSV stay as exports.
+- **PLUG-8: a BOM for costings.** Boards (sheets, edge tape by the metre), hardware and benchtops with
+  quantities and prices where the catalogue has them (ABI's handles carry `price_aud`; Cabinet
+  Studio's Quote tab is the model), and a total.
+- **PLUG-9: what SolidCraft 0.51 allows** (the owner updated to 0.51.1): panel helpers opting out of
+  the ribbon (#21604), a panel row's double-click opening Edit filled in (`forms.open`, #22044),
+  previews that build less (`plugin.preview`, #22502), and a raised engine-call ceiling (#19515), so
+  Add and Edit could be ordinary runs with a preview again.
+- **Quick size buttons** like Cabinet Studio's chips (600, 900...): SolidCraft's dialogs have no such
+  control (number fields, text dropdowns only). Asked of SolidCraft (solidcraft-asks.md, 18).
+  Meanwhile a size could be a dropdown of the usual sizes plus "Other" and a number field.
+
 ## PLUG-4: outputs (2026-11-28, 0.5.1)
 
 Checked in SolidCraft's window by Claude: Cut List › Everything below wrote the cut list (the job's

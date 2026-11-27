@@ -13,6 +13,12 @@ in [PLAN.md](PLAN.md).
   0.50.0.
 - **Panel-only entries on the ribbon:** tangency-labs/solidcraft#22060 and #22300 (open).
 
+## Fixed or added in 0.51 (2026-11-28)
+
+- Entries can opt out of the Model group (#21604): our panel helpers can leave the ribbon (7, 11).
+- The host-call count and entry deadline are ceilings a user can raise (#19515) (12).
+- A form a panel's action asks for opens (#22044); a plugin can tell it is previewing (#22502) (13).
+
 ## Bugs
 
 ### 1. The window stops resizing after a plugin panel is resized
@@ -137,3 +143,11 @@ in [PLAN.md](PLAN.md).
 - plugins.md says 64 KiB; plugin-runtime.md says 16 KiB, and the writing guide's Limits table says
   16 KiB. 0.50.0 accepted 47 KB.
 - **Ask:** one figure in the docs.
+
+### 18. Quick picks on a number field
+
+- Cabinet Studio sets sizes with a row of buttons of the usual values (widths 300…1200, finger gaps
+  10…30). A SolidCraft dialog has number fields and text dropdowns only, so a plugin can offer the
+  usual values only in a description, or as a dropdown with an "Other" field beside it.
+- **Ask:** quick picks on a number field, for example `"x-solidcraft-presets": [10, 15, 20, 25, 30]`,
+  drawn as buttons or chips beside or under the field; a click sets the value, typing stays free.
