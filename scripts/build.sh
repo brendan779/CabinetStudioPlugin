@@ -2,8 +2,12 @@
 # Builds the plugin (docs/PLAN.md): the component into plugin/cabinet-studio, checked by
 # solidcraft-cli. --test runs its test cases; --zip packs it for Preferences › Plugins › Install plugin…
 set -euo pipefail
-# A Python with Pillow, for the pictures: the first one on the PATH before Homebrew's goes first.
-py=$(command -v python3)
+# A Python with Pillow, for the pictures, wherever it is on the PATH.
+py=""
+for p in $(which -a python3 2>/dev/null) /Library/Frameworks/Python.framework/Versions/Current/bin/python3; do
+  if [[ -x $p ]] && "$p" -I -c 'import PIL' 2>/dev/null; then py=$p; break; fi
+done
+[[ -n $py ]] || { echo "no python3 with Pillow: pip install pillow"; exit 1; }
 export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:/opt/homebrew/bin:$PATH"
 root=${0:A:h:h}
 cli=${SOLIDCRAFT_CLI:-/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli}

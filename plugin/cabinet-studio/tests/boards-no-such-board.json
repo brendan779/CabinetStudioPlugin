@@ -1,0 +1,15 @@
+{
+ "design": "one-base.sc",
+ "entry": "boards",
+ "params": {
+  "brand": "Laminex",
+  "range": "Decorated MDF",
+  "decor": "Delana Oak",
+  "finish": "Natural",
+  "role": "carcass",
+  "thickness": 3
+ },
+ "expect": {
+  "error": "invalid_input"
+ }
+}

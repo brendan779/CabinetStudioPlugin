@@ -290,6 +290,24 @@ Update keeps the granted exports folder. Installing through the control port's `
 (no dialog) hung on 0.50 and was given up. Checked 2026-11-27: with 0.0.8 installed, SolidCraft
 offered Update to 0.0.9 after a restart.
 
+## Boards as a dialog (2026-11-28, 0.4.0)
+
+0.3.0's Boards panel failed the owner on SolidCraft 0.50: a declared panel always opens (a plugin
+can't start one closed), a ribbon button always opens a dialog (it can't toggle a panel), after
+resizing the panel the window would no longer resize, and "Use for" snapped back to Carcass and
+Brand didn't refresh the list (the panel's runs share one settings file on the Mac and collide).
+So the **Boards** button opens a dialog, as SolidCraft's own tools do:
+
+- **Use for** (its hint names the role's board now), **Brand**, **Range**, **Find decor** (part of
+  a name), **Decor**, **Finish**, **Thickness**: each list narrowed by the choices above it by the
+  dialog's hook, to at most 256 (SolidCraft's limit; the hint says when to type in Find decor).
+  **Run** gives the role that board and rebuilds or repaints.
+- The manifest lists every range, decor name, finish and thickness once (47 KB of its 64 KiB);
+  the hook only narrows them, in the manifest's order.
+- A hook may spend only 10 million instructions, too few to read the whole board index. The index
+  starts with a table of contents, where each brand's lines are, so the hook reads one brand's.
+- The Boards panel and its two helper entries are gone.
+
 ## Boards reworked (2026-11-27, 0.3.0)
 
 The owner tried 0.2.x: the Cabinets panel's Boards tab had no room for its columns, Laminex was

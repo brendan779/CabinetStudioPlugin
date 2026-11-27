@@ -1,0 +1,19 @@
+{
+ "design": "one-base.sc",
+ "entry": "boards",
+ "params": {
+  "brand": "Laminex",
+  "range": "Decorated MDF",
+  "decor": "Delana Oak",
+  "finish": "Natural",
+  "role": "fronts",
+  "thickness": 18
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 1
+   }
+  }
+ }
+}

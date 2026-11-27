@@ -1,19 +1,12 @@
 //! The board catalogue and the job's boards by role (docs/PLAN.md, Boards). The catalogue comes as
 //! `boards.tsv`, an index `examples/catalog.rs` writes from Cabinet Studio's catalogue: scanning it
-//! is quick enough for every keystroke in the Boards panel's search, where reading the whole
-//! catalogue was not (owner, 2026-11-27).
+//! fits a dialog hook's budget, where reading the whole catalogue does not.
 use serde_json::{Value, json};
 
 const INDEX: &str = include_str!("boards.tsv");
 
-/// The roles a board can take, as the Boards panel's "Use for" choice shows them.
+/// The roles a board can take, as the Boards dialog's "Use for" shows them.
 pub const ROLES: &[(&str, &str)] = &[("carcass", "Carcass"), ("fronts", "Fronts"), ("backs", "Backs"), ("benchtop", "Benchtop")];
-
-/// The Brand choice's first option.
-pub const ALL_BRANDS: &str = "All brands";
-
-/// The most rows the board table shows at once: a panel's data is limited to 1 MiB.
-pub const MOST_ROWS: usize = 300;
 
 /// One line of the index.
 pub struct Board<'a> {
@@ -23,6 +16,8 @@ pub struct Board<'a> {
     pub decor: &'a str,
     pub finish: &'a str,
     pub thickness: f64,
+    /// The largest sheet ("3600 × 1800"), for the cut list's stock (PLUG-4).
+    #[allow(dead_code)]
     pub sheet: &'a str,
     pub colour: &'a str,
     /// "sheet", "top" (laminate tops and stone) or "lining".
@@ -44,23 +39,28 @@ fn parse(line: &str) -> Option<Board<'_>> {
     })
 }
 
+/// The index's boards: its first line is the brands' table of contents.
+fn body() -> &'static str {
+    INDEX.split_once('\n').map_or("", |(_, rest)| rest)
+}
+
 pub fn all() -> impl Iterator<Item = Board<'static>> {
-    INDEX.lines().filter_map(parse)
+    body().lines().filter_map(parse)
 }
 
-pub fn find(id: &str) -> Option<Board<'static>> {
-    all().find(|b| b.id == id)
-}
-
-/// The brands, in catalogue order, after "All brands": the Brand choice's options.
-pub fn brands() -> Vec<String> {
-    let mut out = vec![ALL_BRANDS.to_string()];
-    for b in all() {
-        if !out.iter().any(|x| x == b.brand) {
-            out.push(b.brand.to_string());
-        }
+/// One brand's boards, read from its span of the index alone: a dialog hook may spend only 10
+/// million instructions (SolidCraft's fixed budget), too few to read the whole index.
+pub fn of_brand(brand: &str) -> Vec<Board<'static>> {
+    let head = INDEX.split_once('\n').map_or("", |(h, _)| h);
+    let span = head.split('\t').find_map(|e| {
+        let (b, range) = e.rsplit_once('=')?;
+        let (s, f) = range.split_once('-')?;
+        (b == brand).then(|| (s.parse::<usize>().ok(), f.parse::<usize>().ok()))
+    });
+    match span {
+        Some((Some(s), Some(f))) => body().get(s..f).unwrap_or("").lines().filter_map(parse).collect(),
+        _ => Vec::new(),
     }
-    out
 }
 
 pub fn role_of(label: &str) -> &'static str {
@@ -72,32 +72,8 @@ pub fn label_of(role: &str) -> &'static str {
 }
 
 /// Benchtop materials for a benchtop; sheet boards, linings left out, for the rest.
-fn suits(b: &Board, role: &str) -> bool {
+pub fn suits(b: &Board, role: &str) -> bool {
     if role == "benchtop" { b.use_as == "top" } else { b.use_as == "sheet" }
-}
-
-/// The boards for `role` of `brand` whose text has every word of `search`, in catalogue order, at
-/// most [`MOST_ROWS`], and how many matched in all.
-pub fn matching(role: &str, brand: &str, search: &str) -> (Vec<Board<'static>>, usize) {
-    let terms: Vec<String> = search.split_whitespace().map(str::to_lowercase).collect();
-    let mut rows = Vec::new();
-    let mut n = 0;
-    for b in all() {
-        if !suits(&b, role) || (brand != ALL_BRANDS && !brand.is_empty() && b.brand != brand) {
-            continue;
-        }
-        if !terms.is_empty() {
-            let text = format!("{} {} {} {} {}", b.brand, b.range, b.decor, b.finish, b.thickness).to_lowercase();
-            if !terms.iter().all(|t| text.contains(t.as_str())) {
-                continue;
-            }
-        }
-        n += 1;
-        if rows.len() < MOST_ROWS {
-            rows.push(b);
-        }
-    }
-    (rows, n)
 }
 
 /// The job with `board` in `role`: a cabinet role sets the core's board and its thickness; the

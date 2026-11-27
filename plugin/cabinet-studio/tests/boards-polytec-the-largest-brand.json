@@ -1,0 +1,19 @@
+{
+ "design": "one-base.sc",
+ "entry": "boards",
+ "params": {
+  "role": "fronts",
+  "brand": "Polytec",
+  "range": "Commercial",
+  "decor": "Angora Oak",
+  "finish": "Woodmatt",
+  "thickness": 18.0
+ },
+ "expect": {
+  "reply": {
+   "result": {
+    "cabinets": 1
+   }
+  }
+ }
+}

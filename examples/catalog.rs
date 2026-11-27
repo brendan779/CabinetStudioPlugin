@@ -30,8 +30,11 @@ fn front_view(list: &PartList) -> Value {
 fn board_index() -> String {
     let cat = cabinet_catalog::embedded::catalog().expect("the built-in catalogue");
     let clean = |s: &str| s.replace(['\t', '\n'], " ");
-    let mut out = String::new();
+    let mut body = String::new();
+    let mut spans: Vec<(String, usize, usize)> = Vec::new();
     for b in &cat.boards {
+        let start = body.len();
+        let out = &mut body;
         let top = matches!(b.kind, cabinet_catalog::BoardKind::LaminateTop | cabinet_catalog::BoardKind::SinteredStone);
         let role = if top { "top" } else if b.kind == cabinet_catalog::BoardKind::Lining { "lining" } else { "sheet" };
         let sheet = b
@@ -42,8 +45,17 @@ fn board_index() -> String {
         out.push_str(&[b.id.clone(), clean(&b.brand), clean(&b.range), clean(&b.decor), clean(&b.finish),
             format!("{}", b.thickness), sheet, b.preview_colour.clone(), role.into()].join("\t"));
         out.push('\n');
+        match spans.last_mut() {
+            Some((brand, _, end)) if *brand == clean(&b.brand) => *end = body.len(),
+            _ => spans.push((clean(&b.brand), start, body.len())),
+        }
     }
-    out
+    // The first line says where each brand's lines are, as byte offsets after it, so a dialog hook
+    // reads only one brand's (a hook may spend only 10 million instructions).
+    let mut seen = std::collections::HashSet::new();
+    assert!(spans.iter().all(|(b, ..)| seen.insert(b.clone())), "a brand's boards are not together in the catalogue");
+    let head: Vec<String> = spans.iter().map(|(b, s, e)| format!("{b}={s}-{e}")).collect();
+    format!("{}\n{body}", head.join("\t"))
 }
 
 fn main() {

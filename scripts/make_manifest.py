@@ -32,7 +32,7 @@ SETUP = [
 
 # The Cabinets panel, as `describe` in src/lib.rs declares it: SolidCraft refuses the plugin
 # when the two differ, so `plugin test` catches a change made to one alone.
-def panels(brands):
+def panels():
     """The Cabinets and Boards panels, as `describe` in src/lib.rs declares them: SolidCraft refuses
     the plugin when the two differ, so `plugin test` catches a change made to one alone."""
     col = lambda key, label, unit=None: {'key': key, 'label': label, 'unit': unit}
@@ -46,32 +46,23 @@ def panels(brands):
         {'widget': {'text': 'Warnings'}},
         {'widget': {'item-list': {'bind': '/warnings', 'on_select': None}}},
     ]}}
-    boards = {'id': 'boards', 'title': 'Boards', 'zones': ['bottom', 'right'], 'layout': {'root': 0, 'nodes': [
-        {'widget': {'split': {'vertical': False, 'first': 1, 'second': 4}}},
-        {'widget': {'group': [2, 3]}},
-        {'widget': {'table': {'bind': '/job_boards', 'row_id': 'role', 'columns': [col('role', 'Role'), col('board', 'Board')],
-                              'select': 'none', 'on_select': None, 'on_edit': None}}},
-        {'widget': {'form': {'bind': '/filter', 'fields': [
-            {'key': 'role', 'label': 'Use for', 'kind': 'choice', 'choices': ['Carcass', 'Fronts', 'Backs', 'Benchtop'],
-             'on_change': 'board-filter'},
-            {'key': 'brand', 'label': 'Brand', 'kind': 'choice', 'choices': brands, 'on_change': 'board-filter'},
-            {'key': 'search', 'label': 'Search', 'kind': 'text', 'choices': [], 'on_change': 'board-filter'}]}}},
-        {'widget': {'table': {'bind': '/boards', 'row_id': 'id', 'columns': [
-            col('brand', 'Brand'), col('range', 'Range'), col('decor', 'Decor'), col('finish', 'Finish'),
-            col('thickness', 'Thickness', 'length'), col('sheet', 'Largest sheet')],
-            'select': 'single', 'on_select': 'board-pick', 'on_edit': None}}},
-    ]}}
-    return {'ui_version': 1, 'workspaces': [], 'panels': [cabinets, boards]}
+    return {'ui_version': 1, 'workspaces': [], 'panels': [cabinets]}
 
 
-def brands_in_index():
-    """The Brand choice: "All brands", then each brand in catalogue order, as src/boards.rs reads it."""
-    out = ['All brands']
-    for line in (ROOT / 'src' / 'boards.tsv').read_text().splitlines():
-        brand = line.split('\t')[1]
-        if brand not in out:
-            out.append(brand)
-    return out
+def board_choices():
+    """The Boards dialog's choices from src/boards.tsv, each list sorted as the dialog shows it;
+    the hook narrows them (src/lib.rs keeps the same order: SolidCraft takes only an ordered subset)."""
+    # The first line is the brands' table of contents (see src/boards.rs).
+    rows = [l.split('\t') for l in (ROOT / 'src' / 'boards.tsv').read_text().splitlines()[1:]]
+    brands = []
+    for r in rows:
+        if r[1] not in brands:
+            brands.append(r[1])
+    ranges = sorted({r[2] for r in rows})
+    decors = sorted({r[3] for r in rows})
+    finishes = sorted({r[4] for r in rows if r[4]})
+    thicknesses = sorted({float(r[5]) for r in rows})
+    return brands, ranges, decors, finishes, thicknesses
 
 
 def draw(view, path, size=256):
@@ -205,6 +196,18 @@ def main():
         e.update(kw)
         return e
 
+    brands, ranges, decors, finishes, thicknesses = board_choices()
+    opts = lambda values: [{'const': v} for v in values]
+    board_props = {
+        'role': {'type': 'string', 'title': 'Use for', 'default': 'carcass', 'oneOf': [
+            choice('carcass', 'Carcass'), choice('fronts', 'Fronts'), choice('backs', 'Backs'), choice('benchtop', 'Benchtop')]},
+        'brand': {'type': 'string', 'title': 'Brand', 'default': 'Laminex', 'oneOf': opts(brands)},
+        'range': {'type': 'string', 'title': 'Range', 'default': ranges[0], 'oneOf': opts(ranges)},
+        'find': {'type': 'string', 'title': 'Find decor', 'default': '', 'description': 'Part of a decor name, to narrow the list'},
+        'decor': {'type': 'string', 'title': 'Decor', 'default': decors[0], 'oneOf': opts(decors)},
+        'finish': {'type': 'string', 'title': 'Finish', 'default': finishes[0], 'oneOf': opts([''] + finishes)},
+        'thickness': {'type': 'number', 'title': 'Thickness', 'default': 18.0, 'oneOf': opts(thicknesses), 'unit': 'mm'},
+    }
     pick = {'type': 'array', 'title': 'Cabinet', 'description': 'Any part of the cabinet to change', 'minItems': 1,
             'x-solidcraft-selection': {'version': 1, 'accept': ['body']}}
     beside = {'type': 'array', 'title': 'Beside', 'maxItems': 1,
@@ -226,11 +229,9 @@ def main():
         entry('show', 'Cabinets panel', 'panel'),
         entry('rebuild', 'Rebuild all', 'panel', job=True),
         entry('select', 'Select cabinet', 'panel', {'row': {'type': 'string', 'title': 'Cabinet', 'default': ''}}),
-        entry('board-filter', 'Filter boards', 'panel', {'path': {'type': 'string', 'title': 'Field', 'default': ''}}),
-        entry('board-pick', 'Choose board', 'panel', {'row': {'type': 'string', 'title': 'Board', 'default': ''}}, job=True),
         entry('add', 'Add cabinet', 'add', add_props, ribbon='Add', dialog_hook=True, job=True),
         edit,
-        entry('boards', 'Boards', 'boards', ribbon='Boards'),
+        entry('boards', 'Boards', 'boards', board_props, ribbon='Boards', dialog_hook=True, job=True),
         entry('benchtop', 'Bench top and panels', 'benchtop', {'piece': piece}, ribbon='Bench top'),
         entry('export', 'Cut list', 'cutlist', {'make': make}, ribbon='Cut List'),
     ]
@@ -242,9 +243,9 @@ def main():
         'capabilities': ['commands@0.2', 'ui@0.1', 'storage@0.1', 'dialog@0.1', 'user-storage@0.1'],
         'runtime': {
             'module': 'cabinet-studio.wasm', 'data_format': 1, 'commands': commands, 'entries': entries,
-            'ribbon_groups': [{'label': 'Job', 'icon': 'icons/job.svg', 'entries': ['setup', 'show', 'rebuild', 'select', 'board-filter', 'board-pick']}],
+            'ribbon_groups': [{'label': 'Job', 'icon': 'icons/job.svg', 'entries': ['setup', 'show', 'rebuild', 'select']}],
             'permissions': {'files': [{'name': 'exports', 'write': True}]},
-            'ui': panels(brands_in_index()),
+            'ui': panels(),
             'limits': old['runtime']['limits'],
         },
     }
