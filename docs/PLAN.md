@@ -447,7 +447,7 @@ says so. Cabinet Studio can take its chips from the same list.
 - 0.7.3: the view is re-framed only when the run gains or loses an item, not on every edit.
 - 0.7.4: an L corner or wall corner has **Return side** (pictures: side wall on the left or right,
   the core's `Corner.side`) and **Return length** (its second leg), in Add and Edit (owner: it was
-  only ever drawn one way). From boxes taken out.
+  only ever drawn one way; checked by the owner in SolidCraft). From boxes taken out.
 - **A hook reply SolidCraft ignores only shows in the run's log** ("Dialog hook reply ignored: …"),
   and the dialog falls back to the manifest's defaults. `scripts/build.sh --test` fails on one. Its
   choices must keep the manifest's order, and its values must fit the field's limits.
