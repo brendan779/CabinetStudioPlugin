@@ -1,0 +1,73 @@
+{
+  "id": "cabinet-studio",
+  "name": "Cabinet Studio",
+  "version": "0.0.1",
+  "description": "PLUG-0 spike: cabinets from Cabinet Studio's core, built in SolidCraft.",
+  "capabilities": ["commands@0.2", "ui@0.1", "storage@0.1", "forms@0.1"],
+  "runtime": {
+    "module": "cabinet-studio.wasm",
+    "data_format": 1,
+    "commands": [
+      "storage.get", "storage.set", "view.fit",
+      "component.create", "component.activate", "component.delete", "component.metadata.set",
+      "appearance.assign", "solid.box", "solid.cylinder", "solid.extrude", "solid.fillet", "solid.chamfer", "solid.move",
+      "sketch.create", "sketch.finish", "sketch.line", "sketch.arc.three_point", "sketch.circle.center",
+      "occurrence.copy", "occurrence.move", "occurrence.ground", "file.insert_mesh"
+    ],
+    "entries": [
+      {
+        "name": "cabinet",
+        "effect": "edit",
+        "input_schema": {"type": "object", "x-solidcraft-field-order": "declared", "properties": {
+          "id": {"type": "string", "title": "Cabinet", "default": "", "description": "Empty: a new cabinet at the end of the run"},
+          "kind": {"type": "string", "title": "Type", "default": "base", "oneOf": [
+            {"const": "base", "title": "Base", "x-solidcraft-image": "pictures/base.png"},
+            {"const": "drawer_bank", "title": "Drawers", "x-solidcraft-image": "pictures/drawer_bank.png"},
+            {"const": "sink", "title": "Sink", "x-solidcraft-image": "pictures/sink.png"},
+            {"const": "wall", "title": "Wall", "x-solidcraft-image": "pictures/wall.png"}
+          ]},
+          "width": {"type": "number", "title": "Width", "default": 600, "minimum": 150, "maximum": 1200, "unit": "mm"},
+          "detail": {"type": "string", "title": "Detail", "default": "design", "oneOf": [
+            {"const": "design", "title": "Design: plain panels"},
+            {"const": "manufacturing", "title": "Manufacturing: every hole and slot"}
+          ]}
+        }},
+        "slots": [{"kind": "ribbon", "name": "Model"}]
+      },
+      {"name": "refresh", "effect": "read", "input_schema": {"type": "object", "properties": {}}},
+      {"name": "edit", "effect": "edit", "input_schema": {"type": "object", "properties": {
+        "row": {"type": "string", "title": "Cabinet", "default": ""}}}},
+      {"name": "export", "effect": "edit", "input_schema": {"type": "object", "properties": {}}},
+      {"name": "handle", "effect": "edit", "input_schema": {"type": "object", "properties": {
+        "file": {"type": "string", "title": "Model", "default": "abi/ABI-TEZRA-220.stl"}}}}
+    ],
+    "permissions": {
+      "command_groups": ["file"],
+      "files": [{"name": "exports", "write": true}, {"name": "vendor", "read": true}]
+    },
+    "ui": {
+      "ui_version": 1,
+      "panels": [{
+        "id": "cabinets", "title": "Cabinets", "zones": ["right", "bottom"],
+        "layout": {"root": 0, "nodes": [
+          {"widget": {"group": [1, 2]}},
+          {"widget": {"toolbar": [
+            {"label": "Refresh", "icon": null, "entry": "refresh"},
+            {"label": "Export cut list", "icon": null, "entry": "export"}
+          ]}},
+          {"widget": {"table": {
+            "bind": "/cabinets", "row_id": "id",
+            "columns": [
+              {"key": "id", "label": "Cabinet", "unit": null},
+              {"key": "kind", "label": "Type", "unit": null},
+              {"key": "width", "label": "Width", "unit": "length"}
+            ],
+            "select": "single", "on_select": null, "on_edit": "edit"
+          }}}
+        ]}
+      }],
+      "workspaces": []
+    },
+    "limits": {"fuel": 20000000000, "memory_mib": 64, "deadline_ms": 30000}
+  }
+}

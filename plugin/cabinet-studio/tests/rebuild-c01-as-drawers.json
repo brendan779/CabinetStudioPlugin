@@ -1,0 +1,1 @@
+{"entry": "cabinet", "design": "one-base.sc", "params": {"id": "C01", "kind": "drawer_bank", "width": 450, "detail": "design"}, "expect": {"reply": {"result": {"id": "C01"}}}}

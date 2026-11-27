@@ -1,0 +1,1 @@
+{"entry": "handle", "params": {"file": "abi/ABI-TEZRA-220.stl"}, "grants": {"command_groups": ["file"], "folders": [{"name": "vendor", "read": true, "from": "vendor"}, {"name": "exports", "write": true}]}}

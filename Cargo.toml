@@ -1,0 +1,25 @@
+[package]
+name = "cabinet-plugin"
+version = "0.0.1"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/brendan779/CabinetStudioPlugin"
+description = "Cabinet Studio as a SolidCraft plugin: a WebAssembly component around Cabinet Studio's core"
+
+[workspace]
+
+[dependencies]
+serde_json = "1"
+wit-bindgen = "0.63"
+# The cabinet rules live in Cabinet Studio's repo and are never copied here: a fix lands there
+# once, and this pin moves to take it (docs/PLAN.md).
+cabinet-core = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "953c2acabdcd7440a925124d4c6ae5875c206754" }
+solidcraft-bridge = { git = "https://github.com/brendan779/CabinetForSolidcraft", rev = "953c2acabdcd7440a925124d4c6ae5875c206754" }
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true

@@ -1,0 +1,1 @@
+{"entry": "cabinet", "params": {"kind": "wall", "width": 600, "detail": "design"}, "expect": {"reply": {"result": {"id": "C01"}}}}
