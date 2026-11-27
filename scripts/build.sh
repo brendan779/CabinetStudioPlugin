@@ -15,7 +15,10 @@ for arg in "$@"; do
     --test) "$cli" plugin test plugin/cabinet-studio --require-cases ;;
     --zip)
       rm -f target/cabinet-studio.zip
-      (cd plugin/cabinet-studio && zip -qr ../../target/cabinet-studio.zip plugin.json cabinet-studio.wasm pictures)
+      (cd plugin/cabinet-studio && zip -qr ../../target/cabinet-studio.zip plugin.json cabinet-studio.wasm pictures icons)
+      # The zip is what users install: check it too, so a file left out of it shows here.
+      "$cli" plugin check target/cabinet-studio.zip | grep -q "no problems" \
+        || { "$cli" plugin check target/cabinet-studio.zip; exit 1; }
       echo "packed target/cabinet-studio.zip" ;;
   esac
 done
