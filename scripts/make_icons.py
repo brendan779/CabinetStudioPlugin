@@ -64,8 +64,18 @@ def cabinet(p, front=A2, side=A3, top=A1, doors=True):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     icons = {}
-    # Cabinet: the thing the button makes, all blue.
-    icons['cabinet'] = svg('Cabinet', cabinet(iso((12, 41), 27)))
+    # Add cabinet: a blue cabinet and a plus.
+    plus = ['  <circle cx="49" cy="49" r="11" fill="#e2e8ef"/>',
+            '  <circle cx="49" cy="49" r="11" fill="none" ' + STROKE + '/>',
+            line([(49, 43), (49, 55)]), line([(43, 49), (55, 49)])]
+    icons['add'] = svg('Add cabinet', cabinet(iso((5, 37), 23)) + plus)
+    # Edit cabinet: a grey cabinet and a blue pencil across it.
+    pencil = [poly([(32, 59), (35, 50), (52, 33), (58, 39), (41, 56)], A2),
+              poly([(52, 33), (55, 30), (61, 36), (58, 39)], P2),
+              line([(32, 59), (35, 50), (52, 33), (58, 39), (41, 56)], True),
+              line([(52, 33), (55, 30), (61, 36), (58, 39)]),
+              line([(35, 50), (41, 56)])]
+    icons['edit'] = svg('Edit cabinet', cabinet(iso((4, 37), 23), P2, P3, P1) + pencil)
     # Benchtop and panels: a grey cabinet with a blue top over it.
     p = iso((11, 47), 23)
     icons['benchtop'] = svg('Benchtop and panels', cabinet(p, P2, P3, P1)

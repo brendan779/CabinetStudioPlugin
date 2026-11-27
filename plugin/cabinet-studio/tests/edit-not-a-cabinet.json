@@ -1,0 +1,18 @@
+{
+ "entry": "edit",
+ "design": "one-base.sc",
+ "params": {
+  "pick": [
+   {
+    "type": "body",
+    "name": "Body1"
+   }
+  ],
+  "kind": "base",
+  "width": 600
+ },
+ "expect": {
+  "error": "invalid_input",
+  "message": "isn't one"
+ }
+}

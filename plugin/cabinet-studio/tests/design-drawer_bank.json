@@ -1,10 +1,9 @@
 {
- "entry": "cabinet",
+ "entry": "add",
  "params": {
   "kind": "drawer_bank",
   "width": 600,
-  "detail": "design",
-  "mode": "new"
+  "detail": "design"
  },
  "expect": {
   "reply": {

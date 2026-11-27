@@ -189,14 +189,16 @@ of ours updates it when it runs, and Refresh covers edits made with SolidCraft's
 
 ### The ribbon
 
-Five buttons in workflow order, each with an icon drawn in SolidCraft's own style (isometric, grey
-for what is there, blue for what the button makes; `scripts/make_icons.py`). The owner asked for
-4–5 buttons covering the main functions, each with an icon that says what it does (2026-11-27).
+Six buttons in workflow order, each with an icon drawn in SolidCraft's own style (isometric, grey
+for what is there, blue for what the button makes; `scripts/make_icons.py`). The owner asked for a
+few buttons covering the main functions, each with an icon that says what it does, and for adding
+and editing a cabinet to be separate buttons (2026-11-27).
 
 | Button | Icon | What it holds |
 |---|---|---|
 | **Job** ▾ | a grey cabinet and a blue settings dial | Job setup, Boards, Shop standard |
-| **Cabinet** | a blue cabinet | Add or change a cabinet. With a cabinet picked, the dialog fills in with it; with boxes picked, it turns them into cabinets (PLUG-5) |
+| **Add cabinet** | a blue cabinet and a plus | A new cabinet at the end of the run, or beside the picked one (PLUG-1). With boxes picked, cabinets in them (PLUG-5) |
+| **Edit cabinet** | a grey cabinet and a blue pencil | Changes the picked cabinet |
 | **Benchtop & panels** ▾ | a grey cabinet under a blue top | Benchtop, End panel or filler, Splashback |
 | **Cabinets** ▾ | a list | Show the Cabinets panel, Refresh, Select in the view, Rebuild all |
 | **Cut list** ▾ | a sheet with blue parts | Cut list, Cut sheets, Labels |
@@ -206,12 +208,29 @@ button, so the panel's helpers (Refresh, Select in the view) sit under **Cabinet
 
 ### Editing a cabinet
 
-SolidCraft 0.50 opens a filled-in form only after a run started from a dialog, never from a panel
-event (`forms.open`; PLUG-0 found this). So a cabinet is changed the way SolidCraft's own tools
-work: **pick it, then press Cabinet.** The dialog's first field takes the viewport's pick, and its
-hook reads the picked body's cabinet (`C03.Door1` is C03) from the design's storage and fills in
-the dialog: "Changing C03", its type, size and fronts. Clicking a row in the panel selects that
-cabinet in the view, ready for the button.
+The owner wants **Edit cabinet** active only while a cabinet is selected. SolidCraft 0.50 can't
+do that: a plugin's ribbon button is always enabled, and nothing ties it to the selection. Until
+it can (see Asks of SolidCraft):
+
+- Edit cabinet's dialog needs a pick: its first field takes the viewport's pick, and Run stays off
+  while nothing is picked.
+- Its hook reads the picked body's cabinet (`C03.Door1` is C03) from the design's storage and fills
+  in the dialog: "Changing C03", its type, size and fronts. A pick that isn't one of our cabinets
+  greys the fields and says so, and the run refuses it.
+- A filled-in form can't be opened from the panel (`forms.open` only works after a dialog's run),
+  so clicking a row selects that cabinet in the view, ready for Edit cabinet.
+
+### Asks of SolidCraft
+
+Drafts, to post on tangency-labs/solidcraft only with the owner's go-ahead:
+
+1. **A plugin entry enabled by the selection.** A manifest field on an entry, such as
+   `"enabled_when": {"selection": {"accept": ["body"], "min": 1}}`, and better, a read-only
+   check entry the host calls on selection change (with the same budget as a dialog hook) that
+   answers whether the button is enabled and why not, shown as its tooltip. Our use: Edit cabinet
+   is greyed until a cabinet is picked.
+2. **Open a populated form from a panel event**, so a row's double-click opens its cabinet.
+3. **Images in panels** (a picture column or tile list), for board swatches and cabinet thumbnails.
 
 ## Data
 
@@ -278,9 +297,9 @@ In the app (the owner installed 0.0.1 on SolidCraft 0.50.0, 2026-11-27):
 |---|---|
 | Picture dropdown | Works: a large picture of the highlighted option above a grid of tiles |
 | Panel updates after a dialog run | Works: the row appeared without Refresh |
-| Double-clicking a row to edit | Didn't open the form: `on_edit` is for editing a cell, and a row click (`on_select`, 0.0.2) didn't either: a panel event can't open a form in 0.50. 0.0.3 edits through the Cabinet dialog's hook instead (Editing a cabinet, above); to check |
+| Double-clicking a row to edit | Didn't open the form: `on_edit` is for editing a cell, and a row click (`on_select`, 0.0.2) didn't either: a panel event can't open a form in 0.50. 0.0.4 edits through Edit cabinet's dialog hook instead (Editing a cabinet, above); to check |
 | Supplier mesh | Went in, at the origin (expected in the spike) |
-| Ribbon labels | Wrong: a button's label is its ribbon slot's `name` ("Model"), and every entry gets a button. 0.0.2 fixed the labels, but the owner wants 4–5 buttons with icons for the main functions; 0.0.3 has them (The ribbon, above); to check |
+| Ribbon labels | Wrong: a button's label is its ribbon slot's `name` ("Model"), and every entry gets a button. 0.0.2 fixed the labels; the owner wants a few buttons with icons for the main functions (0.0.3), and Add and Edit cabinet apart (0.0.4) (The ribbon, above); to check |
 
 Other things seen: the dialog's header is the entry's name in lower case ("cabinet"), and the
 install screen lists every grant and the panel. Entry names should read as titles.

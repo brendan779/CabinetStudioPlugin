@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Edit cabinet</title>
+  <path d="M4.00 37.00L23.92 48.50L23.92 25.50L4.00 14.00Z" fill="#b8c3cf"/>
+  <path d="M23.92 48.50L38.86 39.88L38.86 16.88L23.92 25.50Z" fill="#8e9faf"/>
+  <path d="M4.00 14.00L23.92 25.50L38.86 16.88L18.94 5.38Z" fill="#e2e8ef"/>
+  <path d="M4.00 37.00L23.92 48.50L38.86 39.88L38.86 16.88L18.94 5.38L4.00 14.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M4.00 14.00L23.92 25.50L38.86 16.88" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M23.92 48.50L23.92 25.50" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M13.96 41.83L13.96 20.67" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M12.37 27.57L12.37 22.51" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M15.55 29.41L15.55 24.35" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M32.00 59.00L35.00 50.00L52.00 33.00L58.00 39.00L41.00 56.00Z" fill="#328bd3"/>
+  <path d="M52.00 33.00L55.00 30.00L61.00 36.00L58.00 39.00Z" fill="#b8c3cf"/>
+  <path d="M32.00 59.00L35.00 50.00L52.00 33.00L58.00 39.00L41.00 56.00Z" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M52.00 33.00L55.00 30.00L61.00 36.00L58.00 39.00" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M35.00 50.00L41.00 56.00" fill="none" stroke="#34465b" stroke-width="2.55" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

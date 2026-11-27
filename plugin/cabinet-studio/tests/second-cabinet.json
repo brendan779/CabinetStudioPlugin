@@ -1,11 +1,10 @@
 {
- "entry": "cabinet",
+ "entry": "add",
  "design": "one-base.sc",
  "params": {
   "kind": "sink",
   "width": 900,
-  "detail": "design",
-  "mode": "new"
+  "detail": "design"
  },
  "expect": {
   "reply": {

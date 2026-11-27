@@ -1,0 +1,11 @@
+{
+ "entry": "edit",
+ "design": "one-base.sc",
+ "params": {
+  "kind": "base",
+  "width": 600
+ },
+ "expect": {
+  "error": "invalid_input"
+ }
+}

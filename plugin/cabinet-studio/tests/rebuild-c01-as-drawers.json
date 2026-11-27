@@ -1,11 +1,10 @@
 {
- "entry": "cabinet",
+ "entry": "edit",
  "design": "one-base.sc",
  "params": {
   "kind": "drawer_bank",
   "width": 450,
   "detail": "design",
-  "mode": "edit",
   "pick": [
    {
     "type": "body",

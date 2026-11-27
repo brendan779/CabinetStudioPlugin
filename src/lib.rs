@@ -17,7 +17,8 @@ impl exports::craft::plugin::entry::Guest for Plugin {
     fn execute(entry: String, params: String) -> Result<String, PluginError> {
         let params: Value = serde_json::from_str(&params).map_err(|e| invalid("params", e))?;
         match entry.as_str() {
-            "cabinet" => cabinet(&params),
+            "add" => cabinet(&params, false),
+            "edit" => cabinet(&params, true),
             "show" => {
                 let cabs = stored()?;
                 show(&cabs)?;
@@ -92,15 +93,15 @@ fn lists(cabs: &[Value]) -> Result<Vec<PartList>, PluginError> {
 }
 
 /// Adds a cabinet at the end of the run, or changes the picked one.
-fn cabinet(p: &Value) -> Result<String, PluginError> {
+fn cabinet(p: &Value, edit: bool) -> Result<String, PluginError> {
     let detail = match p["detail"].as_str() {
         Some("manufacturing") => Detail::Manufacturing,
         _ => Detail::Design,
     };
     let mut cabs = stored()?;
-    let id = match p["mode"].as_str() {
-        Some("edit") => picked(p, &cabs).ok_or_else(|| invalid("pick", "pick a cabinet to change"))?,
-        _ => {
+    let id = match edit {
+        true => picked(p, &cabs).ok_or_else(|| invalid("pick", "pick one of the cabinets: what is picked isn't one"))?,
+        false => {
             // The next free number: ids stay stable when a cabinet is taken out.
             let n = (1..).find(|n| !cabs.iter().any(|c| c["id"] == format!("C{n:02}"))).unwrap_or(1);
             format!("C{n:02}")
@@ -180,23 +181,30 @@ fn show(cabs: &[Value]) -> Result<(), PluginError> {
 }
 
 impl exports::craft::plugin::dialog_provider::Guest for Plugin {
-    /// The Cabinet dialog fills itself in from what is picked: a cabinet of ours is edited.
+    /// Edit cabinet fills itself in from the picked cabinet. Anything else picked greys the fields
+    /// and says so: SolidCraft can't grey the ribbon button itself by the selection (0.50).
     fn update_fields(entry: String, values: String) -> Result<String, PluginError> {
-        if entry != "cabinet" {
+        if entry != "edit" {
             return Ok("{}".into());
         }
         let values: Value = serde_json::from_str(&values).map_err(|e| invalid("values", e))?;
         let cabs = stored()?;
+        let fields = |on: bool| json!({"enabled": on});
         let patch = match picked(&values, &cabs).and_then(|id| cabs.iter().find(|c| c["id"] == id.as_str()).cloned()) {
             Some(c) => json!({
-                "mode": {"value": "edit", "hint": format!("Changing {}", c["id"].as_str().unwrap_or_default())},
-                "kind": {"value": c["kind"]},
-                "width": {"value": c["width"]},
+                "pick": {"hint": format!("Changing {}", c["id"].as_str().unwrap_or_default())},
+                "kind": {"value": c["kind"], "enabled": true},
+                "width": {"value": c["width"], "enabled": true},
+                "detail": fields(true),
             }),
-            None if values["pick"].as_array().is_some_and(|a| !a.is_empty()) => json!({
-                "mode": {"value": "new", "hint": "That isn't one of the cabinets: a new one goes at the end of the run"},
-            }),
-            None => json!({"mode": {"value": "new"}}),
+            None => {
+                let what = if values["pick"].as_array().is_some_and(|a| !a.is_empty()) {
+                    "That isn't one of the cabinets. Pick any part of a cabinet, or click its row in the Cabinets panel"
+                } else {
+                    "Pick any part of a cabinet, or click its row in the Cabinets panel"
+                };
+                json!({"pick": {"hint": what}, "kind": fields(false), "width": fields(false), "detail": fields(false)})
+            }
         };
         Ok(patch.to_string())
     }

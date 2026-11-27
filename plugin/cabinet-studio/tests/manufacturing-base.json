@@ -1,10 +1,9 @@
 {
- "entry": "cabinet",
+ "entry": "add",
  "params": {
   "kind": "base",
   "width": 600,
-  "detail": "manufacturing",
-  "mode": "new"
+  "detail": "manufacturing"
  },
  "expect": {
   "reply": {
