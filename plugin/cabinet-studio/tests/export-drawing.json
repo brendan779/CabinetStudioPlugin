@@ -1,0 +1,7 @@
+{
+ "description": "Cutting layouts as a SolidCraft drawing: a paper sheet a board sheet, every part placed",
+ "design": "two-bases.sc",
+ "entry": "export",
+ "params": {"make": "drawing"},
+ "expect": {"reply": {"result": {"written": [], "drawing": {"unplaced": []}}}}
+}

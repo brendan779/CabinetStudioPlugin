@@ -329,7 +329,8 @@ def main():
         choice('all', 'Everything below'), choice('csv', 'Cut list (CSV)'), choice('sheets', 'Cut sheets (PDF, a page a part)'),
         choice('layouts', 'Cutting layouts (PDF, parts on each sheet)'), choice('labels', 'Part labels (PDF)'),
         choice('dxf', 'DXF a part, for a CNC'), choice('hardware', 'Hardware list (CSV)'),
-        choice('costs', 'Costs (CSV, and in the Cabinets panel)')],
+        choice('costs', 'Costs (CSV, and in the Cabinets panel)'),
+        choice('drawing', 'Cutting layouts as a SolidCraft drawing')],
         'description': 'Written into the exports folder you chose when installing'}
     # PLUG-8: the shop's prices, kept from job to job; the board prices are this job's boards'.
     # 0 is no price: the quote lists what it is short of.
@@ -386,7 +387,8 @@ def main():
         entry('export', 'Cut list', 'cutlist', cost_props, ribbon='Cut List', dialog_hook=True, job=True),
     ]
     old = json.loads(VERSION_FILE.read_text())
-    commands = sorted((set(old['runtime']['commands']) | {'select.set', 'component.list', 'plugin.preview'}) - {'inspect.measure', 'solid.remove'})
+    commands = sorted((set(old['runtime']['commands']) | {'select.set', 'component.list', 'plugin.preview', 'drawing.list', 'drawing.delete', 'drawing.create', 'drawing.sheet.add',
+                                                         'drawing.sheet.set', 'drawing.sketch.create', 'sketch.rectangle.two_point', 'drawing.note.add'}) - {'inspect.measure', 'solid.remove'})
     manifest = {
         'id': 'cabinet-studio', 'name': 'Cabinet Studio', 'version': old['version'], 'updates': old['updates'],
         'description': old['description'],

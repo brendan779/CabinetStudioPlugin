@@ -158,11 +158,11 @@ pub fn from_dialog(p: &Value, job_value: &Value) -> PriceList {
 }
 
 /// A board id in words, as the quote's lines show it: the quote adds the thickness.
-fn board_label(id: &str) -> String {
+pub fn board_label(id: &str) -> String {
     match boards::find(id) {
         Some(b) if b.finish.is_empty() => format!("{} {}", b.brand, b.decor),
         Some(b) => format!("{} {} {}", b.brand, b.decor, b.finish),
-        None if id == GENERIC => "Generic board".into(),
+        None if id == GENERIC || id.is_empty() => "Generic board".into(),
         None => id.to_string(),
     }
 }
