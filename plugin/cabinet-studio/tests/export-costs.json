@@ -1,0 +1,23 @@
+{
+ "description": "Costs from the dialog's prices: a CSV and the quote in the reply",
+ "design": "one-base.sc",
+ "entry": "export",
+ "params": {
+  "make": "costs",
+  "price_carcass": 40,
+  "price_fronts": 60,
+  "price_backs": 25,
+  "price_benchtop": 0,
+  "edge_tape_per_m": 2.5,
+  "labour_per_hour": 80,
+  "minutes_per_part": 6,
+  "minutes_per_cabinet": 30,
+  "minutes_per_hardware_item": 2,
+  "markup_percent": 20,
+  "tax_percent": 10
+ },
+ "expect": {
+  "files": ["exports/costs.csv"],
+  "reply": {"result": {"written": ["costs.csv"], "costs": {"currency": "AUD"}}}
+ }
+}

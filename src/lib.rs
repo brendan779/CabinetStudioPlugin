@@ -4,6 +4,7 @@
 wit_bindgen::generate!({ path: "wit", world: "panel-dialog-plugin" });
 
 mod boards;
+mod costs;
 mod spec;
 
 use cabinet_core::run::{Run, RunItem, build_run};
@@ -36,7 +37,7 @@ impl exports::craft::plugin::entry::Guest for Plugin {
             "select" => select(&params),
             "open" => open_row(&params),
             "import" => import(&params),
-            "export" => export(params["make"].as_str().unwrap_or("csv")),
+            "export" => export(&params),
             "boards" => board_choose(&params),
             "benchtop" => pieces(&params),
             _ => Err(invalid("entry", format!("no entry `{entry}`"))),
@@ -473,8 +474,9 @@ fn collect_bodies(v: &Value, row: &str, out: &mut Vec<Value>) {
 const GENERIC_SHEET: (f64, f64) = (2400.0, 1200.0);
 
 /// The job's outputs, written into the folder granted as `exports` (PLUG-4).
-fn export(make: &str) -> Result<String, PluginError> {
+fn export(p: &Value) -> Result<String, PluginError> {
     use cabinet_core::{bom, cutlist, nesting};
+    let make = p["make"].as_str().unwrap_or("csv");
     let (job_value, cabs) = load()?;
     let built = lists(&Job::from_stored(&job_value), &cabs)?;
     let job = "Cabinet Studio job";
@@ -493,14 +495,36 @@ fn export(make: &str) -> Result<String, PluginError> {
     if all || make == "sheets" {
         write("cut-sheets.pdf", &cabinet_sheets::pdf::job_pdf(&built, board_name, job))?;
     }
+    let settings = nesting::Settings::default();
+    let stock = |board: &str, _thickness: f64| {
+        let (length, width) = boards::find(board).and_then(|b| boards::sheet_size(&b)).unwrap_or(GENERIC_SHEET);
+        vec![nesting::Stock { length, width, grained: false }]
+    };
     if all || make == "layouts" {
-        let settings = nesting::Settings::default();
-        let stock = |board: &str, _thickness: f64| {
-            let (length, width) = boards::find(board).and_then(|b| boards::sheet_size(&b)).unwrap_or(GENERIC_SHEET);
-            vec![nesting::Stock { length, width, grained: false }]
-        };
         let nested = nesting::nest(&cut.rows, stock, &settings);
         write("cutting-layouts.pdf", &cabinet_sheets::nesting::nesting_pdf(&nested, job, &settings))?;
+    }
+    let mut quoted = None;
+    if all || make == "costs" {
+        // Priced as Cabinet Studio's Quote tab does: board by the sheets the nesting opens. A part
+        // with no board chosen is on the Generic board, priced under that name.
+        let generic = cutlist::cut_list(&built, costs::GENERIC, 1.0);
+        let nested = nesting::nest(&generic.rows, stock, &settings);
+        let mut prices = costs::from_dialog(p, &job_value);
+        costs::store(&prices)?;
+        prices.fill_from_hardware_catalog();
+        let cabinets = cabs.iter().filter(|c| spec::item_kind(c) == "cabinet" || spec::item_kind(c) == "core").count();
+        let q = costs::named(cabinet_core::quote::quote(&nested, &generic, &bom::hardware_bom(&built), cabinets, &prices));
+        write("costs.csv", costs::csv(&q).as_bytes())?;
+        let mut cells = Vec::new();
+        for (n, row) in costs::rows(&q).into_iter().enumerate() {
+            for (key, text) in ["item", "quantity", "price", "total"].iter().zip(row) {
+                cells.push(Datum { path: format!("/costs/{n}/{key}"), value: Cell::Text(text) });
+            }
+        }
+        ui::set_data("cabinets", &cells)?;
+        let _ = ui::show_panel("cabinets", true);
+        quoted = Some(json!({"total": q.total, "currency": q.currency, "missing": q.missing}));
     }
     if all || make == "labels" {
         write("labels.pdf", &cabinet_sheets::labels::labels_pdf(&built, board_name, job))?;
@@ -519,7 +543,11 @@ fn export(make: &str) -> Result<String, PluginError> {
     if written.is_empty() {
         return Err(invalid("make", format!("nothing called `{make}` to make")));
     }
-    Ok(json!({"written": written}).to_string())
+    let mut reply = json!({"written": written});
+    if let Some(q) = quoted {
+        reply["costs"] = q;
+    }
+    Ok(reply.to_string())
 }
 
 // ---- Boards (PLUG-2) ----
@@ -607,7 +635,7 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
             title: "Cabinets".into(),
             zones: vec![DockZone::Right, DockZone::Bottom],
             layout: Layout { root: 0, nodes: vec![
-                Node { widget: Widget::Group(vec![1, 2, 3, 4, 5, 6]) },
+                Node { widget: Widget::Group(vec![1, 2, 3, 4, 5, 6, 7, 8]) },
                 Node { widget: Widget::Toolbar(vec![button("Refresh", "show"), button("Rebuild all", "rebuild")]) },
                 Node { widget: Widget::Table(table) },
                 Node { widget: Widget::Text("Boards".into()) },
@@ -626,6 +654,16 @@ impl exports::craft::plugin::ui_provider::Guest for Plugin {
                     bind: "/warnings".into(),
                     row_id: "text".into(),
                     columns: vec![column("cabinet", "Cabinet"), column("text", "Warning")],
+                    select: SelectionMode::None,
+                    on_select: None,
+                    on_edit: None,
+                }) },
+                Node { widget: Widget::Text("Costs (Cut List › Costs)".into()) },
+                // Rows keyed by their place (`n` is never written): two lines may read the same.
+                Node { widget: Widget::Table(TableSpec {
+                    bind: "/costs".into(),
+                    row_id: "n".into(),
+                    columns: vec![column("item", "Item"), column("quantity", "Quantity"), column("price", "Price"), column("total", "Total")],
                     select: SelectionMode::None,
                     on_select: None,
                     on_edit: None,
@@ -657,6 +695,7 @@ impl exports::craft::plugin::dialog_provider::Guest for Plugin {
             "setup" => setup_fields(&values)?,
             "boards" => board_fields(&values)?,
             "benchtop" => bench_fields(&values)?,
+            "export" => costs::fields(&stored_job(&document()?)),
             "add" => cabinet_fields(&values, None)?,
             "edit" => {
                 let (_, cabs) = load()?;

@@ -1,0 +1,10 @@
+{
+ "description": "With no prices the quote still comes, listing what it has no price for",
+ "design": "one-base.sc",
+ "entry": "export",
+ "params": {"make": "costs"},
+ "expect": {
+  "files": ["exports/costs.csv"],
+  "reply": {"result": {"costs": {"total": 0.0, "currency": "AUD"}}}
+ }
+}

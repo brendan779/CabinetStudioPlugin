@@ -37,7 +37,7 @@ def panels():
     the plugin when the two differ, so `plugin test` catches a change made to one alone."""
     col = lambda key, label, unit=None: {'key': key, 'label': label, 'unit': unit}
     cabinets = {'id': 'cabinets', 'title': 'Cabinets', 'zones': ['right', 'bottom'], 'layout': {'root': 0, 'nodes': [
-        {'widget': {'group': [1, 2, 3, 4, 5, 6]}},
+        {'widget': {'group': [1, 2, 3, 4, 5, 6, 7, 8]}},
         {'widget': {'toolbar': [{'label': 'Refresh', 'icon': None, 'entry': 'show'},
                                 {'label': 'Rebuild all', 'icon': None, 'entry': 'rebuild'}]}},
         {'widget': {'table': {'bind': '/cabinets', 'row_id': 'id', 'columns': [
@@ -48,6 +48,10 @@ def panels():
                               'select': 'none', 'on_select': None, 'on_edit': None}}},
         {'widget': {'text': 'Warnings'}},
         {'widget': {'table': {'bind': '/warnings', 'row_id': 'text', 'columns': [col('cabinet', 'Cabinet'), col('text', 'Warning')],
+                              'select': 'none', 'on_select': None, 'on_edit': None}}},
+        {'widget': {'text': 'Costs (Cut List › Costs)'}},
+        {'widget': {'table': {'bind': '/costs', 'row_id': 'n', 'columns': [col('item', 'Item'), col('quantity', 'Quantity'),
+                                                                            col('price', 'Price'), col('total', 'Total')],
                               'select': 'none', 'on_select': None, 'on_edit': None}}},
     ]}}
     return {'ui_version': 1, 'workspaces': [], 'panels': [cabinets]}
@@ -324,8 +328,32 @@ def main():
     make = {'type': 'string', 'title': 'Make', 'default': 'all', 'oneOf': [
         choice('all', 'Everything below'), choice('csv', 'Cut list (CSV)'), choice('sheets', 'Cut sheets (PDF, a page a part)'),
         choice('layouts', 'Cutting layouts (PDF, parts on each sheet)'), choice('labels', 'Part labels (PDF)'),
-        choice('dxf', 'DXF a part, for a CNC'), choice('hardware', 'Hardware list (CSV)')],
+        choice('dxf', 'DXF a part, for a CNC'), choice('hardware', 'Hardware list (CSV)'),
+        choice('costs', 'Costs (CSV, and in the Cabinets panel)')],
         'description': 'Written into the exports folder you chose when installing'}
+    # PLUG-8: the shop's prices, kept from job to job; the board prices are this job's boards'.
+    # 0 is no price: the quote lists what it is short of.
+    priced = {'field': 'make', 'in': ['costs', 'all']}
+    def price(title, default, hi, description=None):
+        f = {'type': 'number', 'title': title, 'default': default, 'minimum': 0, 'maximum': hi,
+             'x-solidcraft-section': 'Prices', 'x-solidcraft-visible-when': priced}
+        if description:
+            f['description'] = description
+        return f
+    cost_props = {
+        'make': make,
+        'price_carcass': price('Carcass board, per m²', 0, 10000, "The job's carcass board, by the m² of sheet the layouts open"),
+        'price_fronts': price('Front board, per m²', 0, 10000),
+        'price_backs': price('Back board, per m²', 0, 10000),
+        'price_benchtop': price('Benchtop, per m²', 0, 10000, 'By the area of the pieces'),
+        'edge_tape_per_m': price('Edge tape, per metre', 0, 1000),
+        'labour_per_hour': price('Labour, per hour', 0, 1000),
+        'minutes_per_part': price('Minutes a part', 6, 600),
+        'minutes_per_cabinet': price('Minutes a cabinet', 30, 6000, 'Assembly, on top of its parts'),
+        'minutes_per_hardware_item': price('Minutes a hardware item', 2, 600),
+        'markup_percent': price('Markup, %', 0, 1000),
+        'tax_percent': price('GST, %', 10, 100),
+    }
     entries = [
         entry('setup', 'Job setup', 'job', setup_props, dialog_hook=True, job=True),
         entry('show', 'Cabinets panel', 'panel'),
@@ -341,7 +369,7 @@ def main():
         edit,
         entry('boards', 'Boards', 'boards', board_props, ribbon='Boards', dialog_hook=True, job=True),
         entry('benchtop', 'Bench top and panels', 'benchtop', bench_props, ribbon='Bench top', dialog_hook=True, job=True),
-        entry('export', 'Cut list', 'cutlist', {'make': make}, ribbon='Cut List', job=True),
+        entry('export', 'Cut list', 'cutlist', cost_props, ribbon='Cut List', dialog_hook=True, job=True),
     ]
     old = json.loads(VERSION_FILE.read_text())
     commands = sorted((set(old['runtime']['commands']) | {'select.set', 'component.list', 'plugin.preview'}) - {'inspect.measure', 'solid.remove'})
