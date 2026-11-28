@@ -330,8 +330,9 @@ def main():
         choice('layouts', 'Cutting layouts (PDF, parts on each sheet)'), choice('labels', 'Part labels (PDF)'),
         choice('dxf', 'DXF a part, for a CNC'), choice('hardware', 'Hardware list (CSV)'),
         choice('costs', 'Costs (CSV, and in the Cabinets panel)'),
-        choice('drawing', 'Cutting layouts as a SolidCraft drawing')],
-        'description': 'Written into the exports folder you chose when installing'}
+        choice('drawing', 'Cut list and cutting layouts (SolidCraft drawing)'),
+        choice('parts', 'Part drawings (SolidCraft drawing)')],
+        'description': 'Drawings are saved in the design. Files go to your exports folder.'}
     # PLUG-8: the shop's prices, kept from job to job; the board prices are this job's boards'.
     # 0 is no price: the quote lists what it is short of.
     priced = {'field': 'make', 'in': ['costs', 'all']}
@@ -388,7 +389,7 @@ def main():
     ]
     old = json.loads(VERSION_FILE.read_text())
     commands = sorted((set(old['runtime']['commands']) | {'select.set', 'component.list', 'plugin.preview', 'drawing.list', 'drawing.open', 'drawing.sheet.delete', 'drawing.create', 'drawing.sheet.add',
-                                                         'drawing.sheet.set', 'drawing.note.add'}) - {'inspect.measure', 'solid.remove'})
+                                                         'drawing.sheet.set', 'drawing.note.add', 'drawing.view.base'}) - {'inspect.measure', 'solid.remove'})
     manifest = {
         'id': 'cabinet-studio', 'name': 'Cabinet Studio', 'version': old['version'], 'updates': old['updates'],
         'description': old['description'],

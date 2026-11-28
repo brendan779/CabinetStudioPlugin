@@ -17,9 +17,9 @@ Cabinet rules are never copied into the plugin: fix them in CabinetForSolidcraft
 move the pin. The core's own working branch is `backlog/owner-checks`. Its untracked files
 (`AGENTS.md`, `docs/owner-checks.xlsx`, `reports/`, `research_notes/`) stay uncommitted.
 
-## Where it stands: plugin 0.11.3, SolidCraft 0.51.1
+## Where it stands: plugin 0.12.0, SolidCraft 0.51.1
 
-Released and installed on the owner's Mac. 53 test cases pass. The ribbon: **Job ▾** (Job setup,
+54 test cases pass. The ribbon: **Job ▾** (Job setup,
 Open a Cabinet Studio job, Cabinets panel, Rebuild all), **Add**, **Edit**, **Boards**,
 **Bench top**, **Cut List**. A docked **Cabinets** panel lists cabinets, boards, warnings and costs.
 
@@ -41,12 +41,13 @@ Done, newest first (details in PLAN.md):
 
 ## Next
 
-1. **PLUG-7, the rest.** Draw each board to scale with part outlines. SolidCraft 0.51 only makes a
-   sheet sketch (`drawing.sketch.create`) when that sheet is open in a window tile, which a plugin
-   run never has, and any failed command fails the whole run, so it can't even be tried. Options:
-   ask SolidCraft for sheet sketches without a tile (solidcraft-asks 24, not posted), or render
-   the layout to a PNG and place it with `drawing.image.add` (needs a host path the plugin can
-   name). Then a cut list sheet for the whole job, and part drawings (views of a part's body).
+1. **PLUG-7: scaled board outlines remain.** SolidCraft 0.51.1 requires an open sheet tile to
+   create a sheet sketch in the window. A plugin run has no such tile. A scratch plugin also
+   confirmed that `drawing.image.add` cannot read a PNG through a granted folder. See
+   [ask 24](solidcraft-asks.md#24-a-plugin-cant-draw-on-a-drawing-sheet-in-the-window) before retrying.
+   Version 0.12.0 adds paginated job cut list sheets to **Cut list and cutting layouts** and
+   a **Part drawings** choice with an isolated model view, cut and finished sizes and edges.
+   A part with no matching body still has its dimensions and a note. Everything makes both drawings.
 2. **PLUG-6: publish** to SolidCraft's plugin workshop (not started; ask the owner first).
 3. **Open SolidCraft bugs** that block row actions in the panel: #23395 (item list → empty row;
    worked around with tables), #23396 (row double-click does nothing; the plugin's `on_edit:

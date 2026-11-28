@@ -508,8 +508,9 @@ fn export(p: &Value) -> Result<String, PluginError> {
     let mut drawn = None;
     if all || make == "drawing" {
         let nested = nesting::nest(&cut.rows, stock, &settings);
-        drawn = Some(drawing::layouts(&nested, costs::board_label)?);
+        drawn = Some(drawing::layouts(&nested, &cut)?);
     }
+    let parts = if all || make == "parts" { Some(drawing::parts(&cut)?) } else { None };
     let mut quoted = None;
     if all || make == "costs" {
         // Priced as Cabinet Studio's Quote tab does: board by the sheets the nesting opens. A part
@@ -547,12 +548,15 @@ fn export(p: &Value) -> Result<String, PluginError> {
         });
         write("hardware.csv", csv.as_bytes())?;
     }
-    if written.is_empty() && drawn.is_none() {
+    if written.is_empty() && drawn.is_none() && parts.is_none() {
         return Err(invalid("make", format!("nothing called `{make}` to make")));
     }
     let mut reply = json!({"written": written});
     if let Some(d) = drawn {
         reply["drawing"] = d;
+    }
+    if let Some(parts) = parts {
+        reply["part_drawing"] = parts;
     }
     if let Some(q) = quoted {
         reply["costs"] = q;

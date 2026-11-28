@@ -3,5 +3,5 @@
  "design": "two-bases.sc",
  "entry": "export",
  "params": {"make": "drawing"},
- "expect": {"reply": {"result": {"written": [], "drawing": {"unplaced": []}}}}
+ "expect": {"reply": {"result": {"written": [], "drawing": {"unplaced": [], "sheets": 4, "cut_list_pages": 3}}}}
 }

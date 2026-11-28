@@ -323,6 +323,9 @@ items stay: a wall cabinet above a base uses them.
   drawing is kept and its sheets replaced. Not yet to scale: 0.11.0 drew the boards in a sheet
   sketch, which works headless but not in the window (solidcraft-asks 24). Next: boards to scale,
   a job cut list sheet, part drawings.
+  **0.12.0:** the drawing choice also includes a paginated job cut list by board and thickness.
+  A separate Part drawings choice builds an A3 sheet per cut row with its isolated model view,
+  cut and finished sizes and edging. Everything includes both drawings.
 - **PLUG-8: a BOM for costings.** Boards (sheets, edge tape by the metre), hardware and benchtops with
   quantities and prices where the catalogue has them (ABI's handles carry `price_aud`; Cabinet
   Studio's Quote tab is the model), and a total.

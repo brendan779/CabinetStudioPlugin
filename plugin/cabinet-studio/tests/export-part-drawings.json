@@ -1,0 +1,7 @@
+{
+ "description": "A separate drawing view for every modelled cut part in two cabinets",
+ "design": "two-bases.sc",
+ "entry": "export",
+ "params": {"make": "parts"},
+ "expect": {"reply": {"result": {"written": [], "part_drawing": {"missing_bodies": [], "views": 25}}}}
+}

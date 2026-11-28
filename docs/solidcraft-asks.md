@@ -209,3 +209,7 @@ Posted 2026-11-28 as tangency-labs/solidcraft#23309.
 - **Ask:** sheet sketches (and their curves) from a plugin run without an open Sheet tile; or a
   `drawing.symbol` placement command, so a plugin can draw outlines without a sketch.
 
+- **PNG fallback tested on 0.51.1:** a scratch plugin wrote a PNG through an exports grant.
+  Passing `grant:exports/probe.png` to `drawing.image.add` with a read/write grant failed
+  with “outside the folders this agent may use (none)”. The image command needs support
+  for a granted file or plugin storage blob before it can be used for board outlines.
