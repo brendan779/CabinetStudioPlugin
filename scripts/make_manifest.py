@@ -388,7 +388,7 @@ def main():
     ]
     old = json.loads(VERSION_FILE.read_text())
     commands = sorted((set(old['runtime']['commands']) | {'select.set', 'component.list', 'plugin.preview', 'drawing.list', 'drawing.open', 'drawing.sheet.delete', 'drawing.create', 'drawing.sheet.add',
-                                                         'drawing.sheet.set', 'drawing.sketch.create', 'sketch.rectangle.two_point', 'drawing.note.add'}) - {'inspect.measure', 'solid.remove'})
+                                                         'drawing.sheet.set', 'drawing.note.add'}) - {'inspect.measure', 'solid.remove'})
     manifest = {
         'id': 'cabinet-studio', 'name': 'Cabinet Studio', 'version': old['version'], 'updates': old['updates'],
         'description': old['description'],
