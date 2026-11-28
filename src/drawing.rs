@@ -14,6 +14,8 @@ pub const NAME: &str = "Cutting layouts";
 /// title block (180 × 61 at the lower right), with a line for the heading above it.
 const AREA: (f64, f64, f64, f64) = (24.0, 78.0, 384.0, 190.0);
 const HEADING_Y: f64 = 276.0;
+/// A note's line spacing, as a multiple of its capital height (measured on 0.51's notes).
+const LINE: f64 = 1.7;
 
 fn short(x: f64) -> String {
     format!("{x:.0}")
@@ -57,17 +59,19 @@ pub fn layouts(nested: &Nesting, label: impl Fn(&str) -> String) -> Result<Value
         let note = |at: [f64; 2], cap: f64, align: &str, content: String| {
             run("drawing.note.add", &json!({"anchor": {"sheet": sheet_id}, "at": at, "cap_mm": cap, "align": align, "content": content}))
         };
-        let (x0, y0, _, h) = AREA;
+        let (x0, y0, _, _) = AREA;
         let used: f64 = s.placements.iter().map(|p| p.rect.length * p.rect.width).sum();
         note([x0, HEADING_Y], 3.5, "left", format!(
             "{board}: sheet {} of {count}, {} × {}, {} parts, {:.0} % used",
             i + 1, short(s.stock.length), short(s.stock.width), s.placements.len(),
             100.0 * used / (s.stock.length * s.stock.width)))?;
         // A table of the sheet's parts: a note a column, their lines in step.
-        let rows = s.placements.len().max(1) as f64;
-        let cap = (h / (rows + 1.0) / 1.7).clamp(1.2, 3.5);
+        // A note's lines are centred on its place: each column's place is the table's middle.
+        let lines = s.placements.len() as f64 + 1.0;
+        let top = HEADING_Y - 8.0;
+        let cap = ((top - y0) / lines / LINE).clamp(1.0, 3.5);
+        let top = top - lines * cap * LINE / 2.0;
         let column = |head: &str, cells: Vec<String>| std::iter::once(head.to_string()).chain(cells).collect::<Vec<_>>().join("\n");
-        let top = y0 + h;
         note([x0, top], cap, "left", column("Part", s.placements.iter().map(|p| p.part.clone()).collect()))?;
         note([x0 + 200.0, top], cap, "right", column("Length", s.placements.iter().map(|p| short(p.rect.length)).collect()))?;
         note([x0 + 240.0, top], cap, "right", column("Width", s.placements.iter().map(|p| short(p.rect.width)).collect()))?;
