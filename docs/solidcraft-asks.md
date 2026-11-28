@@ -199,3 +199,13 @@ Posted 2026-11-28 as tangency-labs/solidcraft#23309.
   `plugin.preview` answers true (Cabinet Studio 0.9.0 builds plain panels and keeps nothing) can be
   checked only by hand, in a dialog or with `plugin.run`'s `preview: true` on an installed plugin.
 - **Ask:** `"preview": true` in a test case.
+
+### 24. A plugin can't draw on a drawing sheet in the window
+
+- **Seen (0.51.1):** `drawing.sketch.create` on a sheet, from a plugin run in the app, fails with
+  "no Sheet view of this drawing and sheet is open"; headless (`plugin test`) it works. A failed
+  command fails the whole run even when the plugin carries on, so it can't be tried and skipped.
+  Cabinet Studio wanted the cutting layouts drawn to scale on the sheets.
+- **Ask:** sheet sketches (and their curves) from a plugin run without an open Sheet tile; or a
+  `drawing.symbol` placement command, so a plugin can draw outlines without a sketch.
+

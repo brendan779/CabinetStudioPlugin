@@ -1,6 +1,7 @@
 # CabinetStudioPlugin: notes for Claude
 
-Cabinet Studio as a SolidCraft plugin. Plan of record: [docs/PLAN.md](docs/PLAN.md).
+Cabinet Studio as a SolidCraft plugin. Plan of record: [docs/PLAN.md](docs/PLAN.md). Where things
+stand and how to carry on: [docs/HANDOVER.md](docs/HANDOVER.md).
 
 - The cabinet rules live in brendan779/CabinetForSolidcraft (`cabinet-core`, `solidcraft-bridge`),
   pinned by commit in `Cargo.toml`. Never copy a rule here: fix it there with its test, push, and
@@ -20,5 +21,5 @@ Cabinet Studio as a SolidCraft plugin. Plan of record: [docs/PLAN.md](docs/PLAN.
   SolidCraft 0.50 (2026-11-27); don't use it on the owner's running app.
 - The interface follows docs/PLAN.md: change the plan first, then the manifest.
 - `wit/plugin.wit` is copied from SolidCraft's `crates/craft-plugin/wit/plugin.wit` at the tag the
-  plugin targets (v0.50.0 now).
+  plugin targets (v0.51.0 now, with `forms`).
 - Millimetres everywhere; follow CabinetForSolidcraft's CLAUDE.md conventions for writing style.

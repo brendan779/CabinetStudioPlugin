@@ -316,11 +316,13 @@ items stay: a wall cabinet above a base uses them.
 - **PLUG-7: cut sheets as SolidCraft drawings.** The cut list, cut sheets and cutting layouts should
   be SolidCraft's own sheet drawings (its `drawing.*` commands: sheets, views, tables, dimensions),
   made in the design, not PDFs written by a script. The PDFs and CSV stay as exports.
-  **0.11.0:** Cut List › **Cutting layouts as a SolidCraft drawing** (and Everything) makes the
-  drawing "Cutting layouts" (`src/drawing.rs`): an A3 sheet for each board sheet the nesting opens,
-  the board to scale in a sheet sketch with each part's rectangle, a note with its name and cut
-  size, a heading (sheet n of m, parts, % used) and the board in the title block. A run replaces
-  the drawing it made before and leaves it open. Next: the cut list as a table, and part drawings.
+  **0.11.3:** Cut List › **Cutting layouts as a SolidCraft drawing** (and Everything) makes or
+  refreshes the drawing "Cutting layouts" (`src/drawing.rs`): an A3 sheet for each board sheet the
+  nesting opens, a heading (board, sheet n of m, parts, % used), a table of its parts (name, cut
+  length and width, where on the board) as column notes, and the board in the title block. The
+  drawing is kept and its sheets replaced. Not yet to scale: 0.11.0 drew the boards in a sheet
+  sketch, which works headless but not in the window (solidcraft-asks 24). Next: boards to scale,
+  a job cut list sheet, part drawings.
 - **PLUG-8: a BOM for costings.** Boards (sheets, edge tape by the metre), hardware and benchtops with
   quantities and prices where the catalogue has them (ABI's handles carry `price_aud`; Cabinet
   Studio's Quote tab is the model), and a total.
