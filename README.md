@@ -50,6 +50,10 @@ Install the zip in SolidCraft from **Preferences › Plugins › Install plugin�
 release's `cabinet-studio-<version>.zip`. After that, SolidCraft offers each new release on the
 plugin's card in Preferences › Plugins (it checks at start and once a day).
 
+It needs SolidCraft 0.51 or later, with **Max plugin host calls** raised to at least 5000 (Preferences ›
+Plugins › Show advanced fuel and memory limits): adding or editing a cabinet at manufacturing detail
+takes a few hundred engine calls, where plugins get 256 by default.
+
 `scripts/release.sh "notes"` publishes the version in `plugin.json` as a release.
 
 ## Licence

@@ -327,6 +327,11 @@ items stay: a wall cabinet above a base uses them.
   selection. In 0.51.1 a row's double-click reaches nothing (solidcraft-asks 21) and a button gets
   no row (20; 0.8.3 tried an Edit button, 0.8.4 took it out), so point 1 waits on SolidCraft; the
   `on_edit` hook stays. Warnings is a table (0.8.2): an item list broke every button (19).
+  **Point 3 (0.9.0):** Add and Edit are ordinary runs again, so their dialogs preview, and the
+  manifest asks for 5000 host calls (`runtime.limits.host_calls`), which the user allows by raising
+  Max plugin host calls in Preferences › Plugins. A preview (`plugin.preview`) builds plain panels
+  at design detail, unpainted, and stores nothing; whether a cabinet changed is still judged at the
+  job's detail. The build passes `scripts/plugin-limits.json` to the CLI for the same ceiling.
 - PLUG-9 as planned: **what SolidCraft 0.51 allows** (the owner updated to 0.51.1): panel helpers opting out of
   the ribbon (#21604), a panel row's double-click opening Edit filled in (`forms.open`, #22044),
   previews that build less (`plugin.preview`, #22502), and a raised engine-call ceiling (#19515), so

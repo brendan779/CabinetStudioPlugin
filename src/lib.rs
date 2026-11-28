@@ -102,6 +102,10 @@ fn fingerprint(cmds: &[Value]) -> String {
 fn sync(job_value: &Value, mut cabs: Vec<Value>, all: bool) -> Result<String, PluginError> {
     let job = Job::from_stored(job_value);
     let detail = if job.detail == "manufacturing" { Detail::Manufacturing } else { Detail::Design };
+    // A dialog's preview (Add, Edit) shows plain panels, unpainted, and keeps nothing: a fraction
+    // of a manufacturing build's commands, so it follows the fields. What to rebuild is still
+    // judged at the job's detail.
+    let preview = previewing();
     let built = lists(&job, &cabs)?;
     // The chosen boards' own colours on the parts made of them.
     let colours: std::collections::BTreeMap<String, String> = job_value["boards"]
@@ -134,8 +138,9 @@ fn sync(job_value: &Value, mut cabs: Vec<Value>, all: bool) -> Result<String, Pl
         }
         let cmds = emit_cabinet(list, detail, Some(&plain));
         // Colours apart from shape: a board of the same thickness only repaints the parts.
-        let paint = solidcraft_bridge::emit::board_colours(list, &colours);
+        let paint = if preview { Vec::new() } else { solidcraft_bridge::emit::board_colours(list, &colours) };
         let print = fingerprint(&cmds);
+        let cmds = if preview && detail != Detail::Design { emit_cabinet(list, Detail::Design, Some(&plain)) } else { cmds };
         let paint_print = fingerprint(&paint);
         let old = before.iter().find(|b| b["id"] == id.as_str());
         let was = old.and_then(|b| b["built"].as_str());
@@ -143,7 +148,7 @@ fn sync(job_value: &Value, mut cabs: Vec<Value>, all: bool) -> Result<String, Pl
         c["painted"] = json!(paint_print);
         if !all && was == Some(print.as_str()) {
             c["built"] = json!(print);
-            if was_paint != Some(paint_print.as_str()) {
+            if !preview && was_paint != Some(paint_print.as_str()) {
                 for cmd in &paint {
                     run(cmd["command"].as_str().unwrap_or_default(), &cmd["params"])?;
                 }
@@ -164,8 +169,10 @@ fn sync(job_value: &Value, mut cabs: Vec<Value>, all: bool) -> Result<String, Pl
         c["built"] = json!(print);
         rebuilt.push(id);
     }
-    save(job_value, &cabs)?;
-    let _ = show(job_value, &cabs).and_then(|_| ui::show_panel("cabinets", true));
+    if !preview {
+        save(job_value, &cabs)?;
+        let _ = show(job_value, &cabs).and_then(|_| ui::show_panel("cabinets", true));
+    }
     // Re-frame only when the run gains or loses something: an edit keeps the camera where it is.
     let ids = |v: &[Value]| v.iter().filter_map(|c| c["id"].as_str().map(String::from)).collect::<std::collections::BTreeSet<_>>();
     if ids(&before) != ids(&cabs) {
@@ -173,6 +180,11 @@ fn sync(job_value: &Value, mut cabs: Vec<Value>, all: bool) -> Result<String, Pl
     }
     let warnings: Vec<String> = built.iter().flat_map(|l| l.warnings.clone()).collect();
     Ok(json!({"rebuilt": rebuilt, "repainted": repainted, "cabinets": cabs.len(), "warnings": warnings}).to_string())
+}
+
+/// True in a dialog's preview, whose result SolidCraft throws away (0.51, `plugin.preview`).
+fn previewing() -> bool {
+    run("plugin.preview", &json!({})).is_ok_and(|v| v["preview"] == true)
 }
 
 // ---- Entries ----

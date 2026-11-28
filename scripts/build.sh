@@ -11,6 +11,9 @@ done
 export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:/opt/homebrew/bin:$PATH"
 root=${0:A:h:h}
 cli=${SOLIDCRAFT_CLI:-/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli}
+# The ceiling Add and Edit need (plugin.json asks for 5000 host calls), as a user sets it in
+# Preferences › Plugins.
+limits=(--plugin-limits "$root/scripts/plugin-limits.json")
 cd "$root"
 # The manifest and the dialogs' pictures come from Cabinet Studio's core (scripts/make_manifest.py).
 mkdir -p target
@@ -21,7 +24,7 @@ cargo run -q --example catalog --target "$host" -- --boards > src/boards.tsv
 cargo build -q --release --target wasm32-unknown-unknown
 wasm-tools component new target/wasm32-unknown-unknown/release/cabinet_plugin.wasm \
   -o plugin/cabinet-studio/cabinet-studio.wasm
-"$cli" plugin check plugin/cabinet-studio
+"$cli" "${limits[@]}" plugin check plugin/cabinet-studio
 for arg in "$@"; do
   case $arg in
     --test)
@@ -30,7 +33,7 @@ for arg in "$@"; do
       # A hook reply SolidCraft throws away is only echoed in a test's log: it fails the gate here.
       logs="$root/target/test-logs"
       rm -rf "${logs:?}"
-      "$cli" plugin test plugin/cabinet-studio --require-cases --out "$logs"
+      "$cli" "${limits[@]}" plugin test plugin/cabinet-studio --require-cases --out "$logs"
       if grep -h "hook reply ignored" "$logs"/*.log 2>/dev/null | sort -u | grep .; then
         echo "a dialog hook's reply was ignored (above)"; exit 1
       fi ;;
@@ -42,7 +45,7 @@ for arg in "$@"; do
       rm -f "$zip"
       (cd plugin/cabinet-studio && zip -qr "../../$zip" plugin.json cabinet-studio.wasm pictures icons)
       # The zip is what users install: check it too, so a file left out of it shows here.
-      "$cli" plugin check "$zip" | grep -q "no problems" || { "$cli" plugin check "$zip"; exit 1; }
+      "$cli" "${limits[@]}" plugin check "$zip" | grep -q "no problems" || { "$cli" "${limits[@]}" plugin check "$zip"; exit 1; }
       echo "packed $zip" ;;
   esac
 done

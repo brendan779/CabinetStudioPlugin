@@ -183,3 +183,10 @@ Posted 2026-11-28 as tangency-labs/solidcraft#23309.
   usual values only in a description, or as a dropdown with an "Other" field beside it.
 - **Ask:** quick picks on a number field, for example `"x-solidcraft-presets": [10, 15, 20, 25, 30]`,
   drawn as buttons or chips beside or under the field; a click sets the value, typing stays free.
+
+### 23. A test case can't run as a preview
+
+- `plugin test` refuses a case with `"preview": true` (unknown field), so what an entry does when
+  `plugin.preview` answers true (Cabinet Studio 0.9.0 builds plain panels and keeps nothing) can be
+  checked only by hand, in a dialog or with `plugin.run`'s `preview: true` on an installed plugin.
+- **Ask:** `"preview": true` in a test case.

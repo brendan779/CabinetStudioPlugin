@@ -279,7 +279,9 @@ def main():
                   'remove': {'type': 'boolean', 'title': 'Remove this cabinet', 'default': False,
                              'x-solidcraft-section': ''}}
     add_props = {'beside': beside, **cabinet_props}
-    edit = entry('edit', 'Edit cabinet', 'edit', edit_props, ribbon='Edit', dialog_hook=True, job=True)
+    # Add and Edit are ordinary runs, so their dialogs preview (a long job doesn't); 0.51 lets
+    # them ask for the host calls a manufacturing build needs (limits below).
+    edit = entry('edit', 'Edit cabinet', 'edit', edit_props, ribbon='Edit', dialog_hook=True)
     edit['input_schema']['required'] = ['pick']
     # Bench top: the run's pieces (PLUG-3). Each field shows for its piece.
     when = lambda *ps: {'x-solidcraft-visible-when': {'field': 'piece', 'in': list(ps)}}
@@ -335,14 +337,14 @@ def main():
             'file': {'type': 'string', 'title': 'Job file', 'default': '', 'minLength': 1,
                      'description': 'Its name in your jobs folder (chosen when installing), such as Kitchen.cabinetjob. '
                                     'It replaces this design\'s cabinets'}}, job=True),
-        entry('add', 'Add cabinet', 'add', add_props, ribbon='Add', dialog_hook=True, job=True),
+        entry('add', 'Add cabinet', 'add', add_props, ribbon='Add', dialog_hook=True),
         edit,
         entry('boards', 'Boards', 'boards', board_props, ribbon='Boards', dialog_hook=True, job=True),
         entry('benchtop', 'Bench top and panels', 'benchtop', bench_props, ribbon='Bench top', dialog_hook=True, job=True),
         entry('export', 'Cut list', 'cutlist', {'make': make}, ribbon='Cut List', job=True),
     ]
     old = json.loads(VERSION_FILE.read_text())
-    commands = sorted((set(old['runtime']['commands']) | {'select.set', 'component.list'}) - {'inspect.measure', 'solid.remove'})
+    commands = sorted((set(old['runtime']['commands']) | {'select.set', 'component.list', 'plugin.preview'}) - {'inspect.measure', 'solid.remove'})
     manifest = {
         'id': 'cabinet-studio', 'name': 'Cabinet Studio', 'version': old['version'], 'updates': old['updates'],
         'description': old['description'],
@@ -354,7 +356,9 @@ def main():
             'ribbon_groups': [{'label': 'Job', 'icon': 'icons/job.svg', 'entries': ['setup', 'import', 'show', 'rebuild']}],
             'permissions': {'files': [{'name': 'exports', 'write': True}, {'name': 'jobs', 'read': True}]},
             'ui': panels(),
-            'limits': old['runtime']['limits'],
+            # 5000 host calls: an Edit that moves a run of manufacturing-detail cabinets (about 200
+            # each). The user raises Max plugin host calls in Preferences › Plugins to allow it.
+            'limits': {**old['runtime']['limits'], 'host_calls': 5000},
         },
     }
     for e in entries:
