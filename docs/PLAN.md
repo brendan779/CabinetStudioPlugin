@@ -332,6 +332,8 @@ items stay: a wall cabinet above a base uses them.
   Max plugin host calls in Preferences › Plugins. A preview (`plugin.preview`) builds plain panels
   at design detail, unpainted, and stores nothing; whether a cabinet changed is still judged at the
   job's detail. The build passes `scripts/plugin-limits.json` to the CLI for the same ceiling.
+  Checking it: `plugin.run` with `preview: true` over the control port only makes `plugin.preview`
+  answer true; it builds in the live design (undo it). Only the dialog's Preview runs on a scratch copy.
 - PLUG-9 as planned: **what SolidCraft 0.51 allows** (the owner updated to 0.51.1): panel helpers opting out of
   the ribbon (#21604), a panel row's double-click opening Edit filled in (`forms.open`, #22044),
   previews that build less (`plugin.preview`, #22502), and a raised engine-call ceiling (#19515), so
