@@ -512,9 +512,10 @@ fn export(p: &Value) -> Result<String, PluginError> {
         let nested = nesting::nest(&generic.rows, stock, &settings);
         let mut prices = costs::from_dialog(p, &job_value);
         costs::store(&prices)?;
-        prices.fill_from_hardware_catalog();
+        let hardware = bom::hardware_bom(&built);
+        costs::price_hardware(p, &mut prices, &hardware)?;
         let cabinets = cabs.iter().filter(|c| spec::item_kind(c) == "cabinet" || spec::item_kind(c) == "core").count();
-        let q = costs::named(cabinet_core::quote::quote(&nested, &generic, &bom::hardware_bom(&built), cabinets, &prices));
+        let q = costs::named(cabinet_core::quote::quote(&nested, &generic, &hardware, cabinets, &prices));
         write("costs.csv", costs::csv(&q).as_bytes())?;
         let mut cells = Vec::new();
         for (n, row) in costs::rows(&q).into_iter().enumerate() {

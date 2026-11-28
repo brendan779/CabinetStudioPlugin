@@ -324,7 +324,9 @@ items stay: a wall cabinet above a base uses them.
   and Everything) holds the shop's price list, kept in user storage (`prices`) from job to job:
   per-m² prices of this job's carcass, front, back and benchtop boards, edge tape, labour, times,
   markup and GST. 0 is no price; the quote lists what it lacks. ABI handles take their list price.
-  Hardware other than ABI's has no price field yet (a dialog can't list a job's own items).
+  0.10.1 prices hardware by kind (hinges, plates, runners, lifts, legs, handles, hangers, shelf
+  supports, sinks, other), each, kept as `hardware_prices`: a dialog can't list a job's own
+  articles. A handle price of 0 leaves ABI's list prices. Manifest: 60.8 KB of the 64 KB limit.
 - **PLUG-9 (0.8.0, points 1 and 2 done):** double-clicking a row in the Cabinets panel opens its dialog filled
   in (Edit for a cabinet, Bench top for a piece), and the panel's row helpers have `model_group:
   false`, off the ribbon and the Job menu; the plugin needs SolidCraft 0.51. Point 3 (Add and Edit

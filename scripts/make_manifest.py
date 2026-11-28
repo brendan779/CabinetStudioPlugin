@@ -336,13 +336,15 @@ def main():
     priced = {'field': 'make', 'in': ['costs', 'all']}
     def price(title, default, hi, description=None):
         f = {'type': 'number', 'title': title, 'default': default, 'minimum': 0, 'maximum': hi,
-             'x-solidcraft-section': 'Prices', 'x-solidcraft-visible-when': priced}
+             'x-solidcraft-visible-when': priced}
         if description:
             f['description'] = description
         return f
     cost_props = {
         'make': make,
-        'price_carcass': price('Carcass board, per m²', 0, 10000, "The job's carcass board, by the m² of sheet the layouts open"),
+        # A heading belongs to its field: on the first one only.
+        'price_carcass': {**price('Carcass board, per m²', 0, 10000, "The job's carcass board, by the m² of sheet the layouts open"),
+                          'x-solidcraft-section': 'Prices'},
         'price_fronts': price('Front board, per m²', 0, 10000),
         'price_backs': price('Back board, per m²', 0, 10000),
         'price_benchtop': price('Benchtop, per m²', 0, 10000, 'By the area of the pieces'),
@@ -353,6 +355,18 @@ def main():
         'minutes_per_hardware_item': price('Minutes a hardware item', 2, 600),
         'markup_percent': price('Markup, %', 0, 1000),
         'tax_percent': price('GST, %', 10, 100),
+        # Hardware by kind, each: an article takes its kind's price (ABI handles their list price
+        # when Handles is 0).
+        'hw_hinge': {**price('Hinges', 0, 1000), 'x-solidcraft-section': 'Hardware, each'},
+        'hw_plate': price('Hinge plates', 0, 1000),
+        'hw_runner': price('Drawer runners and systems', 0, 5000),
+        'hw_lift': price('Lift systems', 0, 5000),
+        'hw_leg': price('Legs', 0, 1000),
+        'hw_handle': price('Handles', 0, 1000, "0: ABI's list price where it has one"),
+        'hw_hanger': price('Cabinet hangers', 0, 1000),
+        'hw_support': price('Shelf supports', 0, 1000),
+        'hw_sink': price('Sinks', 0, 10000),
+        'hw_other': price('Other hardware', 0, 1000, 'Connectors, clips, caps, lights'),
     }
     entries = [
         entry('setup', 'Job setup', 'job', setup_props, dialog_hook=True, job=True),
