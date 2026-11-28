@@ -41,8 +41,15 @@ fn kinds_stored() -> serde_json::Map<String, Value> {
         .unwrap_or_default()
 }
 
+/// Articles priced by their id, before their kind: the core's stand-ins (`handle.cc192`,
+/// `shelf-support.5mm`) aren't in the catalogue, and AXILO's leg sets are catalogued as `other`.
+const BY_ID: &[(&str, &str)] = &[("handle.", "hw_handle"), ("shelf-support", "hw_support"), ("hafele.axilo.set.", "hw_leg")];
+
 /// The field that prices a hardware article.
 fn hardware_field(item: &str) -> &'static str {
+    if let Some((_, f)) = BY_ID.iter().find(|(prefix, _)| item.starts_with(prefix)) {
+        return f;
+    }
     let kind = cabinet_core::hardware::item(item)
         .ok()
         .and_then(|h| serde_json::to_value(&h.kind).ok())

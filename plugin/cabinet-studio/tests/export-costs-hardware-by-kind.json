@@ -1,0 +1,7 @@
+{
+ "description": "Hardware priced by kind: legs, handles and shelf supports by their own fields",
+ "design": "one-base.sc",
+ "entry": "export",
+ "params": {"make": "costs", "hw_hinge": 6.5, "hw_plate": 1.8, "hw_leg": 4, "hw_handle": 12, "hw_support": 0.2, "hw_other": 0.5},
+ "expect": {"files": ["exports/costs.csv"], "reply": {"result": {"written": ["costs.csv"]}}}
+}
