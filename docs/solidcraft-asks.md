@@ -11,6 +11,7 @@ in [PLAN.md](PLAN.md).
 - **Pictures in panel rows:** tangency-labs/solidcraft#20553 (open), our use added as a comment.
 - **A filled-in form from a panel event:** tangency-labs/solidcraft#22032, fixed by #22044 after
   0.50.0.
+- **0.51 panel bugs (19-22):** #23395, #23397, #23396, #23398.
 - **Panel-only entries on the ribbon:** tangency-labs/solidcraft#22060 and #22300 (open).
 
 ## Fixed or added in 0.51 (2026-11-28)
@@ -23,6 +24,8 @@ in [PLAN.md](PLAN.md).
 
 ### 19. A panel with an item list sends every button press with an empty row (0.51.1)
 
+Posted 2026-11-28 as tangency-labs/solidcraft#23395.
+
 - **Seen:** Cabinet Studio 0.8.0's Cabinets panel (toolbar, two tables, an item list): every toolbar
   button failed with "requires a panel id, printable path and optional row id".
 - **Why:** the item list stores `selected.unwrap_or_default()` (an empty string) and reads it back
@@ -32,6 +35,8 @@ in [PLAN.md](PLAN.md).
 
 ### 20. A button's event never carries the table's selection (0.51.1)
 
+Posted 2026-11-28 as tangency-labs/solidcraft#23397.
+
 - **Seen:** Cabinet Studio 0.8.3 had an Edit button beside a single-select table: with a row
   highlighted, pressing Edit ran the entry with no `row`, whether the table was drawn first or last
   in the panel. The docs say a button carries the panel's active selection.
@@ -40,12 +45,16 @@ in [PLAN.md](PLAN.md).
 
 ### 21. A table row's double-click doesn't reach the plugin (0.51.1)
 
+Posted 2026-11-28 as tangency-labs/solidcraft#23396.
+
 - **Seen:** `on_edit: "open"` on the Cabinets table; double-clicking a row (synthetic and timed by
   hand, 40 ms press, 80 ms gap) toggles the row's highlight and runs nothing: no run in the log, no
   message, and a marker the entry writes first never appears. The same entry runs from a button.
 - **Ask:** check `table()` in `panel_runtime/plugin.rs` sees `double_clicked()` on kit table rows.
 
 ### 22. `select.set` from a plugin run doesn't change the app's selection
+
+Posted 2026-11-28 as tangency-labs/solidcraft#23398.
 
 - **Seen:** the plugin's `select` entry (run from a panel row and from the control port) answers
   `selected: 23 bodies`, but nothing is selected in the window; `select.set` run directly selects.
